@@ -34,18 +34,14 @@ public final class BindingsCompetition {
     }
 
     private static void DriverBinding(HID_Subsystem dc) {
-        OdometryInterface odo;
-        String OdometryName = "vision_odo";
-        odo = RobotContainer.getObjectOrNull(OdometryName);  // or "odometry"
+        OdometryInterface odo = RobotContainer.getObjectOrNull("odometry");
         DriveTrainInterface drivetrain = RobotContainer.getSubsystem("drivetrain");
         
         var generic_driver = dc.Driver();
         
-
         // Driver Buttons depend on the type of controller drivers selects
         if (generic_driver instanceof TMJoystickController) {
             // Joystick
-            @SuppressWarnings("unused")
             TMJoystickController joystick = (TMJoystickController) generic_driver;
 
             // put Driver's joystick bindings here
@@ -56,13 +52,11 @@ public final class BindingsCompetition {
             driver.rightBumper().whileTrue(new RobotCentricDrive(drivetrain, dc));
             driver.y().onTrue(new AllianceAwareGyroReset());
 
-
             // Driver will wants precision robot-centric throttle drive on left trigger
             driver.leftBumper().whileTrue(new ParallelCommandGroup(
                     //new ScaleDriver(0.3),  TODO add this cmd
                     new RobotCentricDrive(drivetrain, dc)));
-
-           
+                    
         } else {
             DriverStation.reportError("Comp Bindings: No driver bindings set, check controllers.", false);
         }

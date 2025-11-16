@@ -13,7 +13,7 @@ public final class Main {
     // create robot specs for supported robots in this binary
     //new RobotSpecDefault();  //example only, don't load spec
 
-    // 2025 sub-tree
+    // 2026 sub-tree
     new RobotSpec_Alpha2026(); 
 
   }
