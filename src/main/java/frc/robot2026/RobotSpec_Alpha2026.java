@@ -3,11 +3,14 @@ package frc.robot2026;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.FeetPerSecond;
 import static frc.lib2202.Constants.MperFT;
+import static frc.lib2202.Constants.DEGperRAD;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathfindingCommand;
 import com.revrobotics.spark.SparkFlex;
 
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -33,13 +36,16 @@ import frc.lib2202.subsystem.swerve.config.ModuleConfig;
 import frc.lib2202.subsystem.swerve.config.ModuleConfig.CornerID;
 import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
+import frc.robot2026.subsystems.LimelightV2;
+import frc.robot2026.subsystems.VisionPoseEstimator;
 
 public class RobotSpec_Alpha2026 implements IRobotSpec {
 
   
   // Subsystems and other hardware on 2025 Robot rev Alpha
-  // $env:serialnum = "TBD2026"
-  final SubsystemConfig ssconfig = new SubsystemConfig("Alpha2026", "TBD2026")
+  // This should be the chassis bot.
+  // $env:serialnum = "03282B65"
+  final SubsystemConfig ssconfig = new SubsystemConfig("Alpha2026", "03282B65")
       // deferred construction via Supplier<Object> lambda
       .add(PowerDistribution.class, "PDP", () -> {
         var pdp = new PowerDistribution(CAN.PDP, ModuleType.kRev);
@@ -54,14 +60,12 @@ public class RobotSpec_Alpha2026 implements IRobotSpec {
       .add(Sensors.class, "sensors", ()-> {
         return new Sensors(CAN.PIGEON_IMU_CAN); })
       .add(TrimTables.class)
-/****
-      .add(LimelightV1.class, "limelight", ()-> {
+      .add(LimelightV2.class, "limelight", ()-> {
         // Limelight position in robot coords - this has LL in the front of bot
-        Pose3d LimelightPosition = new Pose3d(0.7112 / 2.0, -0.21, .23,
-          new Rotation3d(0.0, 12.0/DEGperRAD, 0.0));
-        return new LimelightV1("limelight", LimelightPosition );
-      }) 
-*****/
+        Pose3d LimelightPosition = new Pose3d((0.7112 / 2.0) - .07, -0.28, .225,
+          new Rotation3d(0.0, 10.0/DEGperRAD, 0.0));
+        return new LimelightV2("limelight", LimelightPosition );
+      })
       .add(SwerveDrivetrain.class, "drivetrain", () ->{
           return new SwerveDrivetrain(SparkFlex.class);
       })
@@ -70,11 +74,8 @@ public class RobotSpec_Alpha2026 implements IRobotSpec {
         obj.new OdometryWatcher();
         return obj;
       })
-/******
-      TODO uncomment when we get a LL
       // VisonPoseEstimator needs LL and Odometry, adds simplename and alias to lookup
       .addAlias(VisionPoseEstimator.class, "vision_odo")    
-******/
       ;
 
   // Robot Speed Limits
@@ -157,7 +158,8 @@ public class RobotSpec_Alpha2026 implements IRobotSpec {
     // Initialize PathPlanner, if we have needed Subsystems
     if (odo != null && sdt != null) {
       AutoPPConfigure.configureAutoBuilder(sdt, odo);
-      PathfindingCommand.warmupCommand().schedule();
+      var cmd = PathfindingCommand.warmupCommand();
+      CommandScheduler.getInstance().schedule(cmd);
     }
     
     // Competition bindings 
