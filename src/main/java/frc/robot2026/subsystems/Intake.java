@@ -17,11 +17,11 @@ public class Intake extends SubsystemBase {
   NeoServo topRoller;
   boolean disable_servo = false;
 
-  PIDFController hwVelocity_PID = new PIDFController(0.04, 0.00000500, 0.0, 5.0 / 180.0 / 1.2); // [deg/s]
-  PIDController  swPosition_PID = new PIDController(3.0 ,0, 0);  //[deg]
+  PIDFController hwVelocity_PID = new PIDFController(0.0, 0.0, 0.0, 5.0 / 180.0 / 1.2); // [deg/s]
+  PIDController  swPosition_PID = new PIDController(0.0 ,0, 0);  //[deg]
 
   //convert to deg/s units at the geared output
-  final double GearRatio = 5.0; // sprocket gear is 64/16
+  final double GearRatio = 5.0;
   final double conversionFactor = 360.0 / GearRatio;  // [deg/rot]
 
   // Motor settings for Servo
@@ -64,21 +64,25 @@ public class Intake extends SubsystemBase {
     topRoller.setVelocityCmd(-vel);
   }
 
-//   public double getVelocity() {
-//     return servo.getVelocity();
-//   }
+  public double getTVelocity() {
+    return topRoller.getVelocity();
+  }
+  
+  public double getBVelocity() {
+    return bottomRoller.getVelocity();
+  }
 
-//   public double getMaxVel() {
-//     return servo.getMaxVel();
-//   }
+  // public double getMaxVel() {
+  //   return servo.getMaxVel();
+  // }
 
-//   public void setMaxVelocity(double vel) {
-//     servo.setMaxVelocity(vel);
-//   }
+  // public void setMaxVelocity(double vel) {
+  //   servo.setMaxVelocity(vel);
+  // }
 
-//   public double getCmdVelocity() {
-//     return cmdVel;
-//   }
+  // public double getCmdVelocity() {
+  //   return cmdVel;
+  // }
 
   @Override
   public void periodic() {
@@ -91,15 +95,8 @@ public class Intake extends SubsystemBase {
   }
 
   class ClimberWatcherCmd extends WatcherCmd {
-    NetworkTableEntry nt_cmdVelocity;  
-    NetworkTableEntry nt_measVelocity;
-    NetworkTableEntry nt_measPosition;
-    NetworkTableEntry nt_cmdPosition; // setpoint
-    NetworkTableEntry nt_atSetpoint;
-    NetworkTableEntry nt_current;
-    NetworkTableEntry nt_appliedOutput;
-    NetworkTableEntry nt_Iacc;
-    NetworkTableEntry nt_mtrTemp;
+    NetworkTableEntry nt_topVelocity;  
+    NetworkTableEntry nt_btmVelocity;
 
     @Override
     public String getTableName() {
@@ -108,13 +105,13 @@ public class Intake extends SubsystemBase {
 
     public void ntcreate() {
       NetworkTable table = getTable();
-      nt_cmdVelocity = table.getEntry("cmdVelocity");
-      nt_measVelocity = table.getEntry("measVelocity");
+      nt_topVelocity = table.getEntry("topVelocity");
+      nt_btmVelocity = table.getEntry("btmVelocity");
     }
 
     public void ntupdate() {
-    //   nt_cmdVelocity.setDouble(getCmdVelocity());
-    //   nt_measVelocity.setDouble(getVelocity());
+      nt_topVelocity.setDouble(getTVelocity());
+      nt_btmVelocity.setDouble(getBVelocity());
 
     }
   }
