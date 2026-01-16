@@ -7,6 +7,7 @@ package frc;
 import edu.wpi.first.wpilibj.RobotBase;
 import frc.lib2202.builder.Robot;
 import frc.robot2026.RobotSpec_Alpha2026;
+import frc.robot2026.RobotSpec_BotOnBoard1;
 
 public final class Main {
   private Main() {
@@ -15,6 +16,7 @@ public final class Main {
 
     // 2026 sub-tree
     new RobotSpec_Alpha2026(); 
+    new RobotSpec_BotOnBoard1();
 
   }
   public static void main(String... args) {
