@@ -32,11 +32,8 @@ import frc.robot2026.subsystems.LimelightV2;
 import frc.robot2026.subsystems.VisionPoseEstimator;
 
 public class RobotSpec_BotOnBoard1 implements IRobotSpec {
-
   
-  // Subsystems and other hardware on 2025 Robot rev Alpha
-  // This should be the chassis bot.
-  // $env:serialnum = "03282B65"
+  // $env:serialnum = "9999999"
   final SubsystemConfig ssconfig = new SubsystemConfig("BotOnBoard1", "9999999")
       // deferred construction via Supplier<Object> lambda
       .add(PowerDistribution.class, "PDP", () -> {
