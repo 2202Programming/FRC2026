@@ -53,7 +53,13 @@ public final class Constants {
     public static final int FR_Drive = 27;
     public static final int FR_CANCoder = 30;
 
+    // Intake
+    public static final int IntakeTopID = 30;
+    public static final int IntakeBotomID = 31;
    
+    //Shooter
+    public static final int ShooterID = 50;
+
     // IMU
     public static final int PIGEON_IMU_CAN = 60;
   }

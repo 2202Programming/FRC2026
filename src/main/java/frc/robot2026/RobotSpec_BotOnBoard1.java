@@ -19,6 +19,7 @@ import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
 import frc.robot2026.commands.IntakePwrSpin;
 import frc.robot2026.subsystems.Intake;
+import frc.robot2026.subsystems.Shooter.Shooter;
 
 public class RobotSpec_BotOnBoard1 implements IRobotSpec {
   // $env:serialnum = "0312db1a"
@@ -35,6 +36,7 @@ public class RobotSpec_BotOnBoard1 implements IRobotSpec {
 
       })
       .add(Intake.class)
+      .add(Shooter.class)
       ;
       // below are optional watchers for shuffeleboard data - disable if need too.
 
@@ -97,15 +99,11 @@ public class RobotSpec_BotOnBoard1 implements IRobotSpec {
       CommandXboxController driver = (CommandXboxController)dc.Driver();
       CommandXboxController operator = (CommandXboxController)dc.Operator();
 
+      // TEST BINDING FOR NOW 
+      Shooter shooter = RobotContainer.getSubsystem(Shooter.class);
+      shooter.setTestBindings(operator);  // uses triggers
       operator.a().whileTrue(new IntakePwrSpin(0.2));
     }
-
-    
-
-    // FOR BOT ON BOARD you can configure bindings directly here
-    // and avoid messing with BindingsOther or Comp.
-
-    //BindingsOther.ConfigureOther(dc);
   }
 
   @Override
