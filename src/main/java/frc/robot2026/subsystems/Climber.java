@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib2202.command.WatcherCmd;
 import frc.lib2202.util.NeoServo;
 import frc.lib2202.util.PIDFController;
+import frc.robot2026.Constants.CAN;
 
 public class Climber extends SubsystemBase {
 
@@ -33,13 +34,14 @@ public class Climber extends SubsystemBase {
     PIDController posPID = new PIDController(4.0, 0.0015, 0.125);
     PIDFController hwVelPID = new PIDFController(0.02, 0.0, 0, 0.0285);
 
-    private Arm l_arm;
-    private Arm r_arm;
+    public Arm l_arm;
+    public Arm r_arm; //My logic for making these public is to allow access to the individual methods while outside the system. Otherwise that will just mean making more methods, and that seems like a waste - Gavin 
 
     private class Arm {
         NeoServo servo;
 
-        Arm(int CANID, boolean inverted) {
+        Arm(int CANID, boolean inverted) { 
+                                                                     // 
             servo = new NeoServo(CANID, posPID, hwVelPID, inverted); //TODO Need to use 2 different PID controllers here?
         }
 
@@ -91,27 +93,24 @@ public class Climber extends SubsystemBase {
             MathUtil.clamp(accel, maxAccel, -maxAccel);
         }
 
-        public double getCurrent() {
-            return servo.getController().getOutputCurrent();
-        }
+        // removed a get current command, may be important? double check with Mr L -Gavin
         public WatcherCmd getWatcherCmd() {
-        return this.new ArmsWatcher();        
+            return this.new ArmsWatcher();        
         }
 
-        class ArmsWatcher extends WatcherCmd {                    
+        class ArmsWatcher extends WatcherCmd {
             ArmsWatcher() {            
                 addEntry("position", Arm.this::getClimberPos);
                 addEntry("velocity", Arm.this::getClimberVelocity, 2);
                 addEntry("setpoint", ()-> {return servo.getSetpoint();});
-                addEntry("atSetpoint", Arm.this::atSetpoint);            
             }       
         }
     }
 
     public Climber() {
         // Set up in this format to use both arms as needed.
-        l_arm = new Arm(-100, true);
-        r_arm = new Arm(-101, true);
+        l_arm = new Arm(CAN.l_arm, true);
+        r_arm = new Arm(CAN.r_arm, true);
         l_arm.setParams();
         r_arm.setParams();
         // should be done by NeoServo
@@ -130,9 +129,8 @@ public class Climber extends SubsystemBase {
     /**
      * Testing command, sets the arms to a comanded velocity
      *
-     * @param vel Sets arms to a specific velocity (in cm/sec)
-     */
-
+     */ 
+    
     
     // void SetZero()
 
@@ -143,12 +141,14 @@ public class Climber extends SubsystemBase {
         r_arm.getServo().periodic();
     }
 
-
-    //Someone smarter than me can probably get the watchers to work with how I have set this up, but these will work for now.
+     
+    // 
+    // Someone smarter than me can probably get the watchers to work with how I have set this up, but these will work for now.
     //Lines 100-110 if you want to try and fix things -Gavin
     public WatcherCmd getWatcherCmdLeft() {
         return l_arm.getWatcherCmd();
     }
+
     public WatcherCmd getWatcherCmdRight() {
         return r_arm.getWatcherCmd();
     }
