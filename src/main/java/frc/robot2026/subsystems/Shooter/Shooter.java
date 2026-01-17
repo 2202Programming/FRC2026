@@ -29,11 +29,11 @@ public class Shooter extends SubsystemBase {
         double kP = 0.0; // tune next
         double kI = 0.0; // finally stiffen speed with I/D
         double kD = 0.0;
-        double kF = 0.0; // tune this first
+        double kF = 0.4;
 
         FlyWheelConfig cfg = new FlyWheelConfig();
-        cfg.inverted = false;
-        cfg.gearRatio = 1.0;
+        cfg.inverted = true;
+        cfg.gearRatio = 37.0/23.0;  //approx for proto
         cfg.stallAmp = 40; // [amp] Check motor specs for amps
         cfg.freeAmp = 5; // [amp]
         cfg.maxOpenLoopRPM = 5800; // measure at full power or motor spec
@@ -53,6 +53,12 @@ public class Shooter extends SubsystemBase {
 
         // hook in the PID
         cfg.hw_pid.initSendable(builder);
+    }
+
+    @Override
+    public void periodic() {
+
+        flywheel.copyChanges();
     }
 
     // Add a watcher so we can see stuff on network tables

@@ -17,8 +17,6 @@ import frc.lib2202.subsystem.swerve.config.ChassisConfig;
 import frc.lib2202.subsystem.swerve.config.ModuleConfig;
 import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
-import frc.robot2026.commands.IntakePwrSpin;
-import frc.robot2026.subsystems.Intake;
 import frc.robot2026.subsystems.Shooter.Shooter;
 
 public class RobotSpec_BotOnBoard1 implements IRobotSpec {
@@ -35,7 +33,7 @@ public class RobotSpec_BotOnBoard1 implements IRobotSpec {
         return new HID_Subsystem(0.3, 0.9, 0.05);
 
       })
-      .add(Intake.class)
+      // .add(Intake.class)
       .add(Shooter.class)
       ;
       // below are optional watchers for shuffeleboard data - disable if need too.
@@ -102,7 +100,7 @@ public class RobotSpec_BotOnBoard1 implements IRobotSpec {
       // TEST BINDING FOR NOW 
       Shooter shooter = RobotContainer.getSubsystem(Shooter.class);
       shooter.setTestBindings(operator);  // uses triggers
-      operator.a().whileTrue(new IntakePwrSpin(0.2));
+      // operator.a().whileTrue(new IntakePwrSpin(0.2));
     }
   }
 

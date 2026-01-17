@@ -69,6 +69,10 @@ public class FlyWheelRev {
     setSetpoint(0.0);
   }
 
+  void copyChanges() {
+    cfg.hw_pid.copyChangesTo(controller, controllerCfg, kSlot);
+  }
+
   // internal if we need to do something in subsys
   SparkBase getController() {
     return controller;
@@ -79,9 +83,15 @@ public class FlyWheelRev {
   }
 
   // API used by sub-system
-  void setSetpoint(double vel) {
+  void setSetpoint(double vel) { // setVelocitySetpoint
     vel_setpoint = vel;
-    closedLoopController.setSetpoint(vel_setpoint, ControlType.kVelocity);
+    if (vel_setpoint == 0.0) {
+      //force mode change to %pwr at zero, should let it keep spinning
+      controller.set(vel_setpoint);
+    }
+    else {
+      closedLoopController.setSetpoint(vel_setpoint, ControlType.kVelocity);
+    }
   }
 
   double getVelocity() {

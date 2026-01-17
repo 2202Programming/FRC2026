@@ -55,8 +55,8 @@ public class Intake extends SubsystemBase {
     bottomHWVelocity_PID.setIZone(200.0); //[deg/s]  outside this region ignore integral
 
     //Setup servos, for velocity or position control.
-    topRoller = new NeoServo(CAN.IntakeBotomID, topPosition_PID, topHWVelocity_PID, top_motor_inverted);
-    bottomRoller = new NeoServo(CAN.IntakeTopID, bottomPosition_PID, bottomHWVelocity_PID, bottom_motor_inverted);
+    topRoller = new NeoServo(CAN.IntakeTopID, topPosition_PID, topHWVelocity_PID, top_motor_inverted);
+    bottomRoller = new NeoServo(CAN.IntakeBotomID, bottomPosition_PID, bottomHWVelocity_PID, bottom_motor_inverted);
     
     //Mr.L Feedback - can't recreate controllers with CANID, it was used by NeoServo, so pull from it
     btmRlrMtr = bottomRoller.getController(); //new SparkMax(50, SparkMax.MotorType.kBrushless);

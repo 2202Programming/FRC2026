@@ -58,7 +58,7 @@ public final class Constants {
     public static final int IntakeBotomID = 31;
    
     //Shooter
-    public static final int ShooterID = 50;
+    public static final int ShooterID = 51;
 
     // IMU
     public static final int PIGEON_IMU_CAN = 60;
