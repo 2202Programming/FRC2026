@@ -4,6 +4,8 @@
 
 package frc.robot2026.subsystems;
 
+import com.revrobotics.spark.SparkMax;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -15,6 +17,10 @@ import frc.lib2202.util.PIDFController;
 public class Intake extends SubsystemBase {
   NeoServo bottomRoller;
   NeoServo topRoller;
+
+  SparkMax btmRlrMtr;
+  SparkMax topRlrMtr;
+
   boolean disable_servo = false;
 
   PIDFController hwVelocity_PID = new PIDFController(0.0, 0.0, 0.0, 5.0 / 180.0 / 1.2); // [deg/s]
@@ -46,6 +52,9 @@ public class Intake extends SubsystemBase {
     bottomRoller = new NeoServo(50, swPosition_PID, hwVelocity_PID, motor_inverted);
     topRoller = new NeoServo(51, swPosition_PID, hwVelocity_PID, motor_inverted);
 
+    btmRlrMtr = new SparkMax(50, SparkMax.MotorType.kBrushless);
+    topRlrMtr = new SparkMax(51, SparkMax.MotorType.kBrushless);
+
         // get the controllers out of the server so we can monitor in our watcher.
         // controller = servo.getController();
         // cl_controller = controller.getClosedLoopController();
@@ -60,8 +69,8 @@ public class Intake extends SubsystemBase {
   // velocity control only used for testing, normal cmds will use position
   public void setPercent(double vel) {
     cmdVel = vel;
-    bottomRoller.setVelocityCmd(vel);
-    topRoller.setVelocityCmd(-vel);
+    btmRlrMtr.set(vel);
+    topRlrMtr.set(-vel);
   }
 
   public double getTVelocity() {

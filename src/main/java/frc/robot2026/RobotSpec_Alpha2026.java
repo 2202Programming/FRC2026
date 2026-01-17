@@ -75,7 +75,7 @@ public class RobotSpec_Alpha2026 implements IRobotSpec {
         return obj;
       })
       // VisonPoseEstimator needs LL and Odometry, adds simplename and alias to lookup
-      .addAlias(VisionPoseEstimator.class, "vision_odo")    
+      .addAlias(VisionPoseEstimator.class, "vision_odo") 
       ;
 
   // Robot Speed Limits

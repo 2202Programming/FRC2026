@@ -17,7 +17,7 @@ import frc.lib2202.subsystem.swerve.config.ChassisConfig;
 import frc.lib2202.subsystem.swerve.config.ModuleConfig;
 import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
-import frc.robot2026.commands.IntakeVelocitySpin;
+import frc.robot2026.commands.IntakePwrSpin;
 import frc.robot2026.subsystems.Intake;
 
 public class RobotSpec_BotOnBoard1 implements IRobotSpec {
@@ -97,10 +97,7 @@ public class RobotSpec_BotOnBoard1 implements IRobotSpec {
       CommandXboxController driver = (CommandXboxController)dc.Driver();
       CommandXboxController operator = (CommandXboxController)dc.Operator();
 
-      operator.a().whileTrue(new IntakeVelocitySpin(15.0));
-      operator.b().whileTrue(new IntakeVelocitySpin(35.0));
-      operator.x().whileTrue(new IntakeVelocitySpin(55.0)); //**************
-      operator.y().whileTrue(new IntakeVelocitySpin(75.0));
+      operator.a().whileTrue(new IntakePwrSpin(0.2));
     }
 
     

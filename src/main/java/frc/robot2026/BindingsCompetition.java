@@ -16,7 +16,7 @@ import frc.lib2202.subsystem.OdometryInterface;
 import frc.lib2202.subsystem.hid.HID_Subsystem;
 import frc.lib2202.subsystem.hid.TMJoystickController;
 import frc.lib2202.subsystem.swerve.DriveTrainInterface;
-import frc.robot2026.commands.IntakeVelocitySpin;
+import frc.robot2026.commands.IntakePwrSpin;
 
 /*
  * Please don't edit this without leads/mentor/driveteam review
@@ -73,9 +73,6 @@ public final class BindingsCompetition {
 
             Trigger Cal = sideboard.sw11();  //calibration button (conventional)
             Trigger NotCal = Cal.negate(); // regular competition mode
-
-            operator.a().whileTrue(new IntakeVelocitySpin(0.8));
-
         }
         else {
             DriverStation.reportWarning("Comp Bindings: No operator bindings set, check controllers.", false);
