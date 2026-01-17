@@ -26,20 +26,24 @@ public class Shooter extends SubsystemBase {
     }
 
     private FlyWheelConfig initFlyWheelConfig() {
-        double kP = 0.0; // tune next
-        double kI = 0.0; // finally stiffen speed with I/D
-        double kD = 0.0;
-        double kF = 0.4;
+        double kP = 0.04; // tune next
+        double kI = 0.00015; // finally stiffen speed with I/D
+        double kD = 3.0;
+        double kF = 0.255;
+
+        double iZone = 7.5;
 
         FlyWheelConfig cfg = new FlyWheelConfig();
         cfg.inverted = true;
-        cfg.gearRatio = 37.0/23.0;  //approx for proto
+        cfg.gearRatio = 23.0/37.0;  //approx for proto
         cfg.stallAmp = 40; // [amp] Check motor specs for amps
         cfg.freeAmp = 5; // [amp]
         cfg.maxOpenLoopRPM = 5800; // measure at full power or motor spec
         cfg.flywheelRadius = (2.0 / 12.0) * MperFT; // [m] 2 [inch] converted [m]
         // PIDF constant holder for hw - TODO update to new Rev FeedForward values,Mr.L WIP
         cfg.hw_pid = new PIDFController(kP, kI, kD, kF, "flywheelPIDF");
+        cfg.hw_pid.setIZone(iZone);
+        cfg.hw_pid.setIntegratorRange(-5.0, 5.0); // [m/s]
         return cfg;
     }
 
