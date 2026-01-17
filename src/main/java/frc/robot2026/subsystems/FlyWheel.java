@@ -4,9 +4,16 @@ import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
+import com.ctre.phoenix.motorcontrol.can.TalonsparkCnfguration;
 //import com.ctre.phoenix.motorcontrol.can.TalonSRXPIDSetConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.revrobotics.PersistMode;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.ResetMode;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkLimitSwitch;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkMaxConfig;
 
 import frc.lib2202.util.PIDFController;
 
@@ -42,41 +49,58 @@ public class FlyWheel {
     public double FWrpe2MU; // FlywheelRPM to Motor-Units (includes gearing)
   };
 
-  /**
-   * Encoder & controler details
-   * Convert Target RPM to [motor-units/100ms] 4096 Units/Rev * Target RPM * 600 =
-   * velocity setpoint is in units/100ms
-   */
-  final double kEncoder = 4096.0; // encoder counts/rotation
-  final double kRP100 = 1.0 / 600.0; // RPM to rev-per-100mS
-  final double kMaxMO = 1023.0; // max Motor output
+/**
+ * Encoder & controler details
+ * Convert Target RPM to [motor-units/100ms] 4096 Units/Rev * Target RPM * 600 =
+ * velocity setpoint is in units/100ms
+ */
+  final double kEncoder = 4096.0;   // encoder counts/rotation 
+  final double kRP100 = 1.0/600.0;  // RPM to rev-per-100mS
+  final double kMaxMO = 1023.0;     // max Motor output
 
   // Talon Slot stuff, we just use slot 0
   final int kPIDLoopIdx = 0;
   final int kTimeoutMs = 30;
 
-  TalonSRXConfiguration srxconfig;
-  WPI_TalonSRX motor; // this could be a generic motor controller...
+  SparkMaxConfig sparkCfg;
+  SparkMax motor; // this could be a generic motor controller...
+  RelativeEncoder encoder;
+  SparkClosedLoopController closedLoopController;
 
-  final double FWrpm2Counts; // flywheel RPM given motor-unit counts (f(gear, meas-period))
-  final double MUCounts2FWrpm; // motor units (counts/100ms) to FW RPM (1/FWrpm2Counts)
+  // final double FWrpm2Counts; // flywheel RPM given motor-unit counts (f(gear, meas-period))
+  // final double MUCounts2FWrpm; // motor units (counts/100ms) to FW RPM (1/FWrpm2Counts)
 
   public FlyWheelConfig cfg;
 
   FlyWheel(int CAN_ID, FlyWheelConfig cfg) {
-    srxconfig = new TalonSRXConfiguration();
-    motor = new WPI_TalonSRX(CAN_ID);
-    motor.setInverted(cfg.inverted);
+    sparkCfg = new SparkMaxConfig();
+    motor = new SparkMax(CAN_ID, SparkMax.MotorType.kBrushless); //TEMP***
+    closedLoopController = motor.getClosedLoopController();
+    encoder = motor.getEncoder();
+
+    // motor.setInverted(cfg.inverted);
     this.cfg = cfg;
 
     // flywheel constants RPM given encoder-unit counts (f(gear, meas-period))
-    double FWCountsPerRot = kEncoder / cfg.gearRatio; // encoder : fw shaft
-    FWrpm2Counts = FWCountsPerRot * kRP100; // (counts/100mS)/RPM
-    MUCounts2FWrpm = 1.0 / FWrpm2Counts; // encoder units (counts/100mS) to FW RPM
+    // **********
+    // double FWCountsPerRot = kEncoder / cfg.gearRatio;     // encoder : fw shaft 
+    // FWrpm2Counts = FWCountsPerRot * kRP100;   // (counts/100mS)/RPM
+    // MUCounts2FWrpm = 1.0 / FWrpm2Counts;      // encoder units (counts/100mS) to FW RPM
+    // ********** -- Unsure if needed for SparkMax --BG
 
     // use max rpm and max motor out to calculate kff
-    double kff = kMaxMO / (cfg.maxOpenLoopRPM * FWrpm2Counts);
-    cfg.pid.setF(kff);
+    // double kff = kMaxMO / (cfg.maxOpenLoopRPM * FWrpm2Counts);
+    // cfg.pid.setF(kff);
+
+      // ***** Seems like the following code can replace lines XXX - XXX
+
+  sparkCfg.closedLoop
+    .p(999.0)
+    .i(999.0)
+    .d(999.0/*, ClosedLoopSlot.kSlotX */)
+    ;
+
+    motor.configure(sparkCfg, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
     ErrorCode lasterr = motorConfig(cfg);
     if (lasterr.value != 0) {
@@ -84,16 +108,16 @@ public class FlyWheel {
     }
   }
 
-  ErrorCode motorConfig(FlyWheelConfig cfg) {
+  ErrorCode motorConfig(FlyWheelConfig cfg) { // This method I need help converting--BG; docs on this stuff was sketch at best
     /* Factory Default all hardware to prevent unexpected behaviour */
-    motor.configFactoryDefault();
+    motor.restoreFactoryDefaults(); // *** Seems to have changed, this is what's in the docs and example code
 
     // use the config to set all values at once
-    _copyTo(cfg.pid, motor, kPIDLoopIdx);
-    motor.getAllConfigs(srxconfig);
+    _copyTo(cfg.pid, kPIDLoopIdx); // *** check method below
+    motor.getAllConfigs(sparkCfg);
 
-    srxconfig.slot1 = srxconfig.slot0;
-    motor.configAllSettings(srxconfig);
+    sparkCfg.slot1 = sparkCfg.slot0;
+    motor.configAllSettings(sparkCfg);
 
     /* Config sensor used for Primary PID [Velocity] */
     motor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, kPIDLoopIdx, kTimeoutMs);
@@ -108,16 +132,17 @@ public class FlyWheel {
     return motor.getLastError();
   }
 
-  // DPL 2025-10-02 old copyTo func for TalonSRX that some how got lost in
-  // PIDFControler
-  // replicated here to avoid lib2202 changes for now.
-  void _copyTo(PIDFController pidf, WPI_TalonSRX dest, int slot) {
-    dest.config_kP(slot, pidf.getP());
-    dest.config_kI(slot, pidf.getI());
-    dest.config_kD(slot, pidf.getD());
-    dest.config_kF(slot, pidf.getF());
-    dest.config_IntegralZone(slot, pidf.getIZone());
+
+  //DPL 2025-10-02 old copyTo func for TalonSRX that some how got lost in PIDFControler
+  //replicated here to avoid lib2202 changes for now.
+  void _copyTo(PIDFController pidf, int slot ) {
+    sparkCfg.p(/*slot, */pidf.getP()); // *** Do we need slot # for REV?
+    pidf.setI(pidf.getP());
+    pidf.setD(pidf.getP());
+    pidf.setF(pidf.getP());
+    pidf.setIZone(pidf.getP()); // *** Unsure if this is how we want to copy PID consts over
   }
+
 
   /**
    * Gets RPM as measured at the flywheel
@@ -126,7 +151,7 @@ public class FlyWheel {
    */
   public double getRPM() {
     double vel_mu = motor.getSelectedSensorVelocity(); // motor units
-    return vel_mu * MUCounts2FWrpm;
+    // return vel_mu * MUCounts2FWrpm;
   }
 
   public double getMotorOutputPercent() {
@@ -134,8 +159,7 @@ public class FlyWheel {
   }
 
   public void setRPM(double fw_rpm) {
-    double sp = fw_rpm * FWrpm2Counts;
-    motor.set(ControlMode.Velocity, sp);
+    motor.set(ControlMode.Velocity);
   }
 
   public void setPercent(double pct) {
@@ -143,25 +167,24 @@ public class FlyWheel {
   }
 
   // This API is for testing/tuning only.
-  public void setPID(double kP, double kI, double kD, double kF) {
+  public void setPID(double kP, double kI, double kD, double kF){
     cfg.pid.setPIDF(kP, kI, kD, kF);
     _copyTo(cfg.pid, motor, kPIDLoopIdx);
   }
 
-  public double getP() {
+  public double getP(){
     return cfg.pid.getP();
   }
 
-  public double getI() {
+  public double getI(){
     return cfg.pid.getI();
   }
 
-  public double getD() {
+  public double getD(){
     return cfg.pid.getD();
   }
-
   public double getF() {
-    return cfg.pid.getF();
-  }
+    return cfg.pid.getF(); 
+  } 
 
 } // FlyWheel
