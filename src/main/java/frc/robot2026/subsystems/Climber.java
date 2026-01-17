@@ -6,7 +6,9 @@ package frc.robot2026.subsystems;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib2202.command.WatcherCmd;
 import frc.lib2202.util.NeoServo;
 import frc.lib2202.util.PIDFController;
@@ -28,8 +30,7 @@ public class Climber extends SubsystemBase {
     double velTol = .50; // [cm/s]
     final int STALL_CURRENT = 60; // placeholder // units?
     final int FREE_CURRENT = 30; // placeholder // units?
-    double desiredPos; // cm, 0 is full retract
-    double desiredVel;
+    
 
     PIDController posPID = new PIDController(4.0, 0.0015, 0.125);
     PIDFController hwVelPID = new PIDFController(0.02, 0.0, 0, 0.0285);
@@ -39,6 +40,8 @@ public class Climber extends SubsystemBase {
 
     private class Arm {
         NeoServo servo;
+        double desiredPos; // cm, 0 is full retract
+        double desiredVel; // for network tables
 
         Arm(int CANID, boolean inverted) { 
                                                                      // 
@@ -62,6 +65,14 @@ public class Climber extends SubsystemBase {
         public void setSetpoint(double pos) {
             desiredPos = pos;
             servo.setSetpoint(pos);
+        }
+
+        public double getDesiredPos() {
+            return desiredPos;
+        }
+
+        public double getDesiredVel() {
+            return desiredVel;
         }
 
         public void setArmVelocity(double vel) {
@@ -93,7 +104,10 @@ public class Climber extends SubsystemBase {
             MathUtil.clamp(accel, maxAccel, -maxAccel);
         }
 
-        // removed a get current command, may be important? double check with Mr L -Gavin
+        public double getCurrent() {
+            return servo.getController().getOutputCurrent();
+        }
+
         public WatcherCmd getWatcherCmd() {
             return this.new ArmsWatcher();        
         }
@@ -119,6 +133,12 @@ public class Climber extends SubsystemBase {
 
     }
 
+    public Command setVelocity(double vel, Arm arm) {
+        return runOnce(() -> {
+            arm.setArmVelocity(vel);  //switches Neo to vel mode
+        });
+    }
+
     /**
      * Extend arm to position given.
      *
@@ -141,6 +161,21 @@ public class Climber extends SubsystemBase {
         r_arm.getServo().periodic();
     }
 
+    public void setDemoBindings(CommandXboxController xbox) {
+        //bindings for Cycloid demo - use POV buttons with new ss cmd pattern        
+        //velocity cmds while held it should spin
+        xbox.povLeft().whileTrue(this.setVelocity(2.0, l_arm))
+                      .onFalse(this.setVelocity(0.0, l_arm));
+
+        xbox.povRight().whileTrue(this.setVelocity(-2.0, l_arm));
+        
+        // Cmd to known points
+        xbox.povUp().whileTrue(this.setVelocity(2.0, r_arm)).onFalse(this.setVelocity(0.0, r_arm));
+        xbox.povDown().whileTrue(this.setVelocity(-2.0, r_arm));
+        xbox.y().onTrue(runOnce(() -> {l_arm.setClimberPos(0.0);
+                                       r_arm.setClimberPos(0.0);
+        })); //These are some basic test bindings for the climber, including a reset 0 position for when we do position testing. Yes this formating is stupid. No I don't care. -Gavin
+    }
      
     // 
     // Someone smarter than me can probably get the watchers to work with how I have set this up, but these will work for now.
