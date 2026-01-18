@@ -4,8 +4,9 @@ package frc.robot2026.subsystems;
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -15,177 +16,159 @@ import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
 
 public class Climber extends SubsystemBase {
-
     /** Creates a new Climber. */
-    public final static double StartPosition = 0.0; // [cm]
+    public final static double PowerUpPosition = 0.0; // [cm]
     public final static double ExtendPosition = 27.0; // [cm]
     public final static double ClimbPosition = -3.5; // [cm]
     public final static double ClimbCalibrateVel = 2.0; // [cm/s]
 
     final double GearRatio = 1.0 / 25.0;
     double conversionFactor = 3.5 * 2.54 * GearRatio;
-    final double maxVel = 100.0; // placeholder. cm/s?
-    final double maxAccel = 10.0; // placevholder cm/s^2
+    final double maxVel = 100.0; // placeholder. [cm/s]
+    final double maxAccel = 10.0; // placevholder [cm/s^2]
     double posTol = 0.25; // [cm]
     double velTol = .50; // [cm/s]
-    final int STALL_CURRENT = 60; // placeholder // units?
-    final int FREE_CURRENT = 30; // placeholder // units?
+    final int STALL_CURRENT = 60; // [Amp] placeholder 
+    final int FREE_CURRENT = 5;   // [Amp] placeholder  
     
+    public final Arm l_arm;
+    public final Arm r_arm; 
+    /* My logic for making these public is to allow access to the individual methods while outside the system.
+       Otherwise that will just mean making more methods, and that seems like a waste - Gavin 
+        Could be, normally SubSystem API should eliminate the need. We will see. Class needs to be public too 
+        though to allow method access. - Mr.L
+    */
+    public class Arm implements Sendable {
+        final NeoServo servo;
+     
+        // each arm needs own copy of pids, especially the softare position pid which is run by servo.periodic()
+        PIDController posPID = new PIDController(4.0, 0.0015, 0.125);
+        PIDFController hwVelPID = new PIDFController(0.02, 0.0, 0, 0.0285);
 
-    PIDController posPID = new PIDController(4.0, 0.0015, 0.125);
-    PIDFController hwVelPID = new PIDFController(0.02, 0.0, 0, 0.0285);
-
-    public Arm l_arm;
-    public Arm r_arm; //My logic for making these public is to allow access to the individual methods while outside the system. Otherwise that will just mean making more methods, and that seems like a waste - Gavin 
-
-    private class Arm {
-        NeoServo servo;
-        double desiredPos; // cm, 0 is full retract
-        double desiredVel; // for network tables
-
-        Arm(int CANID, boolean inverted) { 
-                                                                     // 
-            servo = new NeoServo(CANID, posPID, hwVelPID, inverted); //TODO Need to use 2 different PID controllers here?
+        Arm(int CANID, String side, boolean inverted) {            
+            hwVelPID.setIZone(0.0);            
+            hwVelPID.setIntegratorRange(0.0, 0.0);
+            servo = new NeoServo(CANID, posPID, hwVelPID, inverted);
+            setParams(CANID, side);            
         }
 
-        public NeoServo getServo() {
-            return servo;
+        private void setParams(int CANID, String side) {
+            servo
+                .setName("arm-"+side +"-" + CANID)
+                .setConversionFactor(conversionFactor) // [cm]
+                .setSmartCurrentLimit(STALL_CURRENT, FREE_CURRENT)
+                .setVelocityHW_PID(maxVel, maxAccel)
+                .setTolerance(posTol, velTol)
+                .setMaxVelocity(maxVel);
+            servo.setPosition(PowerUpPosition);
+        }
+        
+        public void initSendable(SendableBuilder builder) {
+            builder.addDoubleProperty("vel_cmd",  this::getVelocityCmd, this::setVelocityCmd );
+            builder.addDoubleProperty("velocity",  this::getVelocity, null );
+            builder.addDoubleProperty("vel_max", servo::getMaxVel, servo::setMaxVelocity);
         }
 
-        public void setParams() {
-            servo.setConversionFactor(conversionFactor) // in cm
-                    .setSmartCurrentLimit(STALL_CURRENT, FREE_CURRENT)
-                    .setVelocityHW_PID(maxVel, maxAccel)
-                    .setTolerance(posTol, velTol)
-                    .setMaxVelocity(maxVel)
-                    .burnFlash();
-            servo.setPosition(StartPosition);
+        //Arm API - mostly wrappers around servo
+        public void setSetpoint(double pos) {            
+            servo.setSetpoint(pos);  //goes into position mode
+        }
+        
+        public double getSetpoint() {
+            return servo.getSetpoint();
         }
 
-        public void setSetpoint(double pos) {
-            desiredPos = pos;
-            servo.setSetpoint(pos);
+        public double getPosition() {
+            return servo.getPosition();
+        }
+                
+        public void setPosition(double pos){
+            servo.setPosition(pos);  //doesn't move, just tells servo here you are.
         }
 
-        public double getDesiredPos() {
-            return desiredPos;
+        public double getVelocityCmd() {
+            return servo.getVelocityCmd();
         }
 
-        public double getDesiredVel() {
-            return desiredVel;
-        }
-
-        public void setArmVelocity(double vel) {
-            desiredVel = vel;
+        public void setVelocityCmd(double vel) {
             servo.setVelocityCmd(vel);
         }
 
-        public void setClimberPos(double pos) {
-            servo.setPosition(pos);
-        }
-
-        public double getClimberPos() {
-            return servo.getPosition();
-        }
-
-        public double getClimberVelocity() {
+        public double getVelocity() {
             return servo.getVelocity();
         }
 
         public boolean atSetpoint() {
             return servo.atSetpoint();
-        }
-
-        public void ClampVel(double vel) {
-            MathUtil.clamp(vel, maxVel, -maxVel);
-        }
-
-        public void ClampAccel(double accel) {
-            MathUtil.clamp(accel, maxAccel, -maxAccel);
-        }
-
-        public double getCurrent() {
-            return servo.getController().getOutputCurrent();
-        }
-
-        public WatcherCmd getWatcherCmd() {
-            return this.new ArmsWatcher();        
-        }
-
-        class ArmsWatcher extends WatcherCmd {
-            ArmsWatcher() {            
-                addEntry("position", Arm.this::getClimberPos);
-                addEntry("velocity", Arm.this::getClimberVelocity, 2);
-                addEntry("setpoint", ()-> {return servo.getSetpoint();});
-            }       
-        }
+        }        
     }
 
     public Climber() {
         // Set up in this format to use both arms as needed.
-        l_arm = new Arm(CAN.l_arm, true);
-        r_arm = new Arm(CAN.r_arm, true);
-        l_arm.setParams();
-        r_arm.setParams();
-        // should be done by NeoServo
-        // //hwVelPID.copyTo(servo.getController().getClosedLoopController(),
-        // ClosedLoopSlot.kSlot0);
-
+        l_arm = new Arm(CAN.l_arm,"L", true);
+        r_arm = new Arm(CAN.r_arm,"R", true);
     }
 
     public Command setVelocity(double vel, Arm arm) {
         return runOnce(() -> {
-            arm.setArmVelocity(vel);  //switches Neo to vel mode
+            arm.setVelocityCmd(vel);  //switches Neo to vel mode
         });
     }
-
-    /**
-     * Extend arm to position given.
-     *
-     * @param pos Desired position in cm from fully retracted position
-     */
-
-    // lines 46-56 are for testing only
-    /**
-     * Testing command, sets the arms to a comanded velocity
-     *
-     */ 
-    
-    
-    // void SetZero()
 
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
-        l_arm.getServo().periodic();
-        r_arm.getServo().periodic();
+        l_arm.servo.periodic();
+        r_arm.servo.periodic();
     }
+
+    @Override
+    public void initSendable(SendableBuilder builder) {
+        super.initSendable(builder);
+        l_arm.initSendable(builder);
+        r_arm.initSendable(builder);        
+    }
+        
+    // Climber API - most of these should use both l/r arms together I think
+
+    public void setSetpoint(double pos) {
+        l_arm.setSetpoint(pos);
+        r_arm.setSetpoint(pos);
+    }
+
+    public boolean atSetpoint(){
+        return l_arm.atSetpoint() && r_arm.atSetpoint();
+    }
+
+
 
     public void setDemoBindings(CommandXboxController xbox) {
-        //bindings for Cycloid demo - use POV buttons with new ss cmd pattern        
-        //velocity cmds while held it should spin
-        xbox.povLeft().whileTrue(this.setVelocity(2.0, l_arm))
-                      .onFalse(this.setVelocity(0.0, l_arm));
-
-        xbox.povRight().whileTrue(this.setVelocity(-2.0, l_arm));
-        
-        // Cmd to known points
+        /**
+         * These are some basic test bindings for the climber, including a reset 0 position for when we do position testing.          
+        */
+        //velocity cmds while held it should spin, to test or align in pitt
+        xbox.povLeft().whileTrue(this.setVelocity(2.0, l_arm)).onFalse(this.setVelocity(0.0, l_arm));
+        xbox.povRight().whileTrue(this.setVelocity(-2.0, l_arm)).onFalse(this.setVelocity(0.0, l_arm));
         xbox.povUp().whileTrue(this.setVelocity(2.0, r_arm)).onFalse(this.setVelocity(0.0, r_arm));
-        xbox.povDown().whileTrue(this.setVelocity(-2.0, r_arm));
-        xbox.y().onTrue(runOnce(() -> {l_arm.setClimberPos(0.0);
-                                       r_arm.setClimberPos(0.0);
-        })); //These are some basic test bindings for the climber, including a reset 0 position for when we do position testing. Yes this formating is stupid. No I don't care. -Gavin
+        xbox.povDown().whileTrue(this.setVelocity(-2.0, r_arm)).onFalse(this.setVelocity(0.0, r_arm));
+
+        // Calibrate arms to zero point, called after moving each arm in pitt or testing.
+        xbox.y().onTrue(runOnce(() -> {
+            l_arm.setPosition(0.0);
+            r_arm.setPosition(0.0);
+        })); 
+        
     }
-     
-    // 
-    // Someone smarter than me can probably get the watchers to work with how I have set this up, but these will work for now.
-    //Lines 100-110 if you want to try and fix things -Gavin
-    public WatcherCmd getWatcherCmdLeft() {
-        return l_arm.getWatcherCmd();
+    
+    class ClimberWatcher extends WatcherCmd {
+        ClimberWatcher() {
+            addEntry("Climber_R_position", Climber.this.l_arm::getPosition, 1);
+            addEntry("Climber_R_position", Climber.this.r_arm::getPosition, 1);
+            addEntry("Climber_AtSetpoint", Climber.this::atSetpoint);
+            l_arm.servo.getWatcher();
+            r_arm.servo.getWatcher();
+        }
     }
 
-    public WatcherCmd getWatcherCmdRight() {
-        return r_arm.getWatcherCmd();
-    }
 
 }
