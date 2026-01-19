@@ -21,13 +21,16 @@ import frc.lib2202.util.PIDFController;
 public class FlyWheelRev {
 
   public static class FlyWheelConfig {
-    public PIDFController hw_pid; // just holds constants for pid, copyTo() updates hw
-    public double maxOpenLoopRPM;
-    public double gearRatio; // account for gearbox reduction to flywheel
-    public boolean inverted;
-    public double flywheelRadius;
-    public int stallAmp;
-    public int freeAmp;
+    public PIDFController hw_pid;       // just holds constants for pid, copyTo()/ copyChangesTo() updates hw
+    //only sample values
+    public double iMaxAccum=0.0;        // Integral of error[m/s]*[s] = [m]
+    public double maxOpenLoopRPM=5600;  // [rpm] typical Neo
+    public double gearRatio=1.0;        // [] [gearbox-rot/mtr-in] 
+    public boolean inverted=false;      // adjust to spin in correct dir, account for motor/gears
+    public double flywheelRadius = 0.05;// [m] ~2[in] in [m]
+    public double rampRate=0.0;         // [s] time to max speed, 0 disables
+    public int stallAmp=60;             // [Amp] stall current limit
+    public int freeAmp=5;               // [Amp] current limit at free run
   };
 
   // Hardware
@@ -46,18 +49,19 @@ public class FlyWheelRev {
     this.cfg = cfg;
     controllerCfg = new SparkMaxConfig();
     controller = new SparkMax(CAN_ID, SparkMax.MotorType.kBrushless);
-
+  
     // reset controller to factory
     controller.configure(controllerCfg, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
     controllerCfg.inverted(cfg.inverted)
+        .closedLoopRampRate(cfg.rampRate)
         .idleMode(IdleMode.kCoast)
         .smartCurrentLimit(cfg.stallAmp, cfg.freeAmp)
             // use physical used, m or m/s as seen at edge of flywheel, should be 1/2 fuel
             // cell velocity [m/s]
             .encoder // set driveEncoder to use units of the wheelDiameter, meters
-        .positionConversionFactor(2.0 * Math.PI * cfg.flywheelRadius / cfg.gearRatio) // [m]
-        .velocityConversionFactor((2.0 * Math.PI * cfg.flywheelRadius / cfg.gearRatio) / 60.0); // [m/s]
+        .positionConversionFactor(2.0 * Math.PI * cfg.flywheelRadius * cfg.gearRatio) // [m]
+        .velocityConversionFactor((2.0 * Math.PI * cfg.flywheelRadius * cfg.gearRatio) / 60.0); // [m/s]
     controllerCfg.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
 
     // send values to hardware
@@ -70,6 +74,7 @@ public class FlyWheelRev {
   }
 
   void copyChanges() {
+    //writes to hw, does nothing if there are no pid related changes
     cfg.hw_pid.copyChangesTo(controller, controllerCfg, kSlot);
   }
 
@@ -83,15 +88,17 @@ public class FlyWheelRev {
   }
 
   // API used by sub-system
-  void setSetpoint(double vel) { // setVelocitySetpoint
+  FlyWheelRev setSetpoint(double vel) { // setVelocitySetpoint
     vel_setpoint = vel;
     if (vel_setpoint == 0.0) {
-      //force mode change to %pwr at zero, should let it keep spinning
+      //force mode change to %pwr at zero, let it spin down, don't drive it to zero vel
       controller.set(vel_setpoint);
     }
     else {
+      // closed loop velocity
       closedLoopController.setSetpoint(vel_setpoint, ControlType.kVelocity);
     }
+    return this;
   }
 
   double getVelocity() {
@@ -110,5 +117,30 @@ public class FlyWheelRev {
   boolean atSetpoint() {
     return Math.abs(getVelocity() - vel_setpoint) <= vel_tolerance;
   }
+
+  //expose ramprate so we can test its effect and tune to soften power spikes
+  double getRampRate() {
+    return cfg.rampRate;
+  }
+  
+  FlyWheelRev setRampRate(double rate) {
+    cfg.rampRate = rate;
+    controllerCfg.closedLoopRampRate(rate);
+    controller.configureAsync(controllerCfg, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+    return this;
+  }
+
+  //expose iMaxAccum for tuning
+  double getIMaxAccum(){
+    return cfg.iMaxAccum;
+  }
+
+  FlyWheelRev setIMaxAccum(double iMaxAccum) {
+    cfg.iMaxAccum = iMaxAccum;
+    controllerCfg.closedLoop.iMaxAccum(iMaxAccum, kSlot);
+    controller.configureAsync(controllerCfg, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+    return this;
+  }
+
 
 }

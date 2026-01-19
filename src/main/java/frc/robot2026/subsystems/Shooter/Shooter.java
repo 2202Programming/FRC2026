@@ -26,42 +26,43 @@ public class Shooter extends SubsystemBase {
     }
 
     private FlyWheelConfig initFlyWheelConfig() {
-        double kP = 0.04; // tune next
-        double kI = 0.00015; // finally stiffen speed with I/D
+        double kP = 0.04;       // tune next
+        double kI = 0.00015;    // finally stiffen speed with I/D
         double kD = 3.0;
         double kF = 0.255;
-
         double iZone = 7.5;
 
         FlyWheelConfig cfg = new FlyWheelConfig();
         cfg.inverted = true;
-        cfg.gearRatio = 23.0/37.0;  //approx for proto
-        cfg.stallAmp = 40; // [amp] Check motor specs for amps
-        cfg.freeAmp = 5; // [amp]
-        cfg.maxOpenLoopRPM = 5800; // measure at full power or motor spec
+        cfg.rampRate = 0.05;        // try to soften the startup, zero disables
+        cfg.gearRatio = 37.0/23.0;  // approx for proto  [out-rot/mtr-rot]
+        cfg.stallAmp = 40;          // [amp] Check motor specs for amps
+        cfg.freeAmp = 5;            // [amp]
+        cfg.maxOpenLoopRPM = 5800;  // measure at full power or motor spec
         cfg.flywheelRadius = (2.0 / 12.0) * MperFT; // [m] 2 [inch] converted [m]
-        // PIDF constant holder for hw - TODO update to new Rev FeedForward values,Mr.L WIP
+        // PIDF constant holder for hw
         cfg.hw_pid = new PIDFController(kP, kI, kD, kF, "flywheelPIDF");
-        cfg.hw_pid.setIZone(iZone);
-        cfg.hw_pid.setIntegratorRange(-5.0, 5.0); // [m/s]
+        cfg.hw_pid.setIZone(iZone); 
         return cfg;
     }
 
     @Override
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
+        builder.addBooleanProperty("atVelocity", this::atSetpoint, null);
+        builder.addDoubleProperty("iMaxAccum", flywheel::getIMaxAccum, flywheel::setIMaxAccum);
+        builder.addDoubleProperty("iZone", cfg.hw_pid::getIZone, cfg.hw_pid::setIZone);
+        builder.addDoubleProperty("ramp_rate", flywheel::getRampRate, flywheel::setRampRate);
         builder.addDoubleProperty("vel_cmd", ()->{ return flywheel.vel_setpoint;}, flywheel::setSetpoint);
         builder.addDoubleProperty("vel_measured", flywheel::getVelocity, null);
         builder.addDoubleProperty("vel_tolerance", flywheel::getTolerance, flywheel::setVelocityTolerance);
-        builder.addBooleanProperty("atVelocity", this::atSetpoint, null);
-
         // hook in the PID
         cfg.hw_pid.initSendable(builder);
     }
 
     @Override
     public void periodic() {
-
+        // update hw, only needed if changes to HW_PID - TODO test mode?
         flywheel.copyChanges();
     }
 
@@ -92,9 +93,11 @@ public class Shooter extends SubsystemBase {
 
     // Testing Bindings
     public void setTestBindings(CommandXboxController xbox) {
-        xbox.leftTrigger(0.5).whileTrue(this.cmdVelocity(7.0)) // [m/s]
+        xbox.leftTrigger(0.5)
+                .whileTrue(this.cmdVelocity(7.0)) // [m/s]
                 .onFalse(this.cmdVelocity(0.0));
-        xbox.rightTrigger(0.5).whileTrue(this.cmdVelocity(14.0)) // [m/s]
+        xbox.rightTrigger(0.5)
+                .whileTrue(this.cmdVelocity(14.0)) // [m/s]
                 .onFalse(this.cmdVelocity(0.0));
     }
 
