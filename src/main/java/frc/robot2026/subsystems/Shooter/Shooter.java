@@ -13,7 +13,6 @@ import frc.robot2026.Constants.CAN;
 import frc.robot2026.subsystems.Shooter.FlyWheelRev.FlyWheelConfig;
 
 public class Shooter extends SubsystemBase {
-
     final FlyWheelRev flywheel;
     final FlyWheelConfig cfg;
 
@@ -110,6 +109,7 @@ public class Shooter extends SubsystemBase {
             // other info about flywheel's motor
             addEntry("mtr_appliedOutput", Shooter.this.flywheel.getController()::getAppliedOutput, 2);
             addEntry("mtr_OutputAmps", Shooter.this.flywheel.getController()::getOutputCurrent, 2);
+            addEntry("mtr_RPM", Shooter.this.flywheel::getMotorRPM, 1);
             addEntry("mtr_Temperature", Shooter.this.flywheel.getController()::getMotorTemperature, 2);
         }
     }

@@ -40,6 +40,7 @@ public class FlyWheelRev {
   final SparkClosedLoopController closedLoopController;
   final ClosedLoopSlot kSlot = ClosedLoopSlot.kSlot0;
   final FlyWheelConfig cfg;
+  final double posConverionFactor;
 
   // operational vars
   double vel_setpoint;
@@ -49,7 +50,7 @@ public class FlyWheelRev {
     this.cfg = cfg;
     controllerCfg = new SparkMaxConfig();
     controller = new SparkMax(CAN_ID, SparkMax.MotorType.kBrushless);
-  
+    posConverionFactor = 2.0 * Math.PI * cfg.flywheelRadius * cfg.gearRatio;
     // reset controller to factory
     controller.configure(controllerCfg, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
@@ -60,8 +61,8 @@ public class FlyWheelRev {
             // use physical used, m or m/s as seen at edge of flywheel, should be 1/2 fuel
             // cell velocity [m/s]
             .encoder // set driveEncoder to use units of the wheelDiameter, meters
-        .positionConversionFactor(2.0 * Math.PI * cfg.flywheelRadius * cfg.gearRatio) // [m]
-        .velocityConversionFactor((2.0 * Math.PI * cfg.flywheelRadius * cfg.gearRatio) / 60.0); // [m/s]
+        .positionConversionFactor(posConverionFactor) // [m]
+        .velocityConversionFactor(posConverionFactor / 60.0); // [m/s]
     controllerCfg.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
 
     // send values to hardware
@@ -103,6 +104,11 @@ public class FlyWheelRev {
 
   double getVelocity() {
     return encoder.getVelocity();
+  }
+
+  double getMotorRPM() {
+    // return motor RPM by applying inverse velocity converstion factor
+    return getVelocity() * 60.0 / posConverionFactor; 
   }
 
   double getTolerance() {
