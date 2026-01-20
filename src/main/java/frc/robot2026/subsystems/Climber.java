@@ -8,6 +8,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib2202.command.WatcherCmd;
@@ -64,7 +65,7 @@ public class Climber extends SubsystemBase {
         }
         
         public void initSendable(SendableBuilder builder) {
-            builder.addDoubleProperty("vel_cmd",  this::getVelocityCmd, this::setVelocityCmd );
+            builder.addDoubleProperty("vel_cmd",  this::getVelocityCmd, this::setVelocity );
             builder.addDoubleProperty("velocity",  this::getVelocity, null );
             builder.addDoubleProperty("vel_max", servo::getMaxVel, servo::setMaxVelocity);
         }
@@ -90,7 +91,7 @@ public class Climber extends SubsystemBase {
             return servo.getVelocityCmd();
         }
 
-        public void setVelocityCmd(double vel) {
+        public void setVelocity(double vel) {
             servo.setVelocityCmd(vel);
         }
 
@@ -109,9 +110,9 @@ public class Climber extends SubsystemBase {
         r_arm = new Arm(CAN.r_arm,"R", true);
     }
 
-    public Command setVelocity(double vel, Arm arm) {
+    public Command setVelocityCmd(double vel, Arm arm) {
         return runOnce(() -> {
-            arm.setVelocityCmd(vel);  //switches Neo to vel mode
+            arm.setVelocity(vel);  //switches Neo to vel mode
         });
     }
 
@@ -130,10 +131,26 @@ public class Climber extends SubsystemBase {
     }
         
     // Climber API - most of these should use both l/r arms together I think
+    // May not be necessary, arms will be running separately as they climb up the side of the building
 
-    public void setSetpoint(double pos) {
-        l_arm.setSetpoint(pos);
-        r_arm.setSetpoint(pos);
+    public Command setSetpointCmd(double pos, Arm arm) {
+        return runOnce(() -> {
+            arm.setSetpoint(pos);
+        });         
+    }
+
+    public Command armsSetpointCmd(double pos) {
+        return Commands.sequence(
+            setSetpointCmd(pos, l_arm),
+            setSetpointCmd(pos, r_arm)
+            );
+    }
+
+    public Command armsCalibrateCmd() {
+        return Commands.sequence(
+            runOnce(() -> {r_arm.setPosition(0.0);}),
+            runOnce(() -> {l_arm.setPosition(0.0);})
+        );
     }
 
     public boolean atSetpoint(){
@@ -147,24 +164,22 @@ public class Climber extends SubsystemBase {
          * These are some basic test bindings for the climber, including a reset 0 position for when we do position testing.          
         */
         //velocity cmds while held it should spin, to test or align in pitt
-        xbox.povLeft().whileTrue(this.setVelocity(2.0, l_arm)).onFalse(this.setVelocity(0.0, l_arm));
-        xbox.povRight().whileTrue(this.setVelocity(-2.0, l_arm)).onFalse(this.setVelocity(0.0, l_arm));
-        xbox.povUp().whileTrue(this.setVelocity(2.0, r_arm)).onFalse(this.setVelocity(0.0, r_arm));
-        xbox.povDown().whileTrue(this.setVelocity(-2.0, r_arm)).onFalse(this.setVelocity(0.0, r_arm));
+        xbox.povLeft().whileTrue(this.setVelocityCmd(2.0, l_arm)).onFalse(this.setVelocityCmd(0.0, l_arm));
+        xbox.povRight().whileTrue(this.setVelocityCmd(-2.0, l_arm)).onFalse(this.setVelocityCmd(0.0, l_arm));
+        xbox.povUp().whileTrue(this.setVelocityCmd(2.0, r_arm)).onFalse(this.setVelocityCmd(0.0, r_arm));
+        xbox.povDown().whileTrue(this.setVelocityCmd(-2.0, r_arm)).onFalse(this.setVelocityCmd(0.0, r_arm));
 
-        // Calibrate arms to zero point, called after moving each arm in pitt or testing.
-        xbox.y().onTrue(runOnce(() -> {
-            l_arm.setPosition(0.0);
-            r_arm.setPosition(0.0);
-        })); 
-        
+        // Move arms to 0 point
+        xbox.x().onTrue(armsSetpointCmd(0.0)); 
+        // tell the arms "here is zero"
+        xbox.y().onTrue(armsCalibrateCmd());
     }
     
     class ClimberWatcher extends WatcherCmd {
         ClimberWatcher() {
-            addEntry("Climber_R_position", Climber.this.l_arm::getPosition, 1);
-            addEntry("Climber_R_position", Climber.this.r_arm::getPosition, 1);
-            addEntry("Climber_AtSetpoint", Climber.this::atSetpoint);
+            addEntry("L_position", Climber.this.l_arm::getPosition, 1);
+            addEntry("R_position", Climber.this.r_arm::getPosition, 1);
+            addEntry("AtSetpoint", Climber.this::atSetpoint);
             l_arm.servo.getWatcher();
             r_arm.servo.getWatcher();
         }
