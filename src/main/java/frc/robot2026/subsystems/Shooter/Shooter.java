@@ -5,6 +5,7 @@ import static frc.lib2202.Constants.MperFT;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib2202.command.WatcherCmd;
@@ -22,6 +23,8 @@ public class Shooter extends SubsystemBase {
         setName("Shooter-" + CAN.ShooterID);
         this.cfg = initFlyWheelConfig();
         flywheel = new FlyWheelRev(CAN.ShooterID, cfg);
+
+        this.getWatcherCmd();
     }
 
     private FlyWheelConfig initFlyWheelConfig() {
@@ -29,19 +32,20 @@ public class Shooter extends SubsystemBase {
         double kI = 0.00015;    // finally stiffen speed with I/D
         double kD = 3.0;
         double kF = 0.255;
-        double iZone = 7.5;
+        double iZone = 3.5;
 
         FlyWheelConfig cfg = new FlyWheelConfig();
         cfg.inverted = true;
-        cfg.rampRate = 0.05;        // try to soften the startup, zero disables
-        cfg.gearRatio = 37.0/23.0;  // approx for proto  [out-rot/mtr-rot]
+        cfg.rampRate = 0.2;        // try to soften the startup, zero disables
+        cfg.gearRatio = 0.6269;     // this was measured -- DPL + BG 1/19/26
         cfg.stallAmp = 40;          // [amp] Check motor specs for amps
         cfg.freeAmp = 5;            // [amp]
         cfg.maxOpenLoopRPM = 5800;  // measure at full power or motor spec
         cfg.flywheelRadius = (2.0 / 12.0) * MperFT; // [m] 2 [inch] converted [m]
+        cfg.iMaxAccum = 2.5;
         // PIDF constant holder for hw
         cfg.hw_pid = new PIDFController(kP, kI, kD, kF, "flywheelPIDF");
-        cfg.hw_pid.setIZone(iZone); 
+        cfg.hw_pid.setIZone(iZone);
         return cfg;
     }
 
@@ -98,6 +102,9 @@ public class Shooter extends SubsystemBase {
         xbox.rightTrigger(0.5)
                 .whileTrue(this.cmdVelocity(14.0)) // [m/s]
                 .onFalse(this.cmdVelocity(0.0));
+        xbox.y().onTrue(new InstantCommand(() -> {
+                this.flywheel.encoder.setPosition(0.0);
+            }));
     }
 
     // watcher will put values on the network tables for viewing elastic
@@ -105,6 +112,8 @@ public class Shooter extends SubsystemBase {
         ShooterWatcher() {
             addEntry("velocity", Shooter.this.flywheel::getVelocity, 2);
             addEntry("at_setpoint", Shooter.this::atSetpoint);
+            addEntry("position", Shooter.this.flywheel::getPosition);
+            addEntry("get_pos_rot", Shooter.this.flywheel::getPosRot);
 
             // other info about flywheel's motor
             addEntry("mtr_appliedOutput", Shooter.this.flywheel.getController()::getAppliedOutput, 2);

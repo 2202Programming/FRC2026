@@ -115,6 +115,14 @@ public class FlyWheelRev {
     return vel_tolerance;
   }
 
+  double getPosition() {
+    return encoder.getPosition();
+  }
+
+  double getPosRot() {
+    return encoder.getPosition() / posConverionFactor;
+  }
+
   FlyWheelRev setVelocityTolerance(double vel_tolerance) {
     this.vel_tolerance = vel_tolerance;
     return this;
