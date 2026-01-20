@@ -28,21 +28,21 @@ public class Shooter extends SubsystemBase {
     }
 
     private FlyWheelConfig initFlyWheelConfig() {
-        double kP = 0.04;       // tune next
-        double kI = 0.00015;    // finally stiffen speed with I/D
-        double kD = 3.0;
+        double kP = 0.07;       // tune next
+        double kI = 0.00018;    // finally stiffen speed with I/D
+        double kD = 15.0;       // Careful with this value
         double kF = 0.255;
-        double iZone = 3.5;
+        double iZone = 7.0;
 
         FlyWheelConfig cfg = new FlyWheelConfig();
         cfg.inverted = true;
-        cfg.rampRate = 0.2;        // try to soften the startup, zero disables
+        cfg.rampRate = 0.1;         // try to soften the startup, zero disables
         cfg.gearRatio = 0.6269;     // this was measured -- DPL + BG 1/19/26
         cfg.stallAmp = 40;          // [amp] Check motor specs for amps
         cfg.freeAmp = 5;            // [amp]
         cfg.maxOpenLoopRPM = 5800;  // measure at full power or motor spec
         cfg.flywheelRadius = (2.0 / 12.0) * MperFT; // [m] 2 [inch] converted [m]
-        cfg.iMaxAccum = 2.5;
+        cfg.iMaxAccum = 0.7;
         // PIDF constant holder for hw
         cfg.hw_pid = new PIDFController(kP, kI, kD, kF, "flywheelPIDF");
         cfg.hw_pid.setIZone(iZone);
@@ -54,6 +54,7 @@ public class Shooter extends SubsystemBase {
         super.initSendable(builder);
         builder.addBooleanProperty("atVelocity", this::atSetpoint, null);
         builder.addDoubleProperty("iMaxAccum", flywheel::getIMaxAccum, flywheel::setIMaxAccum);
+        builder.addDoubleProperty("iAccum", flywheel::getIAccum, null);
         builder.addDoubleProperty("iZone", cfg.hw_pid::getIZone, cfg.hw_pid::setIZone);
         builder.addDoubleProperty("ramp_rate", flywheel::getRampRate, flywheel::setRampRate);
         builder.addDoubleProperty("vel_cmd", ()->{ return flywheel.vel_setpoint;}, flywheel::setSetpoint);

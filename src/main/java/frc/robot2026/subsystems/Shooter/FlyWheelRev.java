@@ -71,6 +71,8 @@ public class FlyWheelRev {
     closedLoopController = controller.getClosedLoopController();
     encoder = controller.getEncoder();
 
+    setIMaxAccum(cfg.iMaxAccum);
+
     setSetpoint(0.0);
   }
 
@@ -121,6 +123,10 @@ public class FlyWheelRev {
 
   double getPosRot() {
     return encoder.getPosition() / posConverionFactor;
+  }
+
+  double getIAccum() {
+    return closedLoopController.getIAccum();
   }
 
   FlyWheelRev setVelocityTolerance(double vel_tolerance) {
