@@ -28,21 +28,21 @@ public class Shooter extends SubsystemBase {
     }
 
     private FlyWheelConfig initFlyWheelConfig() {
-        double kP = 0.07;       // tune next
-        double kI = 0.00018;    // finally stiffen speed with I/D
-        double kD = 15.0;       // Careful with this value
-        double kF = 0.255;
-        double iZone = 7.0;
+        double kP = 0.005;       // tune next
+        double kI = 0.00005;    // finally stiffen speed with I/D
+        double kD = 10.0;       // Seems innsensitive until you add an extremely large value
+        double kF = 0.65;
+        double iZone = 1.0;     // setting it to 0.0 seems to 'unlock' it
 
         FlyWheelConfig cfg = new FlyWheelConfig();
         cfg.inverted = true;
-        cfg.rampRate = 0.1;         // try to soften the startup, zero disables
+        cfg.rampRate = 0.0;         // try to soften the startup, zero disables
         cfg.gearRatio = 0.6269;     // this was measured -- DPL + BG 1/19/26
-        cfg.stallAmp = 40;          // [amp] Check motor specs for amps
-        cfg.freeAmp = 5;            // [amp]
+        cfg.stallAmp = 60;          // [amp] Check motor specs for amps
+        cfg.freeAmp = 10;            // [amp]
         cfg.maxOpenLoopRPM = 5800;  // measure at full power or motor spec
         cfg.flywheelRadius = (2.0 / 12.0) * MperFT; // [m] 2 [inch] converted [m]
-        cfg.iMaxAccum = 0.7;
+        cfg.iMaxAccum = 0.25;
         // PIDF constant holder for hw
         cfg.hw_pid = new PIDFController(kP, kI, kD, kF, "flywheelPIDF");
         cfg.hw_pid.setIZone(iZone);
@@ -98,11 +98,12 @@ public class Shooter extends SubsystemBase {
     // Testing Bindings
     public void setTestBindings(CommandXboxController xbox) {
         xbox.leftTrigger(0.5)
-                .whileTrue(this.cmdVelocity(7.0)) // [m/s]
+                .whileTrue(this.cmdVelocity(10.0)) // [m/s]
                 .onFalse(this.cmdVelocity(0.0));
         xbox.rightTrigger(0.5)
-                .whileTrue(this.cmdVelocity(14.0)) // [m/s]
+                .whileTrue(this.cmdVelocity(15.0)) // [m/s]
                 .onFalse(this.cmdVelocity(0.0));
+        xbox.b().onTrue(this.cmdVelocity(0.0)); // [m/s]
         xbox.y().onTrue(new InstantCommand(() -> {
                 this.flywheel.encoder.setPosition(0.0);
             }));
