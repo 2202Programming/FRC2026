@@ -17,25 +17,41 @@ public class Photonvision extends SubsystemBase {
   /** Creates a new Photonvision. */
 
   PhotonCamera camera;
-  PhotonPipelineResult result;
+  List<PhotonPipelineResult> results;
+  PhotonPipelineResult lastResult;
   boolean hasTargets;
   List<PhotonTrackedTarget> targets;
 
   public Photonvision() {
+    setName("photonvision");
     camera = new PhotonCamera("HD_USB_Camera");
+    // auto start the watcher
+    getWatcherCmd();
   }
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
-                // Query the latest result from PhotonVision
-      result = camera.getLatestResult();
-      hasTargets = result.hasTargets();
-      // Get a list of currently tracked targets.
-      targets = result.getTargets();
+      targets = null;
+      // This method will be called once per scheduler run
+      // Query the latest result from PhotonVision
+      results = camera.getAllUnreadResults(); //docs say this is preferred, other call deprecated
+      int lastIdx = results.size();
+      if (lastIdx > 0) { 
+        lastResult = results.get( lastIdx - 1);
+        hasTargets = lastResult.hasTargets();
+        // Get a list of currently tracked targets.
+        targets = lastResult.getTargets();
+
+        process(targets);
+      }
+  }
+
+  void process(List<PhotonTrackedTarget> targets) {
+    //todo 
   }
 
   public int howManyTargets(){
+    if (targets == null) return -1;  // targets seems like it can be null, protect - dpl
     return targets.size();
   }
 
@@ -47,7 +63,7 @@ public class Photonvision extends SubsystemBase {
 
   class PhotonWatcher extends WatcherCmd {  
     PhotonWatcher() {
-       addEntry("Photon_Has_Target", Photonvision.this::howManyTargets, 1);
+       addEntry("Photon_Has_Target", Photonvision.this::howManyTargets);
     }
   }
 }
