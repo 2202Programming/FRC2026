@@ -8,7 +8,6 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib2202.command.WatcherCmd;
@@ -140,18 +139,24 @@ public class Climber extends SubsystemBase {
     }
 
     public Command armsSetpointCmd(double pos) {
-        return Commands.sequence(
-            setSetpointCmd(pos, l_arm),
-            setSetpointCmd(pos, r_arm)
-            );
+        return runOnce(() -> {  // simple instant cmd, sequenct not needed
+            // if we need to move arms at same time, set both arms to same position
+            l_arm.setSetpoint(pos);
+            r_arm.setSetpoint(pos);
+        });         
     }
 
-    public Command armsCalibrateCmd() {
-        return Commands.sequence(
-            runOnce(() -> {r_arm.setPosition(0.0);}),
-            runOnce(() -> {l_arm.setPosition(0.0);})
-        );
+    // set both arms to a given position, doesn't move, just initializes to position.
+    // typical use at power up or after pitt calibration.
+    public Command armsCalibrateCmd(double position) {
+        return runOnce(() -> {
+            //no sequence needed, these can run in single cmd.
+            r_arm.setPosition(position);
+            l_arm.setPosition(position);
+        });
     }
+
+    // TODO @Gavin,  add a command that waits until the arm is done moving to setpoint.  
 
     public boolean atSetpoint(){
         return l_arm.atSetpoint() && r_arm.atSetpoint();
@@ -172,7 +177,7 @@ public class Climber extends SubsystemBase {
         // Move arms to 0 point
         xbox.x().onTrue(armsSetpointCmd(0.0)); 
         // tell the arms "here is zero"
-        xbox.y().onTrue(armsCalibrateCmd());
+        xbox.y().onTrue(armsCalibrateCmd(0.0));
     }
     
     class ClimberWatcher extends WatcherCmd {
