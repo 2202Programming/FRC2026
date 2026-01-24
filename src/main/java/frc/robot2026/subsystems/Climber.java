@@ -1,6 +1,8 @@
 package frc.robot2026.subsystems;
 // Copyright (c) FIRST and other WPILib contributors.
 
+import java.util.function.BooleanSupplier;
+
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
@@ -8,6 +10,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib2202.command.WatcherCmd;
@@ -157,6 +160,28 @@ public class Climber extends SubsystemBase {
     }
 
     // TODO @Gavin,  add a command that waits until the arm is done moving to setpoint.  
+    // Simple check, only used in the arms to point command. 
+    public boolean armsAtPos() {
+        return l_arm.atSetpoint() && r_arm.atSetpoint();
+    }
+
+
+    public Command armsToPoint(double pos) {
+        return Commands.sequence(
+            armsSetpointCmd(pos),
+            Commands.waitUntil(this::armsAtPos),
+            Commands.print("Arms are at position")
+        );
+    }
+
+    //specify arm of choice if desired. Could cause issues if one of our arms is just flying around, but should still function OK
+    public Command armsToPoint(double pos, Arm arm) {
+        return Commands.sequence(
+            setSetpointCmd(pos, arm),
+            Commands.waitUntil(this::armsAtPos),
+            Commands.print("Arms are at position")
+        );
+    }
 
     public boolean atSetpoint(){
         return l_arm.atSetpoint() && r_arm.atSetpoint();
