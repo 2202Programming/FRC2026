@@ -37,7 +37,7 @@ public class Shooter extends SubsystemBase {
         FlyWheelConfig cfg = new FlyWheelConfig();
         cfg.inverted = true;
         cfg.rampRate = 0.0;         // try to soften the startup, zero disables
-        cfg.gearRatio = 0.6269;     // this was measured -- DPL + BG 1/19/26
+        cfg.gearRatio = 0.6269;     // this was measured -- DPL + BG 1/19/26 
         cfg.stallAmp = 60;          // [amp] Check motor specs for amps
         cfg.freeAmp = 10;            // [amp]
         cfg.maxOpenLoopRPM = 5800;  // measure at full power or motor spec

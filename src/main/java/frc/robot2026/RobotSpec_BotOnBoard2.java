@@ -17,6 +17,7 @@ import frc.lib2202.subsystem.swerve.config.ChassisConfig;
 import frc.lib2202.subsystem.swerve.config.ModuleConfig;
 import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
+import frc.robot2026.subsystems.Hopper;
 import frc.robot2026.subsystems.Intake;
 
 public class RobotSpec_BotOnBoard2 implements IRobotSpec {
@@ -31,9 +32,10 @@ public class RobotSpec_BotOnBoard2 implements IRobotSpec {
 
       .add(HID_Subsystem.class, "DC", () -> {
         return new HID_Subsystem(0.3, 0.9, 0.05);
-
       })
+      
       .add(Intake.class)
+      .add(Hopper.class)
       ;
       // below are optional watchers for shuffeleboard data - disable if need too.
 

@@ -103,6 +103,7 @@ public class FlyWheelRev {
     }
     return this;
   }
+  
 
   double getVelocity() {
     return encoder.getVelocity();
