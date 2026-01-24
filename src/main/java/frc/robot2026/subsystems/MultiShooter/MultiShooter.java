@@ -1,0 +1,128 @@
+package frc.robot2026.subsystems.MultiShooter;
+
+import static frc.lib2202.Constants.MperFT;
+
+import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.lib2202.command.WatcherCmd;
+import frc.lib2202.util.PIDFController;
+import frc.robot2026.Constants.CAN;
+import frc.robot2026.subsystems.MultiShooter.FlyWheelRev.FlyWheelConfig;
+
+public class MultiShooter extends SubsystemBase {
+    final FlyWheelRev flywheel;
+    final FlyWheelConfig cfg;
+
+   //double vel_tolerance; // [m/s]
+
+    public MultiShooter() {
+        setName("Shooter-" + CAN.ShooterID);
+        this.cfg = initFlyWheelConfig();
+        flywheel = new FlyWheelRev(CAN.ShooterID, cfg);
+
+        this.getWatcherCmd();
+    }
+
+    private FlyWheelConfig initFlyWheelConfig() {
+        double kP = 0.06;       // tune next
+        double kI = 0.0001;    // finally stiffen speed with I/D
+        double kD = 80;       // Seems innsensitive until you add an extremely large value
+        double kF = 0.57;
+        double iZone = 1.0;     // setting it to 0.0 seems to 'unlock' it
+
+        FlyWheelConfig cfg = new FlyWheelConfig();
+        cfg.inverted = false;
+        cfg.rampRate = 0.0;         // try to soften the startup, zero disables
+        cfg.gearRatio = 0.75;     // this was measured -- DPL + BG 1/19/26
+        cfg.stallAmp = 80;          // [amp] Check motor specs for amps TESTING 80 FOR MULTI DUE TO HIGH DROP
+        cfg.freeAmp = 10;            // [amp]
+        cfg.maxOpenLoopRPM = 5800;  // measure at full power or motor spec
+        cfg.flywheelRadius = (2.0 / 12.0) * MperFT; // [m] 2 [inch] converted [m]
+        cfg.iMaxAccum = 0.25;
+        // PIDF constant holder for hw
+        cfg.hw_pid = new PIDFController(kP, kI, kD, kF, "flywheelPIDF");
+        cfg.hw_pid.setIZone(iZone);
+        return cfg;
+    }
+
+    @Override
+    public void initSendable(SendableBuilder builder) {
+        super.initSendable(builder);
+        builder.addBooleanProperty("atVelocity", this::atSetpoint, null);
+        builder.addDoubleProperty("iMaxAccum", flywheel::getIMaxAccum, flywheel::setIMaxAccum);
+        builder.addDoubleProperty("iAccum", flywheel::getIAccum, null);
+        builder.addDoubleProperty("iZone", cfg.hw_pid::getIZone, cfg.hw_pid::setIZone);
+        builder.addDoubleProperty("ramp_rate", flywheel::getRampRate, flywheel::setRampRate);
+        builder.addDoubleProperty("vel_cmd", ()->{ return flywheel.vel_setpoint;}, flywheel::setSetpoint);
+        builder.addDoubleProperty("vel_measured", flywheel::getVelocity, null);
+        builder.addDoubleProperty("vel_tolerance", flywheel::getTolerance, flywheel::setVelocityTolerance);
+        // hook in the PID
+        cfg.hw_pid.initSendable(builder);
+    }
+
+    @Override
+    public void periodic() {
+        // update hw, only needed if changes to HW_PID - TODO test mode?
+        flywheel.copyChanges();
+    }
+
+    // Add a watcher so we can see stuff on network tables
+    public WatcherCmd getWatcherCmd() {
+        return this.new ShooterWatcher();
+    }
+
+    // Shooter API
+    public boolean atSetpoint() {
+        return flywheel.atSetpoint();
+    }
+
+    // Basic Commands
+    public Command cmdVelocity(double cmd_vel) {
+        return runOnce(() -> {
+            this.flywheel.setSetpoint(cmd_vel);
+        });
+    }
+
+    public Command cmdVelocityWait(double cmd_vel) {
+        return Commands.sequence(
+                cmdVelocity(cmd_vel),
+                Commands.waitUntil(this::atSetpoint),
+                Commands.print(getName() + " is atSetpoint " + cmd_vel))
+            .withName(getName() + ":cmdVelocityWait=" + cmd_vel);
+    }
+
+    // Testing Bindings
+    public void setTestBindings(CommandXboxController xbox) {
+        xbox.leftTrigger(0.5)
+                .whileTrue(this.cmdVelocity(10.0)) // [m/s]
+                .onFalse(this.cmdVelocity(0.0));
+        xbox.rightTrigger(0.5)
+                .whileTrue(this.cmdVelocity(15.0)) // [m/s]
+                .onFalse(this.cmdVelocity(0.0));
+        xbox.b().onTrue(this.cmdVelocity(0.0)); // [m/s]
+        xbox.y().onTrue(new InstantCommand(() -> {
+                this.flywheel.encoder.setPosition(0.0);
+            }));
+    }
+
+    // watcher will put values on the network tables for viewing elastic
+    class ShooterWatcher extends WatcherCmd {
+        ShooterWatcher() {
+            addEntry("velocity", MultiShooter.this.flywheel::getVelocity, 2);
+            addEntry("at_setpoint", MultiShooter.this::atSetpoint);
+            addEntry("position", MultiShooter.this.flywheel::getPosition);
+            addEntry("get_pos_rot", MultiShooter.this.flywheel::getPosRot);
+
+            // other info about flywheel's motor
+            addEntry("mtr_appliedOutput", MultiShooter.this.flywheel.getController()::getAppliedOutput, 2);
+            addEntry("mtr_OutputAmps", MultiShooter.this.flywheel.getController()::getOutputCurrent, 2);
+            addEntry("mtr_RPM", MultiShooter.this.flywheel::getMotorRPM, 1);
+            addEntry("mtr_Temperature", MultiShooter.this.flywheel.getController()::getMotorTemperature, 2);
+        }
+    }
+
+}
