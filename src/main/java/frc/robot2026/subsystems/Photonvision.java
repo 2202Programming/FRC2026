@@ -4,6 +4,7 @@
 
 package frc.robot2026.subsystems;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,15 +15,12 @@ import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.lib2202.builder.Robot;
 import frc.lib2202.command.WatcherCmd;
 import static frc.robot2026.Constants.Vision.*;
 
-public class Photonvision extends SubsystemBase {
-  /** Creates a new Photonvision. */
-
+//individual photonvision USB cameras
+class RobotCamera {
   PhotonCamera camera;
   List<PhotonPipelineResult> results;
   PhotonPipelineResult lastResult;
@@ -31,18 +29,15 @@ public class Photonvision extends SubsystemBase {
   List<PhotonTrackedTarget> targets;
   private final PhotonPoseEstimator photonEstimator;
   Pose2d currentPose;
+  int camera_number;
 
-  public Photonvision() {
-    setName("photonvision");
-
-    camera = new PhotonCamera("HD_USB_Camera");
-    // auto start the watcher
-    getWatcherCmd();
+  public RobotCamera(String name, int camera_number) {
+    camera = new PhotonCamera(name);
+    this.camera_number = camera_number;
     photonEstimator = new PhotonPoseEstimator(kTagLayout, kRobotToCam);
   }
 
-  @Override
-  public void periodic() {
+  public void update() {
     targets = null;
     // This method will be called once per scheduler run
     // Query the latest result from PhotonVision
@@ -95,8 +90,57 @@ public class Photonvision extends SubsystemBase {
     return currentPose.getY();
   }
 
-  public boolean hasMultitarget(){
+  public boolean hasMultitarget() {
     return multiTag;
+  }
+
+}
+
+public class Photonvision extends SubsystemBase {
+  /** Creates a new Photonvision. */
+
+  List<RobotCamera> camerasList = new ArrayList<RobotCamera>();
+  int num_cam = 2;
+
+  List<String> Cam_Names = new ArrayList<String>();
+  List<Integer> Photon_How_Many_Targets = new ArrayList<Integer>();
+  List<Boolean> Photon_Has_Multi_Target = new ArrayList<Boolean>();
+  List<Double> PoseX = new ArrayList<Double>();
+  List<Double> PoseY = new ArrayList<Double>();
+
+  public Photonvision() {
+    setName("photonvision");
+
+    //list of photonvision cameras, order shouldn't matter
+    Cam_Names.add("HD_USB_Camera");
+    Cam_Names.add("USB_Camera");
+
+    for (int i = 0; i < num_cam; i++) {
+      camerasList.add(new RobotCamera(Cam_Names.get(i), i));
+      Photon_Has_Multi_Target.add(false);
+      Photon_How_Many_Targets.add(-1);
+      PoseX.add(-1.0);
+      PoseY.add(-1.0);
+    }
+    getWatcherCmd();
+
+  }
+
+  @Override
+  public void periodic() {
+    RobotCamera currentCamera;
+    for (int i = 0; i < num_cam; i++) {
+      currentCamera = camerasList.get(i);
+      currentCamera.update(); //run each camera's periodic
+      Photon_How_Many_Targets.set(i, currentCamera.howManyTargets());
+      Photon_Has_Multi_Target.set(i, currentCamera.hasMultitarget());
+      PoseX.set(i, currentCamera.getCurrentPoseX());
+      PoseY.set(i, currentCamera.getCurrentPoseY());
+    }
+  }
+
+  void process(List<PhotonTrackedTarget> targets) {
+    // todo
   }
 
   // Add a watcher so we can see stuff on network tables
@@ -104,12 +148,32 @@ public class Photonvision extends SubsystemBase {
     return this.new PhotonWatcher();
   }
 
+  public int howManyTargets(int listPos) {
+    return camerasList.get(listPos).howManyTargets();
+  }
+
+  public boolean hasMultitarget(int listPos) {
+    return camerasList.get(listPos).hasMultitarget();
+  }
+
+  public double getPoseX(int listPos) {
+    return camerasList.get(listPos).getCurrentPoseX();
+  }
+
+  public double getPoseY(int listPos) {
+    return camerasList.get(listPos).getCurrentPoseY();
+  }
+
   class PhotonWatcher extends WatcherCmd {
     PhotonWatcher() {
-      addEntry("Photon_Has_Target", Photonvision.this::howManyTargets);
-      addEntry("Photon Estimate X", Photonvision.this::getCurrentPoseX);
-      addEntry("Photon Estimate Y", Photonvision.this::getCurrentPoseY);
-      addEntry("Photon_Multi_Target", Photonvision.this::hasMultitarget);
+      RobotCamera currentCamera;
+      for (int i = 0; i < num_cam; i++) {
+        currentCamera = camerasList.get(i);
+        addEntry("Photon_How_Many_Targets[Cam" + i + "]", currentCamera::howManyTargets);
+        addEntry("Photon Estimate X[Cam" + i + "]", currentCamera::getCurrentPoseX);
+        addEntry("Photon Estimate Y[Cam" + i + "]", currentCamera::getCurrentPoseY);
+        addEntry("Photon_Multi_Target[Cam" + i + "]", currentCamera::hasMultitarget);
+      }
     }
   }
 }
