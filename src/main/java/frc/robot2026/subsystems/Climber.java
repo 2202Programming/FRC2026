@@ -32,7 +32,7 @@ public class Climber extends SubsystemBase {
     final int STALL_CURRENT = 60; // [Amp] placeholder 
     final int FREE_CURRENT = 5;   // [Amp] placeholder  
     
-    public final Arm l_arm;
+    //public final Arm l_arm;
     public final Arm r_arm; 
     /* My logic for making these public is to allow access to the individual methods while outside the system.
        Otherwise that will just mean making more methods, and that seems like a waste - Gavin 
@@ -108,7 +108,7 @@ public class Climber extends SubsystemBase {
 
     public Climber() {
         // Set up in this format to use both arms as needed.
-        l_arm = new Arm(CAN.l_arm,"L", true, "Left Arm");
+        //l_arm = new Arm(CAN.l_arm,"L", true, "Left Arm");
         r_arm = new Arm(CAN.r_arm,"R", true, "Right Arm");
     }
 
@@ -121,14 +121,14 @@ public class Climber extends SubsystemBase {
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
-        l_arm.servo.periodic();
+        //l_arm.servo.periodic();
         r_arm.servo.periodic();
     }
 
     @Override
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
-        l_arm.initSendable(builder);
+        //l_arm.initSendable(builder);
         r_arm.initSendable(builder);        
     }
         
@@ -144,7 +144,7 @@ public class Climber extends SubsystemBase {
     public Command armsSetpointCmd(double pos) {
         return runOnce(() -> {  // simple instant cmd, sequenct not needed
             // if we need to move arms at same time, set both arms to same position
-            l_arm.setSetpoint(pos);
+            //l_arm.setSetpoint(pos);
             r_arm.setSetpoint(pos);
         });         
     }
@@ -155,13 +155,13 @@ public class Climber extends SubsystemBase {
         return runOnce(() -> {
             //no sequence needed, these can run in single cmd.
             r_arm.setPosition(position);
-            l_arm.setPosition(position);
+            //l_arm.setPosition(position);
         });
     }
 
     // Simple check, only used in the arms to point command. 
     public boolean armsAtPos() {
-        return l_arm.atSetpoint() && r_arm.atSetpoint();
+        return r_arm.atSetpoint();
     }
 
 
@@ -182,10 +182,6 @@ public class Climber extends SubsystemBase {
         ).withName(arm.name + " - " + pos);
     }
 
-    public boolean atSetpoint(){
-        return l_arm.atSetpoint() && r_arm.atSetpoint();
-    }
-
 
 
     public void setDemoBindings(CommandXboxController xbox) {
@@ -193,10 +189,10 @@ public class Climber extends SubsystemBase {
          * These are some basic test bindings for the climber, including a reset 0 position for when we do position testing.          
         */
         //velocity cmds while held it should spin, to test or align in pitt
-        xbox.povLeft().whileTrue(this.setVelocityCmd(2.0, l_arm)).onFalse(this.setVelocityCmd(0.0, l_arm));
-        xbox.povRight().whileTrue(this.setVelocityCmd(-2.0, l_arm)).onFalse(this.setVelocityCmd(0.0, l_arm));
-        xbox.povUp().whileTrue(this.setVelocityCmd(2.0, r_arm)).onFalse(this.setVelocityCmd(0.0, r_arm));
-        xbox.povDown().whileTrue(this.setVelocityCmd(-2.0, r_arm)).onFalse(this.setVelocityCmd(0.0, r_arm));
+        //xbox.povLeft().whileTrue(this.setVelocityCmd(5.0, l_arm)).onFalse(this.setVelocityCmd(0.0, l_arm));
+        //xbox.povRight().whileTrue(this.setVelocityCmd(-10.0, l_arm)).onFalse(this.setVelocityCmd(0.0, l_arm));
+        xbox.povUp().whileTrue(this.setVelocityCmd(5.0, r_arm)).onFalse(this.setVelocityCmd(0.0, r_arm));
+        xbox.povDown().whileTrue(this.setVelocityCmd(-10.0, r_arm)).onFalse(this.setVelocityCmd(0.0, r_arm));
 
         // Move arms to 0 point
         xbox.x().onTrue(armsSetpointCmd(0.0)); 
@@ -206,10 +202,12 @@ public class Climber extends SubsystemBase {
     
     class ClimberWatcher extends WatcherCmd {
         ClimberWatcher() {
-            addEntry("L_position", Climber.this.l_arm::getPosition, 1);
+            //addEntry("L_position", Climber.this.l_arm::getPosition, 1);
             addEntry("R_position", Climber.this.r_arm::getPosition, 1);
-            addEntry("AtSetpoint", Climber.this::atSetpoint);
-            l_arm.servo.getWatcher();
+            //addEntry("L_Velocity", Climber.this.l_arm::getVelocity, 1);
+            addEntry("R_Velocity", Climber.this.r_arm::getVelocity, 1);
+            addEntry("AtSetpoint", Climber.this::armsAtPos);
+            //l_arm.servo.getWatcher();
             r_arm.servo.getWatcher();
         }
     }

@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib2202.builder.IRobotSpec;
 import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.builder.RobotLimits;
@@ -36,6 +37,7 @@ import frc.lib2202.subsystem.swerve.config.ModuleConfig;
 import frc.lib2202.subsystem.swerve.config.ModuleConfig.CornerID;
 import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
+import frc.robot2026.subsystems.Climber;
 import frc.robot2026.subsystems.LimelightV2;
 import frc.robot2026.subsystems.VisionPoseEstimator;
 
@@ -73,6 +75,9 @@ public class RobotSpec_Alpha2026 implements IRobotSpec {
         var obj = new Odometry();
         obj.new OdometryWatcher();
         return obj;
+      })
+      .add(Climber.class, "Climber", () -> {
+        return new Climber();
       })
       // VisonPoseEstimator needs LL and Odometry, adds simplename and alias to lookup
       .addAlias(VisionPoseEstimator.class, "vision_odo")    
@@ -155,6 +160,10 @@ public class RobotSpec_Alpha2026 implements IRobotSpec {
     DriveTrainInterface sdt = RobotContainer.getSubsystemOrNull("drivetrain");
     HID_Subsystem dc = RobotContainer.getSubsystem("DC");
 
+    CommandXboxController opr = (dc.Operator() instanceof CommandXboxController)
+                ? (CommandXboxController) dc.Operator()
+                : null;
+
     // Initialize PathPlanner, if we have needed Subsystems
     if (odo != null && sdt != null) {
       AutoPPConfigure.configureAutoBuilder(sdt, odo);
@@ -168,6 +177,8 @@ public class RobotSpec_Alpha2026 implements IRobotSpec {
     // Place your test binding in ./testBinding/<yourFile>.java and call it here
     // comment out any conflicting bindings. Try not to push with your bindings
     // active. Just comment them out. 
+    Climber clb = RobotContainer.getSubsystemOrNull("Climber");
+    clb.setDemoBindings(opr);
    
 
     // Anything else that needs to run after binding/commands are created
