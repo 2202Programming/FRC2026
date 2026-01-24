@@ -72,12 +72,6 @@ public final class Constants {
     public static final int PIGEON_IMU_CAN = 60;
   }
 
-
-    // Photonvision
-    public static final class Cameras{
-      public static final String[] CAMERA_NAMES = {"HD_USB_Camera","USB_Camera"};
-    }
-
   public static final class PWM{
     //public static final int Wrist = 0;
   }
@@ -109,10 +103,18 @@ public final class Constants {
   }  
 
     public static class Vision {
-      public static final String kCameraName = "YOUR CAMERA NAME";
-      // Cam mounted facing forward, half a meter forward of center, half a meter up from center.
-      public static final Transform3d kRobotToCam =
-              new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, 0, 0));
+      //photonvision camera names (needs to match photonvision UI naming)
+      public static final String[] CAMERA_NAMES = {"HD_USB_Camera","USB_Camera"};
+
+      // Robot to camera transforms.
+      // Example: Cam mounted facing forward, half a meter forward of center, half a meter up from center.
+      // Translation3d(0.5, 0.0, 0.5)
+    
+      public static final Transform3d[] kRobotToCam = {
+              new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, 0, 0)),
+              new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, 0, 0))
+            };
+
 
       // The layout of the AprilTags on the field
       public static final AprilTagFieldLayout kTagLayout =

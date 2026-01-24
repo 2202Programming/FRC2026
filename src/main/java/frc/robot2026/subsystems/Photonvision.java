@@ -17,7 +17,8 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-import frc.robot2026.Constants.Cameras;
+import frc.robot2026.Constants.Vision;
+
 import static frc.robot2026.Constants.Vision.*;
 
 import frc.lib2202.command.WatcherCmd;
@@ -40,7 +41,7 @@ class RobotCamera {
   public RobotCamera(String name, int camera_number) {
     camera = new PhotonCamera(name);
     this.camera_number = camera_number;
-    photonEstimator = new PhotonPoseEstimator(kTagLayout, kRobotToCam);
+    photonEstimator = new PhotonPoseEstimator(kTagLayout, kRobotToCam[camera_number]);
   }
 
   public void update() {
@@ -55,16 +56,15 @@ class RobotCamera {
       // Get a list of currently tracked targets.
       targets = lastResult.getTargets();
 
-      process(targets);
     }
 
     Optional<EstimatedRobotPose> visionEst = Optional.empty();
     for (var result : camera.getAllUnreadResults()) {
       multiTag = true;
       visionEst = photonEstimator.estimateCoprocMultiTagPose(result);
-      if (visionEst.isEmpty()) {
+      if (visionEst.isEmpty()) { //less than 2 tages, no multitag available
         multiTag = false;
-        visionEst = photonEstimator.estimateLowestAmbiguityPose(result);
+        visionEst = photonEstimator.estimateLowestAmbiguityPose(result); //use single tag estimator
       }
       visionEst.ifPresent(
           est -> {
@@ -72,10 +72,6 @@ class RobotCamera {
           });
     }
 
-  }
-
-  void process(List<PhotonTrackedTarget> targets) {
-    // todo
   }
 
   public int howManyTargets() {
@@ -105,11 +101,7 @@ class RobotCamera {
 public class Photonvision extends SubsystemBase {
   /** Creates a new Photonvision. */
 
-  
-
   List<RobotCamera> camerasList = new ArrayList<RobotCamera>();
-
-  //List<String> Cam_Names = new ArrayList<String>();
   List<Integer> Photon_How_Many_Targets = new ArrayList<Integer>();
   List<Boolean> Photon_Has_Multi_Target = new ArrayList<Boolean>();
   List<Double> PoseX = new ArrayList<Double>();
@@ -118,12 +110,8 @@ public class Photonvision extends SubsystemBase {
   public Photonvision() {
     setName("photonvision");
 
-    //list of photonvision cameras, order shouldn't matter
-    //Cam_Names.add("HD_USB_Camera");
-    //Cam_Names.add("USB_Camera");
-
-    for (int i = 0; i < Cameras.CAMERA_NAMES.length; i++) {
-      camerasList.add(new RobotCamera(Cameras.CAMERA_NAMES[i], i));
+    for (int i = 0; i < Vision.CAMERA_NAMES.length; i++) {
+      camerasList.add(new RobotCamera(Vision.CAMERA_NAMES[i], i));
       Photon_Has_Multi_Target.add(false);
       Photon_How_Many_Targets.add(-1);
       PoseX.add(-1.0);
@@ -174,7 +162,7 @@ public class Photonvision extends SubsystemBase {
   class PhotonWatcher extends WatcherCmd {
     PhotonWatcher() {
       RobotCamera currentCamera;
-      for (int i = 0; i < Cameras.CAMERA_NAMES.length; i++) {
+      for (int i = 0; i < Vision.CAMERA_NAMES.length; i++) {
         currentCamera = camerasList.get(i);
         addEntry("Photon_How_Many_Targets[Cam" + i + "]", currentCamera::howManyTargets);
         addEntry("Photon Estimate X[Cam" + i + "]", currentCamera::getCurrentPoseX);
