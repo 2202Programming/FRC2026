@@ -1,8 +1,6 @@
 package frc.robot2026.subsystems;
 // Copyright (c) FIRST and other WPILib contributors.
 
-import java.util.function.BooleanSupplier;
-
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
@@ -43,12 +41,14 @@ public class Climber extends SubsystemBase {
     */
     public class Arm implements Sendable {
         final NeoServo servo;
+        String name;
      
         // each arm needs own copy of pids, especially the softare position pid which is run by servo.periodic()
         PIDController posPID = new PIDController(4.0, 0.0015, 0.125);
         PIDFController hwVelPID = new PIDFController(0.02, 0.0, 0, 0.0285);
 
-        Arm(int CANID, String side, boolean inverted) {            
+        Arm(int CANID, String side, boolean inverted, String name) {            
+            this.name = name;
             hwVelPID.setIZone(0.0);            
             hwVelPID.setIntegratorRange(0.0, 0.0);
             servo = new NeoServo(CANID, posPID, hwVelPID, inverted);
@@ -108,8 +108,8 @@ public class Climber extends SubsystemBase {
 
     public Climber() {
         // Set up in this format to use both arms as needed.
-        l_arm = new Arm(CAN.l_arm,"L", true);
-        r_arm = new Arm(CAN.r_arm,"R", true);
+        l_arm = new Arm(CAN.l_arm,"L", true, "Left Arm");
+        r_arm = new Arm(CAN.r_arm,"R", true, "Right Arm");
     }
 
     public Command setVelocityCmd(double vel, Arm arm) {
@@ -159,7 +159,6 @@ public class Climber extends SubsystemBase {
         });
     }
 
-    // TODO @Gavin,  add a command that waits until the arm is done moving to setpoint.  
     // Simple check, only used in the arms to point command. 
     public boolean armsAtPos() {
         return l_arm.atSetpoint() && r_arm.atSetpoint();
@@ -171,16 +170,16 @@ public class Climber extends SubsystemBase {
             armsSetpointCmd(pos),
             Commands.waitUntil(this::armsAtPos),
             Commands.print("Arms are at position")
-        );
+        ).withName("Arms - " + pos);
     }
 
     //specify arm of choice if desired. Could cause issues if one of our arms is just flying around, but should still function OK
     public Command armsToPoint(double pos, Arm arm) {
         return Commands.sequence(
             setSetpointCmd(pos, arm),
-            Commands.waitUntil(this::armsAtPos),
+            Commands.waitUntil(arm::atSetpoint),
             Commands.print("Arms are at position")
-        );
+        ).withName(arm.name + " - " + pos);
     }
 
     public boolean atSetpoint(){
