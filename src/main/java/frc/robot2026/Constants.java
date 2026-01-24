@@ -1,5 +1,7 @@
 package frc.robot2026;
 
+import java.util.List;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.VecBuilder;
@@ -69,6 +71,12 @@ public final class Constants {
     // IMU
     public static final int PIGEON_IMU_CAN = 60;
   }
+
+
+    // Photonvision
+    public static final class Cameras{
+      public static final String[] CAMERA_NAMES = {"HD_USB_Camera","USB_Camera"};
+    }
 
   public static final class PWM{
     //public static final int Wrist = 0;

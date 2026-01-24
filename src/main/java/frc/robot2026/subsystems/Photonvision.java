@@ -16,11 +16,17 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.lib2202.command.WatcherCmd;
+
+import frc.robot2026.Constants.Cameras;
 import static frc.robot2026.Constants.Vision.*;
+
+import frc.lib2202.command.WatcherCmd;
 
 //individual photonvision USB cameras
 class RobotCamera {
+
+  
+
   PhotonCamera camera;
   List<PhotonPipelineResult> results;
   PhotonPipelineResult lastResult;
@@ -99,10 +105,11 @@ class RobotCamera {
 public class Photonvision extends SubsystemBase {
   /** Creates a new Photonvision. */
 
-  List<RobotCamera> camerasList = new ArrayList<RobotCamera>();
-  int num_cam = 2;
+  
 
-  List<String> Cam_Names = new ArrayList<String>();
+  List<RobotCamera> camerasList = new ArrayList<RobotCamera>();
+
+  //List<String> Cam_Names = new ArrayList<String>();
   List<Integer> Photon_How_Many_Targets = new ArrayList<Integer>();
   List<Boolean> Photon_Has_Multi_Target = new ArrayList<Boolean>();
   List<Double> PoseX = new ArrayList<Double>();
@@ -112,11 +119,11 @@ public class Photonvision extends SubsystemBase {
     setName("photonvision");
 
     //list of photonvision cameras, order shouldn't matter
-    Cam_Names.add("HD_USB_Camera");
-    Cam_Names.add("USB_Camera");
+    //Cam_Names.add("HD_USB_Camera");
+    //Cam_Names.add("USB_Camera");
 
-    for (int i = 0; i < num_cam; i++) {
-      camerasList.add(new RobotCamera(Cam_Names.get(i), i));
+    for (int i = 0; i < Cameras.CAMERA_NAMES.length; i++) {
+      camerasList.add(new RobotCamera(Cameras.CAMERA_NAMES[i], i));
       Photon_Has_Multi_Target.add(false);
       Photon_How_Many_Targets.add(-1);
       PoseX.add(-1.0);
@@ -129,7 +136,7 @@ public class Photonvision extends SubsystemBase {
   @Override
   public void periodic() {
     RobotCamera currentCamera;
-    for (int i = 0; i < num_cam; i++) {
+    for (int i = 0; i < camerasList.size(); i++) {
       currentCamera = camerasList.get(i);
       currentCamera.update(); //run each camera's periodic
       Photon_How_Many_Targets.set(i, currentCamera.howManyTargets());
@@ -167,7 +174,7 @@ public class Photonvision extends SubsystemBase {
   class PhotonWatcher extends WatcherCmd {
     PhotonWatcher() {
       RobotCamera currentCamera;
-      for (int i = 0; i < num_cam; i++) {
+      for (int i = 0; i < Cameras.CAMERA_NAMES.length; i++) {
         currentCamera = camerasList.get(i);
         addEntry("Photon_How_Many_Targets[Cam" + i + "]", currentCamera::howManyTargets);
         addEntry("Photon Estimate X[Cam" + i + "]", currentCamera::getCurrentPoseX);
