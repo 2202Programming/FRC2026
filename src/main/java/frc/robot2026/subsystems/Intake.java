@@ -8,7 +8,9 @@ import com.revrobotics.spark.SparkBase;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib2202.command.WatcherCmd;
 import frc.lib2202.util.NeoServo;
 import frc.lib2202.util.PIDFController;
@@ -36,32 +38,33 @@ public class Intake extends SubsystemBase {
   final int STALL_CURRENT = 80;
   final int FREE_CURRENT = 5;
   final boolean top_motor_inverted = true;
-  final boolean bottom_motor_inverted = true;
+  final boolean bottom_motor_inverted = false;
 
   // Servo speed/positions
   final double maxVel = 100.0;
   final double maxAccel = 75.0;
 
   double cmdPos;
-  double cmdVel;
+  double cmdPct;
 
 //   final SparkBase controller;
 //   final SparkClosedLoopController cl_controller;
 
   /** Creates a new Intake. */
   public Intake() {
+    setName("Intake-Top=" + CAN.IntakeTopID + " | Intake-Bottom=" + CAN.IntakeBottomID);
+
     // setup any other hardware Pid values, like Izone 
     topHWVelocity_PID.setIZone(200.0); //[deg/s]  outside this region ignore integral
     bottomHWVelocity_PID.setIZone(200.0); //[deg/s]  outside this region ignore integral
 
     //Setup servos, for velocity or position control.
     topRoller = new NeoServo(CAN.IntakeTopID, topPosition_PID, topHWVelocity_PID, top_motor_inverted);
-    bottomRoller = new NeoServo(CAN.IntakeBotomID, bottomPosition_PID, bottomHWVelocity_PID, bottom_motor_inverted);
+    bottomRoller = new NeoServo(CAN.IntakeBottomID, bottomPosition_PID, bottomHWVelocity_PID, bottom_motor_inverted);
     
     //Mr.L Feedback - can't recreate controllers with CANID, it was used by NeoServo, so pull from it
     btmRlrMtr = bottomRoller.getController(); //new SparkMax(50, SparkMax.MotorType.kBrushless);
     topRlrMtr = topRoller.getController();    // new SparkMax(51, SparkMax.MotorType.kBrushless);
-
         // get the controllers out of the server so we can monitor in our watcher.
         // controller = servo.getController();
         // cl_controller = controller.getClosedLoopController();
@@ -74,10 +77,10 @@ public class Intake extends SubsystemBase {
   }
 
   // velocity control only used for testing, normal cmds will use position
-  public void setPercent(double vel) {
-    cmdVel = vel;
-    btmRlrMtr.set(vel);
-    topRlrMtr.set(-vel);
+  public void setPercent(double pct) {
+    cmdPct = pct;
+    btmRlrMtr.set(pct);
+    topRlrMtr.set(pct);
   }
 
   public double getTVelocity() {
@@ -87,18 +90,6 @@ public class Intake extends SubsystemBase {
   public double getBVelocity() {
     return bottomRoller.getVelocity();
   }
-
-  // public double getMaxVel() {
-  //   return servo.getMaxVel();
-  // }
-
-  // public void setMaxVelocity(double vel) {
-  //   servo.setMaxVelocity(vel);
-  // }
-
-  // public double getCmdVelocity() {
-  //   return cmdVel;
-  // }
 
   @Override
   public void periodic() {
@@ -110,12 +101,31 @@ public class Intake extends SubsystemBase {
     }
   }
 
+  public Command cmdPctPwr(double cmd_pct) {
+    return run(() -> {
+      this.setPercent(cmd_pct);
+    });
+  }
+
+  public void setTestBindings(CommandXboxController opr) {
+    opr.leftBumper()
+        .whileTrue(this.cmdPctPwr(0.5))
+        .onFalse(this.cmdPctPwr(0.0));
+
+    opr.rightBumper()
+        .whileTrue(this.cmdPctPwr(1.0))
+        .onFalse(this.cmdPctPwr(0.0));
+  }
+
   @Override
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
         //TODO add parameters here for tuning
         builder.addDoubleProperty("vel_1_top", this.topRoller::getVelocity, this.topRoller::setSetpoint);
         builder.addDoubleProperty("vel_2_bot", this.bottomRoller::getVelocity, this.bottomRoller::setSetpoint);
+
+        builder.addDoubleProperty("pct_pwr_top", this.topRlrMtr::get, this.topRlrMtr::set);
+        builder.addDoubleProperty("pct_pwr_btm", this.btmRlrMtr::get, this.btmRlrMtr::set);
     }
 
     // Add a watcher so we can see stuff on network tables

@@ -54,8 +54,8 @@ public final class Constants {
     public static final int FR_CANCoder = 30;
 
     // Intake
-    public static final int IntakeTopID = 30;
-    public static final int IntakeBotomID = 31;
+    public static final int IntakeTopID = 26;
+    public static final int IntakeBottomID = 27;
    
     //Shooter
     public static final int ShooterID = 51;
