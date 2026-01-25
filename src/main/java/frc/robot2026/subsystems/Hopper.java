@@ -78,7 +78,7 @@ public class Hopper extends SubsystemBase {
         .positionConversionFactor(posCF)
         .velocityConversionFactor(velCF);
     
-    // SLOT 0 CONFIG
+    // SLOT 0 CONFIG - POSITION
     indexerCfg.closedLoop
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
         .p(P).i(I).d(D)
@@ -86,7 +86,7 @@ public class Hopper extends SubsystemBase {
         .feedForward
             .kV(kV, ClosedLoopSlot.kSlot0);
     
-    // SLOT 1 CONFIG
+    // SLOT 1 CONFIG - VELOCITY
     indexerCfg.closedLoop
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
         .p(P).i(I).d(D)
@@ -105,6 +105,27 @@ public class Hopper extends SubsystemBase {
         .maxAcceleration(velMaxAccel, ClosedLoopSlot.kSlot1);
 
     indexerCtrl.configure(indexerCfg, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+  }
+
+  // Expose PIDS and other values for tuning
+  public void updatePosHardware() {
+    hwPidfCtrl.copyChangesTo(indexerCtrl, indexerCfg, ClosedLoopSlot.kSlot0);
+  }
+
+  public void updateVelHardware() {
+    hwPidfCtrl.copyChangesTo(indexerCtrl, indexerCfg, ClosedLoopSlot.kSlot1);
+  }
+
+  public double getIAccum() {
+    return indexerCLCtrl.getIAccum();
+  }
+
+  public double getPosition() {
+    return indexerEncoder.getPosition();
+  }
+
+  public double getVelocity() {
+    return indexerEncoder.getVelocity();
   }
   
   // Vel + Pos control for the indexer
@@ -130,6 +151,7 @@ public class Hopper extends SubsystemBase {
     singleBeltCtrl.set(pct);
   }
 
+  // Commands to control belt pwr
   public Command cmdPct(double pct) {
     return run(() -> {
       setBeltsPercent(pct);
@@ -167,8 +189,15 @@ public class Hopper extends SubsystemBase {
         .onFalse(cmdPct(0.0));
         
     xbox.rightTrigger(0.5)
-          .onTrue(cmdPct(1.0))
+        .onTrue(cmdPct(1.0))
         .onFalse(cmdPct(0.0));
+
+    xbox.leftBumper()
+        .onTrue(setVelocity(5.0))
+        .onFalse(setVelocity(0.0));
+
+    xbox.rightBumper()
+        .onTrue(setPosition(5.0));
   }
   
   @Override

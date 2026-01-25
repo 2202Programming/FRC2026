@@ -18,7 +18,6 @@ import frc.lib2202.subsystem.swerve.config.ModuleConfig;
 import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
 import frc.robot2026.subsystems.Hopper;
-import frc.robot2026.subsystems.Intake;
 
 public class RobotSpec_BotOnBoard2 implements IRobotSpec {
   // $env:serialnum = "0326F275"
@@ -34,7 +33,7 @@ public class RobotSpec_BotOnBoard2 implements IRobotSpec {
         return new HID_Subsystem(0.3, 0.9, 0.05);
       })
       
-      .add(Intake.class)
+      // .add(Intake.class)
       .add(Hopper.class)
       ;
       // below are optional watchers for shuffeleboard data - disable if need too.
@@ -99,8 +98,8 @@ public class RobotSpec_BotOnBoard2 implements IRobotSpec {
       CommandXboxController operator = (CommandXboxController)dc.Operator();
 
       // TEST BINDING FOR NOW 
-      Intake intake = RobotContainer.getSubsystem(Intake.class);
-      intake.setTestBindings(operator);  // uses triggers
+      Hopper hopper = RobotContainer.getSubsystem(Hopper.class);
+      hopper.setTestBindings(operator);  // uses triggers
       // operator.a().whileTrue(new IntakePwrSpin(0.2));
     }
   }
