@@ -34,7 +34,9 @@ public class RobotSpec_BotOnBoard1 implements IRobotSpec {
 
       })
       // .add(Intake.class)
-      .add(Shooter.class)
+      .add(Shooter.class, "Shooter", () ->{
+        return new Shooter("ctre"); //opts: rev,ctre,multi
+      })
       ;
       // below are optional watchers for shuffeleboard data - disable if need too.
 

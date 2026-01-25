@@ -27,6 +27,10 @@ public class Shooter extends SubsystemBase {
             cfg = initFlyWheelConfigCTRE();
             flywheel = new FlyWheelCtre(CAN.ShooterID, cfg);
         }
+        else if (controllerType.equalsIgnoreCase("multi")) {
+            cfg = initMultiFlyWheelConfigREV();
+            flywheel = new FlyWheelRev(CAN.ShooterID, cfg);
+        }
         else {
             cfg = initFlyWheelConfigREV();
             flywheel = new FlyWheelRev(CAN.ShooterID, cfg);
@@ -47,6 +51,29 @@ public class Shooter extends SubsystemBase {
         cfg.rampRate = 0.0;         // try to soften the startup, zero disables
         cfg.gearRatio = 0.6269;     // this was measured -- DPL + BG 1/19/26 
         cfg.stallAmp = 60;          // [amp] Check motor specs for amps
+        cfg.freeAmp = 10;            // [amp]
+        cfg.maxOpenLoopRPM = 5800;  // measure at full power or motor spec
+        cfg.flywheelRadius = (2.0 / 12.0) * MperFT; // [m] 2 [inch] converted [m]
+        cfg.iMaxAccum = 0.25;
+        // PIDF constant holder for hw
+        cfg.hw_pid = new PIDFController(kP, kI, kD, kF, "flywheelPIDF");
+        cfg.hw_pid.setIZone(iZone);
+        return cfg;
+    }
+
+    // tuning from MultiShooter, also rev Neo
+    private FlyWheelConfig initMultiFlyWheelConfigREV() {
+        double kP = 0.06;       // tune next
+        double kI = 0.0001;    // finally stiffen speed with I/D
+        double kD = 80;       // Seems innsensitive until you add an extremely large value
+        double kF = 0.57;
+        double iZone = 1.0;     // setting it to 0.0 seems to 'unlock' it
+
+        FlyWheelConfig cfg = new FlyWheelConfig();
+        cfg.inverted = false;
+        cfg.rampRate = 0.0;         // try to soften the startup, zero disables
+        cfg.gearRatio = 0.75;     // this was measured -- DPL + BG 1/19/26
+        cfg.stallAmp = 80;          // [amp] Check motor specs for amps TESTING 80 FOR MULTI DUE TO HIGH DROP
         cfg.freeAmp = 10;            // [amp]
         cfg.maxOpenLoopRPM = 5800;  // measure at full power or motor spec
         cfg.flywheelRadius = (2.0 / 12.0) * MperFT; // [m] 2 [inch] converted [m]
