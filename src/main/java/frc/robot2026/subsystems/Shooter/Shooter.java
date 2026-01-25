@@ -11,23 +11,31 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib2202.command.WatcherCmd;
 import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
-import frc.robot2026.subsystems.Shooter.FlyWheelRev.FlyWheelConfig;
 
 public class Shooter extends SubsystemBase {
-    final FlyWheelRev flywheel;
+    final IFlyWheel flywheel;
     final FlyWheelConfig cfg;
 
-   //double vel_tolerance; // [m/s]
-
     public Shooter() {
-        setName("Shooter-" + CAN.ShooterID);
-        this.cfg = initFlyWheelConfig();
-        flywheel = new FlyWheelRev(CAN.ShooterID, cfg);
-
-        this.getWatcherCmd();
+        this("rev");
     }
 
-    private FlyWheelConfig initFlyWheelConfig() {
+    public Shooter(String controllerType) {
+        setName("Shooter-" + CAN.ShooterID);
+        // pick which controller we are using
+        if (controllerType.equalsIgnoreCase("ctre")) {
+            cfg = initFlyWheelConfigCTRE();
+            flywheel = new FlyWheelCtre(CAN.ShooterID, cfg);
+        }
+        else {
+            cfg = initFlyWheelConfigREV();
+            flywheel = new FlyWheelRev(CAN.ShooterID, cfg);
+        }
+        this.getWatcherCmd();        
+    }
+
+    //Setup using NEO1
+    private FlyWheelConfig initFlyWheelConfigREV() {
         double kP = 0.005;       // tune next
         double kI = 0.00005;    // finally stiffen speed with I/D
         double kD = 10.0;       // Seems innsensitive until you add an extremely large value
@@ -49,17 +57,49 @@ public class Shooter extends SubsystemBase {
         return cfg;
     }
 
+    // for testing Kraken
+    private FlyWheelConfig initFlyWheelConfigCTRE() {
+        double kP = 0.0;         // 
+        double kI = 0.0;         // finally stiffen speed with I/D
+        double kD = 0.0;         // Seems innsensitive until you add an extremely large value
+        double kF = 0.12;        // Kraken X60 is a 500 kV motor, 500 rpm per V = 8.333 rps per V,
+                                 //  1/8.33 =// 0.12 volts / rotation per second
+        double iZone = 0.0;     // unused in Talon CTRE controller
+
+        FlyWheelConfig cfg = new FlyWheelConfig();
+        cfg.inverted = true;
+        cfg.rampRate = 0.0;         // not implemented in ctre, but could be
+        cfg.gearRatio = 0.6269;     // check this
+        cfg.stallAmp = 60;          // [amp] Use as stator amps
+        cfg.freeAmp = 10;           // [amp] //unused
+        cfg.maxOpenLoopRPM = 5800;  // measure at full power or motor spec
+        cfg.flywheelRadius = (2.0 / 12.0) * MperFT; // [m] 2 [inch] converted [m]
+        cfg.iMaxAccum = 0.0;        //unused in ctre
+        // PIDF constant holder for hw
+        cfg.hw_pid = new PIDFController(kP, kI, kD, kF, "flywheelPIDF");
+        cfg.hw_pid.setIZone(iZone);
+        return cfg;
+    }
+
+
+
     @Override
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
-        builder.addBooleanProperty("atVelocity", this::atSetpoint, null);
-        builder.addDoubleProperty("iMaxAccum", flywheel::getIMaxAccum, flywheel::setIMaxAccum);
-        builder.addDoubleProperty("iAccum", flywheel::getIAccum, null);
-        builder.addDoubleProperty("iZone", cfg.hw_pid::getIZone, cfg.hw_pid::setIZone);
-        builder.addDoubleProperty("ramp_rate", flywheel::getRampRate, flywheel::setRampRate);
-        builder.addDoubleProperty("vel_cmd", ()->{ return flywheel.vel_setpoint;}, flywheel::setSetpoint);
+        builder.addBooleanProperty("atVelocity", this::atSetpoint, null);       
+        builder.addDoubleProperty("vel_cmd", flywheel::getSetpoint, flywheel::setSetpoint);
         builder.addDoubleProperty("vel_measured", flywheel::getVelocity, null);
         builder.addDoubleProperty("vel_tolerance", flywheel::getTolerance, flywheel::setVelocityTolerance);
+
+        // Rev Only
+        if (flywheel instanceof FlyWheelRev) {
+            var revfw = (FlyWheelRev)flywheel;
+            builder.addDoubleProperty("iMaxAccum", revfw::getIMaxAccum, revfw::setIMaxAccum);
+            builder.addDoubleProperty("iAccum", revfw::getIAccum, null);
+            builder.addDoubleProperty("iZone", cfg.hw_pid::getIZone, cfg.hw_pid::setIZone);
+            builder.addDoubleProperty("ramp_rate", revfw::getRampRate, revfw::setRampRate);
+        }
+
         // hook in the PID
         cfg.hw_pid.initSendable(builder);
     }
@@ -67,7 +107,7 @@ public class Shooter extends SubsystemBase {
     @Override
     public void periodic() {
         // update hw, only needed if changes to HW_PID - TODO test mode?
-        flywheel.copyChanges();
+        flywheel.update_hardware();
     }
 
     // Add a watcher so we can see stuff on network tables
@@ -105,7 +145,7 @@ public class Shooter extends SubsystemBase {
                 .onFalse(this.cmdVelocity(0.0));
         xbox.b().onTrue(this.cmdVelocity(0.0)); // [m/s]
         xbox.y().onTrue(new InstantCommand(() -> {
-                this.flywheel.encoder.setPosition(0.0);
+                this.flywheel.setPosition(0.0);
             }));
     }
 
@@ -118,11 +158,10 @@ public class Shooter extends SubsystemBase {
             addEntry("get_pos_rot", Shooter.this.flywheel::getPosRot);
 
             // other info about flywheel's motor
-            addEntry("mtr_appliedOutput", Shooter.this.flywheel.getController()::getAppliedOutput, 2);
-            addEntry("mtr_OutputAmps", Shooter.this.flywheel.getController()::getOutputCurrent, 2);
+            addEntry("mtr_appliedOutput", Shooter.this.flywheel::getAppliedOutput, 2);
+            addEntry("mtr_OutputAmps", Shooter.this.flywheel::getOutputCurrent, 2);
             addEntry("mtr_RPM", Shooter.this.flywheel::getMotorRPM, 1);
-            addEntry("mtr_Temperature", Shooter.this.flywheel.getController()::getMotorTemperature, 2);
+            addEntry("mtr_Temperature", Shooter.this.flywheel::getMotorTemperature, 2);
         }
     }
-
 }

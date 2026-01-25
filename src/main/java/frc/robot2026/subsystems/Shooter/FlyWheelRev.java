@@ -12,27 +12,12 @@ import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
-import frc.lib2202.util.PIDFController;
-
 /**
  * Flywheel handles motor and gearing for the shooter flywheels.
  * 
  */
-public class FlyWheelRev {
-
-  public static class FlyWheelConfig {
-    public PIDFController hw_pid;       // just holds constants for pid, copyTo()/ copyChangesTo() updates hw
-    //only sample values
-    public double iMaxAccum=0.0;        // Integral of error[m/s]*[s] = [m]
-    public double maxOpenLoopRPM=5600;  // [rpm] typical Neo
-    public double gearRatio=1.0;        // [] [gearbox-rot/mtr-in] 
-    public boolean inverted=false;      // adjust to spin in correct dir, account for motor/gears
-    public double flywheelRadius = 0.05;// [m] ~2[in] in [m]
-    public double rampRate=0.0;         // [s] time to max speed, 0 disables
-    public int stallAmp=60;             // [Amp] stall current limit
-    public int freeAmp=5;               // [Amp] current limit at free run
-  };
-
+public class FlyWheelRev implements IFlyWheel {
+  
   // Hardware
   final SparkMax controller; // this could be a generic controller controller...
   final SparkMaxConfig controllerCfg;
@@ -76,10 +61,10 @@ public class FlyWheelRev {
     setSetpoint(0.0);
   }
 
-  void copyChanges() {
-    //writes to hw, does nothing if there are no pid related changes
-    cfg.hw_pid.copyChangesTo(controller, controllerCfg, kSlot);
-  }
+  public void update_hardware() {
+      //writes to hw, does nothing if there are no pid related changes
+      cfg.hw_pid.copyChangesTo(controller, controllerCfg, kSlot);
+    }
 
   // internal if we need to do something in subsys
   SparkBase getController() {
@@ -91,7 +76,7 @@ public class FlyWheelRev {
   }
 
   // API used by sub-system
-  FlyWheelRev setSetpoint(double vel) { // setVelocitySetpoint
+  public FlyWheelRev setSetpoint(double vel) { // setVelocitySetpoint
     vel_setpoint = vel;
     if (vel_setpoint == 0.0) {
       //force mode change to %pwr at zero, let it spin down, don't drive it to zero vel
@@ -104,25 +89,34 @@ public class FlyWheelRev {
     return this;
   }
   
-
-  double getVelocity() {
-    return encoder.getVelocity();
+  public double getSetpoint() {
+    return vel_setpoint;
   }
 
-  double getMotorRPM() {
-    // return motor RPM by applying inverse velocity converstion factor
-    return getVelocity() * 60.0 / posConverionFactor; 
-  }
+  public double getVelocity() {
+      return encoder.getVelocity();
+    }
 
-  double getTolerance() {
+  public double getMotorRPM() {
+      // return motor RPM by applying inverse velocity converstion factor
+      return getVelocity() * 60.0 / posConverionFactor; 
+    }
+
+  public double getTolerance() {
     return vel_tolerance;
   }
 
-  double getPosition() {
+  public double getPosition() {
     return encoder.getPosition();
   }
 
-  double getPosRot() {
+  public FlyWheelRev setPosition(double pos) {
+    encoder.setPosition(pos);
+    return this;
+  }
+
+
+  public double getPosRot() {
     return encoder.getPosition() / posConverionFactor;
   }
 
@@ -130,14 +124,14 @@ public class FlyWheelRev {
     return closedLoopController.getIAccum();
   }
 
-  FlyWheelRev setVelocityTolerance(double vel_tolerance) {
-    this.vel_tolerance = vel_tolerance;
-    return this;
-  }
+  public FlyWheelRev setVelocityTolerance(double vel_tolerance) {
+      this.vel_tolerance = vel_tolerance;
+      return this;
+    }
 
-  boolean atSetpoint() {
-    return Math.abs(getVelocity() - vel_setpoint) <= vel_tolerance;
-  }
+  public boolean atSetpoint() {
+      return Math.abs(getVelocity() - vel_setpoint) <= vel_tolerance;
+    }
 
   //expose ramprate so we can test its effect and tune to soften power spikes
   double getRampRate() {
@@ -161,6 +155,21 @@ public class FlyWheelRev {
     controllerCfg.closedLoop.iMaxAccum(iMaxAccum, kSlot);
     controller.configureAsync(controllerCfg, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
     return this;
+  }
+
+  @Override
+  public double getOutputCurrent() {
+    return controller.getOutputCurrent();
+  }
+
+  @Override
+  public double getMotorTemperature() {
+    return controller.getMotorTemperature();
+  }
+
+  @Override
+  public double getAppliedOutput() {
+    return controller.getAppliedOutput();
   }
 
 
