@@ -16,11 +16,11 @@ import frc.lib2202.builder.SubsystemConfig;
 import frc.lib2202.subsystem.hid.HID_Subsystem;
 import frc.robot2026.Constants.CAN;
 
-public class RobotSpec_BotOnBoard_Epsilon implements IRobotSpec {
+public class RobotSpec_BotOnBoard_Delta implements IRobotSpec {
 
-  //Bot On Board Epsilon
-  // $env:serialnum = "0326F275"
-  final SubsystemConfig ssconfig = new SubsystemConfig("BotOnBoard_Epsilon", "0326F275")
+  //Bot On Board Delta
+  // $env:serialnum = "3061025"
+  final SubsystemConfig ssconfig = new SubsystemConfig("BotOnBoard_Delta", "3061025")
       // Add the subsystems or components use by this Bot-on-Board    
       // Bot-On-Board can always use controlers for test binding
        .add(HID_Subsystem.class, "DC", () -> {
@@ -36,7 +36,7 @@ public class RobotSpec_BotOnBoard_Epsilon implements IRobotSpec {
   // Robot Speed Limits
   RobotLimits robotLimits = new RobotLimits(FeetPerSecond.of(15.0), DegreesPerSecond.of(180.0));
 
-  public RobotSpec_BotOnBoard_Epsilon() {
+  public RobotSpec_BotOnBoard_Delta() {
     // add the specs to the ssconfig
     ssconfig.setRobotSpec(this);
   }
