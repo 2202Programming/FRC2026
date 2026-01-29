@@ -39,13 +39,13 @@ import frc.robot2026.Constants.CAN;
 import frc.robot2026.subsystems.LimelightV2;
 import frc.robot2026.subsystems.VisionPoseEstimator;
 
-public class RobotSpec_Alpha2026 implements IRobotSpec {
+public class RobotSpec_ChassisBot implements IRobotSpec {
 
   
   // Subsystems and other hardware on 2025 Robot rev Alpha
   // This should be the chassis bot.
   // $env:serialnum = "03282B65"
-  final SubsystemConfig ssconfig = new SubsystemConfig("Alpha2026", "03282B65")
+  final SubsystemConfig ssconfig = new SubsystemConfig("ChassisBot", "03282B65")
       // deferred construction via Supplier<Object> lambda
       .add(PowerDistribution.class, "PDP", () -> {
         var pdp = new PowerDistribution(CAN.PDP, ModuleType.kRev);
@@ -101,7 +101,7 @@ public class RobotSpec_Alpha2026 implements IRobotSpec {
       new PIDFController(0.01, 0.0, 0.0, 0.0) // angle
   );
 
-  public RobotSpec_Alpha2026() {
+  public RobotSpec_ChassisBot() {
     // finish BetaBot's drivePIDF
     chassisConfig.drivePIDF.setIZone(0.2);
     // add the specs to the ssconfig
