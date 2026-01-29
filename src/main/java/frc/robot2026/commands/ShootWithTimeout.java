@@ -39,7 +39,7 @@ public class ShootWithTimeout extends Command {
   @Override
   public void execute() {
     if (shooter.atSetpoint()){
-      //TODO: RUN FEEDDER 
+  //TODO: RUN FEEDDER 
       stopwatch.restart();
     }
     // if not at speed wait for next cycle
