@@ -9,9 +9,6 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.lib2202.builder.RobotContainer;
 
-/*
- * Place commands named in PathPlaner autos here.
- */
 @SuppressWarnings("unused")
 public class RegisteredCommands {
     
