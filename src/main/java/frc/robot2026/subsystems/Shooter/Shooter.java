@@ -72,7 +72,7 @@ public class Shooter extends SubsystemBase {
         FlyWheelConfig cfg = new FlyWheelConfig();
         cfg.inverted = false;
         cfg.rampRate = 0.0;         // try to soften the startup, zero disables
-        cfg.gearRatio = 0.75;     // this was measured -- DPL + BG 1/19/26
+        cfg.gearRatio =  1.0;       // Richard changed as of 1/28/26 DPL/GL
         cfg.stallAmp = 80;          // [amp] Check motor specs for amps TESTING 80 FOR MULTI DUE TO HIGH DROP
         cfg.freeAmp = 10;            // [amp]
         cfg.maxOpenLoopRPM = 5800;  // measure at full power or motor spec
@@ -86,18 +86,18 @@ public class Shooter extends SubsystemBase {
 
     // for testing Kraken
     private FlyWheelConfig initFlyWheelConfigCTRE() {
-        double kP = 0.0;         // 
-        double kI = 0.0;         // finally stiffen speed with I/D
-        double kD = 0.0;         // Seems innsensitive until you add an extremely large value
+        double kP = 0.7;         // 
+        double kI = 4.0;         // feels kind of bs
+        double kD = 0.01;         // Seems innsensitive until you add an extremely large value
         double kF = 0.12;        // Kraken X60 is a 500 kV motor, 500 rpm per V = 8.333 rps per V,
                                  //  1/8.33 =// 0.12 volts / rotation per second
-        double iZone = 0.0;     // unused in Talon CTRE controller
+        double iZone = 0.0;      // unused in Talon CTRE controller
 
         FlyWheelConfig cfg = new FlyWheelConfig();
         cfg.inverted = true;
         cfg.rampRate = 0.0;         // not implemented in ctre, but could be
-        cfg.gearRatio = 0.6269;     // check this
-        cfg.stallAmp = 60;          // [amp] Use as stator amps
+        cfg.gearRatio = 18.0/24.0;  // new kraken pulleys
+        cfg.stallAmp = 80;          // [amp] Use as stator amps
         cfg.freeAmp = 10;           // [amp] //unused
         cfg.maxOpenLoopRPM = 5800;  // measure at full power or motor spec
         cfg.flywheelRadius = (2.0 / 12.0) * MperFT; // [m] 2 [inch] converted [m]
@@ -168,7 +168,7 @@ public class Shooter extends SubsystemBase {
                 .whileTrue(this.cmdVelocity(10.0)) // [m/s]
                 .onFalse(this.cmdVelocity(0.0));
         xbox.rightTrigger(0.5)
-                .whileTrue(this.cmdVelocity(15.0)) // [m/s]
+                .whileTrue(this.cmdVelocity(16.0)) // [m/s]
                 .onFalse(this.cmdVelocity(0.0));
         xbox.b().onTrue(this.cmdVelocity(0.0)); // [m/s]
         xbox.y().onTrue(new InstantCommand(() -> {

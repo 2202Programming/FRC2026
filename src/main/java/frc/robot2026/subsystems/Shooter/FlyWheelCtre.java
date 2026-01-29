@@ -20,13 +20,13 @@ public class FlyWheelCtre implements IFlyWheel {
     final FlyWheelConfig cfg;
     final double converionFactor;
 
-    double vel_setpoint;        // [rps]
-    double vel_tolerance = 0.5; // [rps]
+    double vel_setpoint_rps;    // [rps]
+    double vel_tolerance_rps = 0.1; // [rps]
 
     public FlyWheelCtre(int CAN_ID, FlyWheelConfig _cfg) {
         CANBus canbus = new CANBus("rio");
         this.cfg = _cfg;
-        m_fx = new TalonFX(0, canbus);
+        m_fx = new TalonFX(CAN_ID, canbus);
         m_velocityVoltage = new VelocityVoltage(0).withSlot(0);
         m_brake = new NeutralOut();
         configs = new TalonFXConfiguration();
@@ -40,7 +40,7 @@ public class FlyWheelCtre implements IFlyWheel {
          * back-emf of the motor
          */
         configs.Slot0
-                .withKS(.1) // To account for friction, add 0.1 V of static feedforward
+                .withKS(0.0) // To account for friction, add 0.1 V of static feedforward
                 .withKV(cfg.hw_pid.getF()) 
                 .withKP(cfg.hw_pid.getP())
                 .withKI(cfg.hw_pid.getI())
@@ -89,18 +89,18 @@ public class FlyWheelCtre implements IFlyWheel {
 
     @Override
     public IFlyWheel setSetpoint(double vel) {
-        vel_setpoint = vel / converionFactor;
+        vel_setpoint_rps = vel / converionFactor;
         if (vel == 0.0) {
             m_fx.setControl(m_brake);
         } else {
-            m_fx.setControl(m_velocityVoltage.withVelocity(vel_setpoint));
+            m_fx.setControl(m_velocityVoltage.withVelocity(vel_setpoint_rps));
         }
         return this;
     }
 
     @Override
     public double getSetpoint() {
-        return vel_setpoint * converionFactor;
+        return vel_setpoint_rps * converionFactor;
     }
 
     @Override
@@ -115,18 +115,18 @@ public class FlyWheelCtre implements IFlyWheel {
 
     @Override
     public double getTolerance() {
-        return vel_tolerance * converionFactor;
+        return vel_tolerance_rps * converionFactor;
     }
 
     @Override
     public IFlyWheel setVelocityTolerance(double vel_tolerance) {
-        this.vel_tolerance = vel_tolerance / converionFactor;
+        this.vel_tolerance_rps = vel_tolerance / converionFactor;
         return this;
     }
 
     @Override
     public boolean atSetpoint() {
-        return Math.abs(getVelocity() - vel_setpoint) <= vel_tolerance;
+        return Math.abs(m_fx.getVelocity().getValueAsDouble() - vel_setpoint_rps) <= vel_tolerance_rps;
     }
 
     @Override

@@ -19,12 +19,13 @@ import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
 import frc.robot2026.subsystems.Shooter.Shooter;
 
-public class RobotSpec_BotOnBoard1 implements IRobotSpec {
+public class RobotSpec_BotOnBoardDelta implements IRobotSpec {
   // $env:serialnum = "0312db1a"
-  final SubsystemConfig ssconfig = new SubsystemConfig("BotOnBoard", "0312db1a")
+  // $env:serialnum = "03061025"
+  final SubsystemConfig ssconfig = new SubsystemConfig("BotOnBoard-Delta", "03061025")
       // deferred construction via Supplier<Object> lambda
       .add(PowerDistribution.class, "PDP", () -> {
-        var pdp = new PowerDistribution(CAN.PDP, ModuleType.kRev);
+        var pdp = new PowerDistribution(CAN.PDP, ModuleType.kCTRE);
         pdp.clearStickyFaults();
         return pdp;
       })
@@ -64,7 +65,7 @@ public class RobotSpec_BotOnBoard1 implements IRobotSpec {
       new PIDFController(0.01, 0.0, 0.0, 0.0) // angle
   );
 
-  public RobotSpec_BotOnBoard1() {
+  public RobotSpec_BotOnBoardDelta() {
     // finish BetaBot's drivePIDF
     // add the specs to the ssconfig
     ssconfig.setRobotSpec(this);
