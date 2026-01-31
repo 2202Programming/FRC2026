@@ -40,16 +40,16 @@ public class Shooter extends SubsystemBase {
 
     //Setup using NEO1
     private FlyWheelConfig initFlyWheelConfigREV() {
-        double kP = 0.005;       // tune next
+        double kP = 0.01;//0.005;       // tune next
         double kI = 0.00005;    // finally stiffen speed with I/D
-        double kD = 10.0;       // Seems innsensitive until you add an extremely large value
-        double kF = 0.65;
+        double kD = 2.0;//10.0;       // Seems innsensitive until you add an extremely large value
+        double kF = 0.315;
         double iZone = 1.0;     // setting it to 0.0 seems to 'unlock' it
 
         FlyWheelConfig cfg = new FlyWheelConfig();
         cfg.inverted = true;
         cfg.rampRate = 0.0;         // try to soften the startup, zero disables
-        cfg.gearRatio = 0.6269;     // this was measured -- DPL + BG 1/19/26 
+        cfg.gearRatio = 24.0/18.0;  // this was measured -- DPL + BG 1/19/26 
         cfg.stallAmp = 60;          // [amp] Check motor specs for amps
         cfg.freeAmp = 10;            // [amp]
         cfg.maxOpenLoopRPM = 5800;  // measure at full power or motor spec
@@ -72,7 +72,7 @@ public class Shooter extends SubsystemBase {
         FlyWheelConfig cfg = new FlyWheelConfig();
         cfg.inverted = false;
         cfg.rampRate = 0.0;         // try to soften the startup, zero disables
-        cfg.gearRatio =  1.0;       // Richard changed as of 1/28/26 DPL/GL
+        cfg.gearRatio = 1.0 ; 
         cfg.stallAmp = 80;          // [amp] Check motor specs for amps TESTING 80 FOR MULTI DUE TO HIGH DROP
         cfg.freeAmp = 10;            // [amp]
         cfg.maxOpenLoopRPM = 5800;  // measure at full power or motor spec
@@ -165,11 +165,18 @@ public class Shooter extends SubsystemBase {
     // Testing Bindings
     public void setTestBindings(CommandXboxController xbox) {
         xbox.leftTrigger(0.5)
-                .whileTrue(this.cmdVelocity(10.0)) // [m/s]
+                .whileTrue(this.cmdVelocity(15.0)) // [m/s]
                 .onFalse(this.cmdVelocity(0.0));
         xbox.rightTrigger(0.5)
-                .whileTrue(this.cmdVelocity(16.0)) // [m/s]
+                .whileTrue(this.cmdVelocity(20.0)) // [m/s]
                 .onFalse(this.cmdVelocity(0.0));
+        xbox.leftBumper()
+                .whileTrue(this.cmdVelocity(30.0)) // [m/s]
+                .onFalse(this.cmdVelocity(0.0));
+        xbox.rightBumper()
+                .whileTrue(this.cmdVelocity(35.0)) // [m/s]
+                .onFalse(this.cmdVelocity(0.0));
+
         xbox.b().onTrue(this.cmdVelocity(0.0)); // [m/s]
         xbox.y().onTrue(new InstantCommand(() -> {
                 this.flywheel.setPosition(0.0);
