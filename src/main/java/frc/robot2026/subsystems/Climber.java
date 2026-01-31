@@ -29,7 +29,7 @@ public class Climber extends SubsystemBase {
     final double maxAccel = 10.0; // placevholder [cm/s^2]
     double posTol = 0.25; // [cm]
     double velTol = .50; // [cm/s]
-    final int STALL_CURRENT = 60; // [Amp] placeholder 
+    final int STALL_CURRENT = 80; // [Amp] placeholder 
     final int FREE_CURRENT = 5;   // [Amp] placeholder  
     
     public final Arm l_arm;
@@ -45,12 +45,12 @@ public class Climber extends SubsystemBase {
      
         // each arm needs own copy of pids, especially the softare position pid which is run by servo.periodic()
         PIDController posPID = new PIDController(4.0, 0.0015, 0.125);
-        PIDFController hwVelPID = new PIDFController(0.02, 0.0, 0, 0.0285);
+        PIDFController hwVelPID = new PIDFController(0.02, 0.00015, 0, 0.0285); // Little bit of bouncing, could do better
 
         Arm(int CANID, String side, boolean inverted, String name) {            
             this.name = name;
-            hwVelPID.setIZone(0.0);            
-            hwVelPID.setIntegratorRange(0.0, 0.0);
+            hwVelPID.setIZone(10.0); // TODO record typical climb, set to just over typical error
+            hwVelPID.setIntegratorRange(0.0, 10.0); // TODO record typical climb, set to just over typical error accum
             servo = new NeoServo(CANID, posPID, hwVelPID, inverted);
             setParams(CANID, side);            
         }
@@ -199,8 +199,9 @@ public class Climber extends SubsystemBase {
          * These are some basic test bindings for the climber, including a reset 0 position for when we do position testing.          
         */
         //velocity cmds while held it should spin, to test or align in pitt
-        xbox.povLeft().whileTrue(this.setVelocityCmd(4.0, l_arm)).onFalse(this.setVelocityCmd(0.0, l_arm));
-        xbox.povRight().whileTrue(this.setVelocityCmd(-4.0, l_arm)).onFalse(this.setVelocityCmd(0.0, l_arm));
+        // Got about 70amps at 12cm/s, could hit 14 without issues
+        xbox.povLeft().whileTrue(this.setVelocityCmd(14.0, l_arm)).onFalse(this.setVelocityCmd(0.0, l_arm));
+        xbox.povRight().whileTrue(this.setVelocityCmd(-14.0, l_arm)).onFalse(this.setVelocityCmd(0.0, l_arm));
         xbox.povUp().whileTrue(this.setVelocityCmd(2.0, r_arm)).onFalse(this.setVelocityCmd(0.0, r_arm));
         xbox.povDown().whileTrue(this.setVelocityCmd(-2.0, r_arm)).onFalse(this.setVelocityCmd(0.0, r_arm));
 
@@ -216,6 +217,9 @@ public class Climber extends SubsystemBase {
             addEntry("R_position", Climber.this.r_arm::getPosition, 1);
             addEntry("AtSetpoint", Climber.this::atSetpoint);
             addEntry("Left Arm Motor Current", Climber.this.l_arm.servo.getController()::getOutputCurrent);
+            //addEntry("Left Accum Error", Climber.this.l_arm.servo.getController().getClosedLoopController()::get);
+            addEntry("Left Accum Error", Climber.this.l_arm.servo.getController().getClosedLoopController()::getIAccum);
+            //addEntry("Left Stalled", Climber.this.l_arm.servo.getOutputCurrent());
             l_arm.servo.getWatcher();
             r_arm.servo.getWatcher();
         }
