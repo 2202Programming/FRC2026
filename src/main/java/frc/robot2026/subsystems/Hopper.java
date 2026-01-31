@@ -153,32 +153,32 @@ public class Hopper extends SubsystemBase {
 
   // Commands to control belt pwr
   public Command cmdPct(double pct) {
-    return run(() -> {
+    return runOnce(() -> {
       setBeltsPercent(pct);
     });
   }
 
   public Command setSingleBeltPct(double pct) {
-    return run(() -> {
+    return runOnce(() -> {
       setSingleBeltPct(pct);
     });
   }
 
   public Command setWideBeltPct(double pct) {
-    return run(() -> {
+    return runOnce(() -> {
       setWideBeltPercent(pct);
     });
   }
 
 
   public Command setVelocity(double vel) {
-    return run(() -> {
+    return runOnce(() -> {
       setVelSetpoint(vel);
     });
   }
 
   public Command setPosition(double pos) {
-    return run(() -> {
+    return runOnce(() -> {
       setPosSetpoint(pos);
     });
   }
