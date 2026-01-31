@@ -75,7 +75,10 @@ public final class BindingsCompetition {
             Trigger NotCal = Cal.negate(); // regular competition mode
 
             Climber c = RobotContainer.getSubsystemOrNull(Climber.class);
-            if (c != null) c.setDemoBindings(operator);
+            if (c != null) {
+                c.setDemoBindings(operator);
+                c.getWatcher();
+            }
         }           
         else {
             DriverStation.reportWarning("Comp Bindings: No operator bindings set, check controllers.", false);

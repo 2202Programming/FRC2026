@@ -67,7 +67,9 @@ public class Climber extends SubsystemBase {
         }
         
         public void initSendable(SendableBuilder builder) {
-            builder.addDoubleProperty("vel_cmd",  this::getVelocityCmd, this::setVelocity );
+// getter was causing race command
+ //           builder.addDoubleProperty("vel_cmd",  this::getVelocityCmd, this::setVelocity );
+            builder.addDoubleProperty("vel_cmd",  null, this::setVelocity );
             builder.addDoubleProperty("velocity",  this::getVelocity, null );
             builder.addDoubleProperty("vel_max", servo::getMaxVel, servo::setMaxVelocity);
         }
@@ -107,6 +109,7 @@ public class Climber extends SubsystemBase {
     }
 
     public Climber() {
+        setName("climber");
         // Set up in this format to use both arms as needed.
         l_arm = new Arm(CAN.l_arm,"L", true, "Left Arm");
         r_arm = new Arm(CAN.r_arm,"R", true, "Right Arm");
@@ -186,7 +189,9 @@ public class Climber extends SubsystemBase {
         return l_arm.atSetpoint() && r_arm.atSetpoint();
     }
 
-
+    public Command getWatcher(){
+        return this.new ClimberWatcher();
+    }
 
     public void setDemoBindings(CommandXboxController xbox) {
         /**
