@@ -58,8 +58,9 @@ public final class Constants {
     public static final int IntakeBottomID = 27;
 
     //Hopper
-    public static final int SingleBeltID = 40;
-    public static final int WideBeltID = 41;
+    // AH: changed to support hooper on multishooter
+    public static final int SingleBeltID = 50;
+    public static final int WideBeltID = 52;
     public static final int IndexerID = 42;
     //Shooter
     public static final int ShooterID = 51;
