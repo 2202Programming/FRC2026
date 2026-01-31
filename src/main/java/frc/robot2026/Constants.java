@@ -53,8 +53,8 @@ public final class Constants {
     public static final int FR_Drive = 27;
     public static final int FR_CANCoder = 30;
 
-    public static final int r_arm = -100;
-    public static final int l_arm = -101;
+    public static final int r_arm = 53;
+    public static final int l_arm = 52;
    
     // IMU
     public static final int PIGEON_IMU_CAN = 60;
