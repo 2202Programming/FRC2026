@@ -41,12 +41,14 @@ public class Climber extends SubsystemBase {
     */
     public class Arm implements Sendable {
         final NeoServo servo;
+        String name;
      
         // each arm needs own copy of pids, especially the softare position pid which is run by servo.periodic()
         PIDController posPID = new PIDController(4.0, 0.0015, 0.125);
         PIDFController hwVelPID = new PIDFController(0.02, 0.0, 0, 0.0285);
 
-        Arm(int CANID, String side, boolean inverted) {            
+        Arm(int CANID, String side, boolean inverted, String name) {            
+            this.name = name;
             hwVelPID.setIZone(0.0);            
             hwVelPID.setIntegratorRange(0.0, 0.0);
             servo = new NeoServo(CANID, posPID, hwVelPID, inverted);
@@ -106,8 +108,8 @@ public class Climber extends SubsystemBase {
 
     public Climber() {
         // Set up in this format to use both arms as needed.
-        l_arm = new Arm(CAN.l_arm,"L", true);
-        r_arm = new Arm(CAN.r_arm,"R", true);
+        l_arm = new Arm(CAN.l_arm,"L", true, "Left Arm");
+        r_arm = new Arm(CAN.r_arm,"R", true, "Right Arm");
     }
 
     public Command setVelocityCmd(double vel, Arm arm) {
@@ -140,17 +142,44 @@ public class Climber extends SubsystemBase {
     }
 
     public Command armsSetpointCmd(double pos) {
-        return Commands.sequence(
-            setSetpointCmd(pos, l_arm),
-            setSetpointCmd(pos, r_arm)
-            );
+        return runOnce(() -> {  // simple instant cmd, sequenct not needed
+            // if we need to move arms at same time, set both arms to same position
+            l_arm.setSetpoint(pos);
+            r_arm.setSetpoint(pos);
+        });         
     }
 
-    public Command armsCalibrateCmd() {
+    // set both arms to a given position, doesn't move, just initializes to position.
+    // typical use at power up or after pitt calibration.
+    public Command armsCalibrateCmd(double position) {
+        return runOnce(() -> {
+            //no sequence needed, these can run in single cmd.
+            r_arm.setPosition(position);
+            l_arm.setPosition(position);
+        });
+    }
+
+    // Simple check, only used in the arms to point command. 
+    public boolean armsAtPos() {
+        return l_arm.atSetpoint() && r_arm.atSetpoint();
+    }
+
+
+    public Command armsToPoint(double pos) {
         return Commands.sequence(
-            runOnce(() -> {r_arm.setPosition(0.0);}),
-            runOnce(() -> {l_arm.setPosition(0.0);})
-        );
+            armsSetpointCmd(pos),
+            Commands.waitUntil(this::armsAtPos),
+            Commands.print("Arms are at position")
+        ).withName("Arms - " + pos);
+    }
+
+    //specify arm of choice if desired. Could cause issues if one of our arms is just flying around, but should still function OK
+    public Command armsToPoint(double pos, Arm arm) {
+        return Commands.sequence(
+            setSetpointCmd(pos, arm),
+            Commands.waitUntil(arm::atSetpoint),
+            Commands.print("Arms are at position")
+        ).withName(arm.name + " - " + pos);
     }
 
     public boolean atSetpoint(){
@@ -172,7 +201,7 @@ public class Climber extends SubsystemBase {
         // Move arms to 0 point
         xbox.x().onTrue(armsSetpointCmd(0.0)); 
         // tell the arms "here is zero"
-        xbox.y().onTrue(armsCalibrateCmd());
+        xbox.y().onTrue(armsCalibrateCmd(0.0));
     }
     
     class ClimberWatcher extends WatcherCmd {
