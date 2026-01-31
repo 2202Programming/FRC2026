@@ -63,6 +63,7 @@ public final class Constants {
     public static final int IndexerID = 42;
     //Shooter
     public static final int ShooterID = 51;
+    public static final int ShooterFLEXID = 20;
 
     // IMU
     public static final int PIGEON_IMU_CAN = 60;

@@ -31,6 +31,10 @@ public class Shooter extends SubsystemBase {
             cfg = initMultiFlyWheelConfigREV();
             flywheel = new FlyWheelRev(CAN.ShooterID, cfg);
         }
+        else if (controllerType.equalsIgnoreCase("flex")) {
+            cfg = initFlyWheelConfigREVFlex();
+            flywheel = new FlyWheelRevFlex(CAN.ShooterFLEXID, cfg);
+        }
         else {
             cfg = initFlyWheelConfigREV();
             flywheel = new FlyWheelRev(CAN.ShooterID, cfg);
@@ -60,6 +64,30 @@ public class Shooter extends SubsystemBase {
         cfg.hw_pid.setIZone(iZone);
         return cfg;
     }
+
+//Setup using Vortex
+    private FlyWheelConfig initFlyWheelConfigREVFlex() {
+        double kP = 0.01;//0.005;       // tune next
+        double kI = 0.00005;    // finally stiffen speed with I/D
+        double kD = 2.0;//10.0;       // Seems innsensitive until you add an extremely large value
+        double kF = 0.315;
+        double iZone = 1.0;     // setting it to 0.0 seems to 'unlock' it
+
+        FlyWheelConfig cfg = new FlyWheelConfig();
+        cfg.inverted = true;
+        cfg.rampRate = 0.0;         // try to soften the startup, zero disables
+        cfg.gearRatio = 50.0/24.0;  // this was measured -- DPL + BG 1/19/26 
+        cfg.stallAmp = 60;          // [amp] Check motor specs for amps
+        cfg.freeAmp = 10;            // [amp]
+        cfg.maxOpenLoopRPM = 5800;  // measure at full power or motor spec
+        cfg.flywheelRadius = (2.0 / 12.0) * MperFT; // [m] 2 [inch] converted [m]
+        cfg.iMaxAccum = 0.25;
+        // PIDF constant holder for hw
+        cfg.hw_pid = new PIDFController(kP, kI, kD, kF, "flywheelPIDF");
+        cfg.hw_pid.setIZone(iZone);
+        return cfg;
+    }
+
 
     // tuning from MultiShooter, also rev Neo
     private FlyWheelConfig initMultiFlyWheelConfigREV() {

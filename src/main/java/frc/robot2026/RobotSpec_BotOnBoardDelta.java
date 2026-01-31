@@ -36,7 +36,7 @@ public class RobotSpec_BotOnBoardDelta implements IRobotSpec {
       })
       // .add(Intake.class)
       .add(Shooter.class, "Shooter", () ->{
-        return new Shooter("rev"); //opts: rev,ctre,multi
+        return new Shooter("flex"); //opts: rev,ctre,multi
       })
       ;
       // below are optional watchers for shuffeleboard data - disable if need too.
