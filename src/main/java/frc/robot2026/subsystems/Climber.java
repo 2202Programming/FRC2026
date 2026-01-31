@@ -72,6 +72,7 @@ public class Climber extends SubsystemBase {
             builder.addDoubleProperty("vel_cmd",  null, this::setVelocity );
             builder.addDoubleProperty("velocity",  this::getVelocity, null );
             builder.addDoubleProperty("vel_max", servo::getMaxVel, servo::setMaxVelocity);
+            hwVelPID.initSendable(builder);
         }
 
         //Arm API - mostly wrappers around servo
@@ -198,8 +199,8 @@ public class Climber extends SubsystemBase {
          * These are some basic test bindings for the climber, including a reset 0 position for when we do position testing.          
         */
         //velocity cmds while held it should spin, to test or align in pitt
-        xbox.povLeft().whileTrue(this.setVelocityCmd(2.0, l_arm)).onFalse(this.setVelocityCmd(0.0, l_arm));
-        xbox.povRight().whileTrue(this.setVelocityCmd(-2.0, l_arm)).onFalse(this.setVelocityCmd(0.0, l_arm));
+        xbox.povLeft().whileTrue(this.setVelocityCmd(4.0, l_arm)).onFalse(this.setVelocityCmd(0.0, l_arm));
+        xbox.povRight().whileTrue(this.setVelocityCmd(-4.0, l_arm)).onFalse(this.setVelocityCmd(0.0, l_arm));
         xbox.povUp().whileTrue(this.setVelocityCmd(2.0, r_arm)).onFalse(this.setVelocityCmd(0.0, r_arm));
         xbox.povDown().whileTrue(this.setVelocityCmd(-2.0, r_arm)).onFalse(this.setVelocityCmd(0.0, r_arm));
 
@@ -214,6 +215,7 @@ public class Climber extends SubsystemBase {
             addEntry("L_position", Climber.this.l_arm::getPosition, 1);
             addEntry("R_position", Climber.this.r_arm::getPosition, 1);
             addEntry("AtSetpoint", Climber.this::atSetpoint);
+            addEntry("Left Arm Motor Current", Climber.this.l_arm.servo.getController()::getOutputCurrent);
             l_arm.servo.getWatcher();
             r_arm.servo.getWatcher();
         }
