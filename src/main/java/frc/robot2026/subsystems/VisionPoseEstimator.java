@@ -31,6 +31,7 @@ import frc.lib2202.subsystem.SignalLight.Color;
 import frc.lib2202.subsystem.swerve.DriveTrainInterface;
 import frc.lib2202.subsystem.swerve.IHeadingProvider;
 import frc.lib2202.util.VisionWatchdog;
+import frc.robot2026.Constants.Vision;
 
 // Swerve Drive Train (drivetrain) must be created before Swerve-PoseEstimator
 
@@ -52,6 +53,7 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
     final VisionWatchdog watchdog;
     final ILimelight limelight;
     final SignalLight signal;
+    final Photonvision photon;
     
     // stddev based on distance/quality of tag
     final Matrix<N3, N1> closeStdDevs =VecBuilder.fill(0.25, 0.25, Units.degreesToRadians(5.0));
@@ -97,6 +99,7 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
         gyro = RobotContainer.getRobotSpecs().getHeadingProvider();
         limelight = RobotContainer.getSubsystemOrNull(limelightName);
         signal = RobotContainer.getObjectOrNull("light");
+        photon = RobotContainer.getObjectOrNull("photonvision");
 
         altName = limelight.getLLName();  //debug
 
@@ -220,6 +223,9 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
 
             m_estimator.setVisionMeasurementStdDevs(stdDev);
             m_estimator.addVisionMeasurement(pose, ts);
+
+            if (photon != null) photonvisionUpdateEstimator();
+
             if (watchdog != null)
                 watchdog.update(pose, prev_llPose);
         }
@@ -228,6 +234,15 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
         return m_estimator.update(gyro.getRotation2d(), meas_pos);       
     }
 
+    void photonvisionUpdateEstimator(){
+        for (int i = 0; i < Vision.CAMERA_NAMES.length; i++){
+            if (photon.camerasList.get(i).havePose()){
+                if (photon.camerasList.get(i).howManyTargets() > 0){
+                    m_estimator.addVisionMeasurement(photon.camerasList.get(i).getPose2d(), photon.camerasList.get(i).getTimeStamp());
+                }
+            }
+        }
+    }
 
     public void configureGyroCallback(){
         AllianceAwareGyroReset.AddRotationCallback(this::setAnglePose);

@@ -87,6 +87,16 @@ class RobotCamera {
     return targets.size();
   }
 
+  public Boolean havePose(){
+    if (currentPose == null)
+      return false;
+    else return true;
+  }
+
+  public Pose2d getPose2d(){
+    return currentPose;
+  }
+
   public double getCurrentPoseX() {
     if (currentPose == null)
       return -1;
@@ -173,7 +183,7 @@ class RobotCamera {
 public class Photonvision extends SubsystemBase {
   /** Creates a new Photonvision. */
 
-  List<RobotCamera> camerasList = new ArrayList<RobotCamera>();
+  public List<RobotCamera> camerasList = new ArrayList<RobotCamera>();
   List<Integer> Photon_How_Many_Targets = new ArrayList<Integer>();
   List<Boolean> Photon_Has_Multi_Target = new ArrayList<Boolean>();
   List<Double> PoseX = new ArrayList<Double>();
