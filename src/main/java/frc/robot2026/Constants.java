@@ -54,11 +54,17 @@ public final class Constants {
     public static final int FR_CANCoder = 30;
 
     // Intake
-    public static final int IntakeTopID = 30;
-    public static final int IntakeBotomID = 31;
-   
+    public static final int IntakeTopID = 26;
+    public static final int IntakeBottomID = 27;
+
+    //Hopper
+    // AH: changed to support hooper on multishooter
+    public static final int SingleBeltID = 50;
+    public static final int WideBeltID = 52;
+    public static final int IndexerID = 42;
     //Shooter
     public static final int ShooterID = 51;
+    public static final int ShooterFLEXID = 20;
 
     // IMU
     public static final int PIGEON_IMU_CAN = 60;
@@ -81,6 +87,9 @@ public final class Constants {
   }
 
   public final class DigitalIO {
+
+    public static final int HopperIndexerID = 0;
+
     //public static final int EndEffector_Lightgate = 2;
     //public static final int SignalLight1 = 7;
     //public static final int SignalLight2 = 8;

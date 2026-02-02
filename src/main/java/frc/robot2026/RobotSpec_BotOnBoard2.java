@@ -17,33 +17,24 @@ import frc.lib2202.subsystem.swerve.config.ChassisConfig;
 import frc.lib2202.subsystem.swerve.config.ModuleConfig;
 import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
-import frc.robot2026.subsystems.Shooter.Shooter;
+import frc.robot2026.subsystems.Hopper;
 
-<<<<<<<< HEAD:src/main/java/frc/robot2026/RobotSpec_BotOnBoard_Zeta.java
-public class RobotSpec_BotOnBoard_Zeta implements IRobotSpec {
-  // $env:serialnum = "0312db1a"
-  final SubsystemConfig ssconfig = new SubsystemConfig("BotOnBoard_Zeta", "0312db1a")
-========
-public class RobotSpec_BotOnBoardDelta implements IRobotSpec {
-  // $env:serialnum = "0312db1a"
-  // $env:serialnum = "03061025"
-  final SubsystemConfig ssconfig = new SubsystemConfig("BotOnBoard-Delta", "03061025")
->>>>>>>> BG_Intake:src/main/java/frc/robot2026/RobotSpec_BotOnBoardDelta.java
+public class RobotSpec_BotOnBoard2 implements IRobotSpec {
+  // $env:serialnum = "0326F275"
+  final SubsystemConfig ssconfig = new SubsystemConfig("BotOnBoard2", "0326F275")
       // deferred construction via Supplier<Object> lambda
       .add(PowerDistribution.class, "PDP", () -> {
-        var pdp = new PowerDistribution(CAN.PDP, ModuleType.kCTRE);
+        var pdp = new PowerDistribution(CAN.PDP, ModuleType.kRev);
         pdp.clearStickyFaults();
         return pdp;
       })
 
       .add(HID_Subsystem.class, "DC", () -> {
         return new HID_Subsystem(0.3, 0.9, 0.05);
-
       })
+      
       // .add(Intake.class)
-      .add(Shooter.class, "Shooter", () ->{
-        return new Shooter("flex"); //opts: rev,ctre,multi
-      })
+      .add(Hopper.class)
       ;
       // below are optional watchers for shuffeleboard data - disable if need too.
 
@@ -71,11 +62,7 @@ public class RobotSpec_BotOnBoardDelta implements IRobotSpec {
       new PIDFController(0.01, 0.0, 0.0, 0.0) // angle
   );
 
-<<<<<<<< HEAD:src/main/java/frc/robot2026/RobotSpec_BotOnBoard_Zeta.java
-  public RobotSpec_BotOnBoard_Zeta() {
-========
-  public RobotSpec_BotOnBoardDelta() {
->>>>>>>> BG_Intake:src/main/java/frc/robot2026/RobotSpec_BotOnBoardDelta.java
+  public RobotSpec_BotOnBoard2() {
     // finish BetaBot's drivePIDF
     // add the specs to the ssconfig
     ssconfig.setRobotSpec(this);
@@ -111,8 +98,8 @@ public class RobotSpec_BotOnBoardDelta implements IRobotSpec {
       CommandXboxController operator = (CommandXboxController)dc.Operator();
 
       // TEST BINDING FOR NOW 
-      Shooter shooter = RobotContainer.getSubsystem(Shooter.class);
-      shooter.setTestBindings(operator);  // uses triggers
+      Hopper hopper = RobotContainer.getSubsystem(Hopper.class);
+      hopper.setTestBindings(operator);  // uses triggers
       // operator.a().whileTrue(new IntakePwrSpin(0.2));
     }
   }

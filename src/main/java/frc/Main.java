@@ -11,6 +11,7 @@ import frc.robot2026.RobotSpec_BotOnBoard_Zeta;
 import frc.robot2026.RobotSpec_AlphaBot;
 import frc.robot2026.RobotSpec_BotOnBoard_Delta;
 import frc.robot2026.RobotSpec_BotOnBoard_Epsilon;
+import frc.robot2026.RobotSpec_BotOnBoard2;
 
 public final class Main {
   private Main() {
@@ -23,6 +24,7 @@ public final class Main {
     new RobotSpec_BotOnBoard_Delta();    // $env:serialnum = "3061025"
     new RobotSpec_BotOnBoard_Epsilon();  // $env:serialnum = "0326F275"
     new RobotSpec_BotOnBoard_Zeta();     // $env:serialnum = "0312db1a"
+    new RobotSpec_BotOnBoard2();
   }
   public static void main(String... args) {
     new Main();
