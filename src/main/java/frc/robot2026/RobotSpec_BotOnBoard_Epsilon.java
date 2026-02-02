@@ -9,12 +9,14 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib2202.builder.IRobotSpec;
 import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.builder.RobotLimits;
 import frc.lib2202.builder.SubsystemConfig;
 import frc.lib2202.subsystem.hid.HID_Subsystem;
 import frc.robot2026.Constants.CAN;
+import frc.robot2026.subsystems.Hopper;
 
 public class RobotSpec_BotOnBoard_Epsilon implements IRobotSpec {
 
@@ -30,8 +32,11 @@ public class RobotSpec_BotOnBoard_Epsilon implements IRobotSpec {
         var pdp = new PowerDistribution(CAN.PDP, ModuleType.kRev);
         pdp.clearStickyFaults();
         return pdp;
-      });
-
+      })
+       // .add(Intake.class)
+      .add(Hopper.class)      
+  ;
+      
 
   // Robot Speed Limits
   RobotLimits robotLimits = new RobotLimits(FeetPerSecond.of(15.0), DegreesPerSecond.of(180.0));
@@ -51,11 +56,14 @@ public class RobotSpec_BotOnBoard_Epsilon implements IRobotSpec {
   @Override
   public void setBindings() {
     HID_Subsystem dc = RobotContainer.getSubsystemOrNull("DC");
-    if (dc == null ){
-        // BOB doesn't need DC. Return early if DC doesn't exist
-        System.out.println("Warning: DC doesn't exist not setting bindings");
-      return;
-    }
+    @SuppressWarnings("unused")
+    CommandXboxController driver = (CommandXboxController)dc.Driver();
+    CommandXboxController operator = (CommandXboxController)dc.Operator();
+
+    // TEST BINDING FOR NOW 
+    Hopper hopper = RobotContainer.getSubsystem(Hopper.class);
+    hopper.setTestBindings(operator);  // uses triggers
+    // operator.a().whileTrue(new IntakePwrSpin(0.2));
 
     // show what cmds are running
     SmartDashboard.putData(CommandScheduler.getInstance());

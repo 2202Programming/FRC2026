@@ -5,6 +5,8 @@ import static edu.wpi.first.units.Units.FeetPerSecond;
 
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
+import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -15,6 +17,7 @@ import frc.lib2202.builder.RobotLimits;
 import frc.lib2202.builder.SubsystemConfig;
 import frc.lib2202.subsystem.hid.HID_Subsystem;
 import frc.robot2026.Constants.CAN;
+import frc.robot2026.subsystems.Shooter.Shooter;
 
 public class RobotSpec_BotOnBoard_Delta implements IRobotSpec {
 
@@ -27,10 +30,19 @@ public class RobotSpec_BotOnBoard_Delta implements IRobotSpec {
         return new HID_Subsystem(0.3, 0.9, 0.05);
       })
       .add(PowerDistribution.class, "PDP", () -> {
-        var pdp = new PowerDistribution(CAN.PDP, ModuleType.kRev);
+        var pdp = new PowerDistribution(CAN.PDP, ModuleType.kCTRE);
         pdp.clearStickyFaults();
         return pdp;
-      });
+      })
+      .add(HID_Subsystem.class, "DC", () -> {
+        return new HID_Subsystem(0.3, 0.9, 0.05);
+
+      })
+      // .add(Intake.class)
+      .add(Shooter.class, "Shooter", () ->{
+        return new Shooter("flex"); //opts: rev,ctre,multi
+      })
+      ;
 
 
   // Robot Speed Limits
@@ -57,6 +69,17 @@ public class RobotSpec_BotOnBoard_Delta implements IRobotSpec {
       return;
     }
 
+    if (dc.Driver() instanceof CommandPS4Controller) {
+      // CommandPS4Controller operator = (CommandPS4Controller)dc.Driver();
+    } else {
+      @SuppressWarnings("unused")
+      CommandXboxController driver = (CommandXboxController)dc.Driver();
+      CommandXboxController operator = (CommandXboxController)dc.Operator();
+
+      // TEST BINDING FOR NOW 
+      Shooter shooter = RobotContainer.getSubsystem(Shooter.class);
+      shooter.setTestBindings(operator);  // uses triggers
+    }  
     // show what cmds are running
     SmartDashboard.putData(CommandScheduler.getInstance());
   }
@@ -77,7 +100,4 @@ public class RobotSpec_BotOnBoard_Delta implements IRobotSpec {
   public void setDefaultCommands() {
    
   }
-
-  
-
 }

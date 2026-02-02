@@ -17,18 +17,12 @@ import frc.lib2202.subsystem.swerve.config.ChassisConfig;
 import frc.lib2202.subsystem.swerve.config.ModuleConfig;
 import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
+import frc.robot2026.subsystems.Hopper;
 import frc.robot2026.subsystems.Shooter.Shooter;
 
-<<<<<<<< HEAD:src/main/java/frc/robot2026/RobotSpec_BotOnBoard_Zeta.java
 public class RobotSpec_BotOnBoard_Zeta implements IRobotSpec {
-  // $env:serialnum = "0312db1a"
-  final SubsystemConfig ssconfig = new SubsystemConfig("BotOnBoard_Zeta", "0312db1a")
-========
-public class RobotSpec_BotOnBoardDelta implements IRobotSpec {
-  // $env:serialnum = "0312db1a"
   // $env:serialnum = "03061025"
   final SubsystemConfig ssconfig = new SubsystemConfig("BotOnBoard-Delta", "03061025")
->>>>>>>> BG_Intake:src/main/java/frc/robot2026/RobotSpec_BotOnBoardDelta.java
       // deferred construction via Supplier<Object> lambda
       .add(PowerDistribution.class, "PDP", () -> {
         var pdp = new PowerDistribution(CAN.PDP, ModuleType.kCTRE);
@@ -71,11 +65,7 @@ public class RobotSpec_BotOnBoardDelta implements IRobotSpec {
       new PIDFController(0.01, 0.0, 0.0, 0.0) // angle
   );
 
-<<<<<<<< HEAD:src/main/java/frc/robot2026/RobotSpec_BotOnBoard_Zeta.java
   public RobotSpec_BotOnBoard_Zeta() {
-========
-  public RobotSpec_BotOnBoardDelta() {
->>>>>>>> BG_Intake:src/main/java/frc/robot2026/RobotSpec_BotOnBoardDelta.java
     // finish BetaBot's drivePIDF
     // add the specs to the ssconfig
     ssconfig.setRobotSpec(this);
@@ -111,8 +101,15 @@ public class RobotSpec_BotOnBoardDelta implements IRobotSpec {
       CommandXboxController operator = (CommandXboxController)dc.Operator();
 
       // TEST BINDING FOR NOW 
-      Shooter shooter = RobotContainer.getSubsystem(Shooter.class);
-      shooter.setTestBindings(operator);  // uses triggers
+       Shooter shooter = RobotContainer.getSubsystemOrNull("Shooter");
+      if (shooter!=null) {
+        shooter.setTestBindings(driver);
+      } 
+
+      Hopper hopper = RobotContainer.getSubsystemOrNull(Hopper.class);
+      if (hopper !=null) {
+        hopper.setTestBindings(operator);  // uses triggers
+      }
       // operator.a().whileTrue(new IntakePwrSpin(0.2));
     }
   }
