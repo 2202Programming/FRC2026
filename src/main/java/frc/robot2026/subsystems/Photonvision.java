@@ -57,6 +57,9 @@ class RobotCamera {
 
     }
 
+    // @Jason,  I think currentPose should be set null at start of update,
+    // it should prevent adding old estimates.  Same for estStdDevs?
+    
     Optional<EstimatedRobotPose> visionEst = Optional.empty();
     for (var result : camera.getAllUnreadResults()) {
       multiTag = true;
@@ -88,9 +91,7 @@ class RobotCamera {
   }
 
   public Boolean havePose(){
-    if (currentPose == null)
-      return false;
-    else return true;
+    return (currentPose != null);
   }
 
   public Pose2d getPose2d(){

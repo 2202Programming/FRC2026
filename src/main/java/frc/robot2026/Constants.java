@@ -1,6 +1,5 @@
 package frc.robot2026;
 
-import java.util.List;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
