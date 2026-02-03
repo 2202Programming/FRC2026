@@ -25,6 +25,7 @@ public class Shooter extends SubsystemBase {
         // pick which controller we are using
         if (controllerType.equalsIgnoreCase("ctre")) {
             cfg = initFlyWheelConfigCTRE();
+
             flywheel = new FlyWheelCtre(CAN.ShooterID, cfg);
         }
         else if (controllerType.equalsIgnoreCase("multi")) {
@@ -122,7 +123,7 @@ public class Shooter extends SubsystemBase {
         double iZone = 0.0;      // unused in Talon CTRE controller
 
         FlyWheelConfig cfg = new FlyWheelConfig();
-        cfg.inverted = true;
+        cfg.inverted = false;
         cfg.rampRate = 0.0;         // not implemented in ctre, but could be
         cfg.gearRatio = 18.0/24.0;  // new kraken pulleys
         cfg.stallAmp = 80;          // [amp] Use as stator amps
