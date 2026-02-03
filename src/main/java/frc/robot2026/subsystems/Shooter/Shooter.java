@@ -67,16 +67,16 @@ public class Shooter extends SubsystemBase {
 
 //Setup using Vortex
     private FlyWheelConfig initFlyWheelConfigREVFlex() {
-        double kP = 0.01;//0.005;       // tune next
-        double kI = 0.00005;    // finally stiffen speed with I/D
-        double kD = 2.0;//10.0;       // Seems innsensitive until you add an extremely large value
-        double kF = 0.315;
+        double kP = 0.03;//0.005;       // tune next
+        double kI = 0.00015; //0.00005;    // finally stiffen speed with I/D
+        double kD = 0.0;//2.0;//10.0;       // Seems innsensitive until you add an extremely large value
+        double kF = 0.171;
         double iZone = 1.0;     // setting it to 0.0 seems to 'unlock' it
 
         FlyWheelConfig cfg = new FlyWheelConfig();
         cfg.inverted = true;
         cfg.rampRate = 0.0;         // try to soften the startup, zero disables
-        cfg.gearRatio = 50.0/24.0;  // this was measured -- DPL + BG 1/19/26 
+        cfg.gearRatio = 50.0/24.0;  // 
         cfg.stallAmp = 60;          // [amp] Check motor specs for amps
         cfg.freeAmp = 10;            // [amp]
         cfg.maxOpenLoopRPM = 5800;  // measure at full power or motor spec
@@ -199,10 +199,10 @@ public class Shooter extends SubsystemBase {
                 .whileTrue(this.cmdVelocity(20.0)) // [m/s]
                 .onFalse(this.cmdVelocity(0.0));
         xbox.leftBumper()
-                .whileTrue(this.cmdVelocity(30.0)) // [m/s]
+                .whileTrue(this.cmdVelocity(25.0)) // [m/s]
                 .onFalse(this.cmdVelocity(0.0));
         xbox.rightBumper()
-                .whileTrue(this.cmdVelocity(35.0)) // [m/s]
+                .whileTrue(this.cmdVelocity(30.0)) // [m/s]
                 .onFalse(this.cmdVelocity(0.0));
 
         xbox.b().onTrue(this.cmdVelocity(0.0)); // [m/s]
