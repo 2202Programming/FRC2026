@@ -36,6 +36,7 @@ import frc.lib2202.subsystem.swerve.config.ModuleConfig;
 import frc.lib2202.subsystem.swerve.config.ModuleConfig.CornerID;
 import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
+import frc.robot2026.subsystems.Climber;
 import frc.robot2026.subsystems.LimelightV2;
 import frc.robot2026.subsystems.VisionPoseEstimator;
 
@@ -75,7 +76,8 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
         return obj;
       })
       // VisonPoseEstimator needs LL and Odometry, adds simplename and alias to lookup
-      .addAlias(VisionPoseEstimator.class, "vision_odo") 
+      .addAlias(VisionPoseEstimator.class, "vision_odo")    
+      .add(Climber.class)
       ;
 
   // Robot Speed Limits

@@ -53,6 +53,9 @@ public final class Constants {
     public static final int FR_Drive = 27;
     public static final int FR_CANCoder = 30;
 
+    public static final int r_arm = 53;
+    public static final int l_arm = 52;
+   
     // Intake
     public static final int IntakeTopID = 26;
     public static final int IntakeBottomID = 27;
@@ -60,11 +63,9 @@ public final class Constants {
     //Hopper
     // AH: changed to support hooper on multishooter
     public static final int SingleBeltID = 50;
-    public static final int WideBeltID = 52;
     public static final int IndexerID = 42;
     //Shooter
     public static final int ShooterID = 51;
-    public static final int ShooterFLEXID = 20;
 
     // IMU
     public static final int PIGEON_IMU_CAN = 60;
