@@ -58,7 +58,7 @@ public final class Constants {
    
     // Intake
     public static final int IntakeTopID = 26;
-    public static final int IntakeBottomID = 27;
+    public static final int IntakeBottomID = 27; //TODO fix this nonsense
 
     //Hopper
     // AH: changed to support hooper on multishooter
@@ -69,6 +69,8 @@ public final class Constants {
 
     // IMU
     public static final int PIGEON_IMU_CAN = 60;
+    public static final int WideBeltID = 90;
+    public static final int ShooterFLEXID = 0; //TODO fix this too. Need more consistant CAN values
   }
 
   public static final class PWM{
