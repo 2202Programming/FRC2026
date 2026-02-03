@@ -21,8 +21,8 @@ import frc.robot2026.subsystems.Hopper;
 import frc.robot2026.subsystems.Shooter.Shooter;
 
 public class RobotSpec_BotOnBoard_Zeta implements IRobotSpec {
-  // $env:serialnum = "03061025"
-  final SubsystemConfig ssconfig = new SubsystemConfig("BotOnBoard-Delta", "03061025")
+  // $env:serialnum = "0312db1a"
+  final SubsystemConfig ssconfig = new SubsystemConfig("BotOnBoard-Zeta", "0312db1a")
       // deferred construction via Supplier<Object> lambda
       .add(PowerDistribution.class, "PDP", () -> {
         var pdp = new PowerDistribution(CAN.PDP, ModuleType.kCTRE);
@@ -36,8 +36,9 @@ public class RobotSpec_BotOnBoard_Zeta implements IRobotSpec {
       })
       // .add(Intake.class)
       .add(Shooter.class, "Shooter", () ->{
-        return new Shooter("flex"); //opts: rev,ctre,multi
+        return new Shooter("ctre"); //opts: rev,ctre,multi
       })
+      .add(Hopper.class)
       ;
       // below are optional watchers for shuffeleboard data - disable if need too.
 

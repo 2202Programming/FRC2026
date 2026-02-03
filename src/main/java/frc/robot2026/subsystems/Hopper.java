@@ -73,7 +73,6 @@ public class Hopper extends SubsystemBase {
     indexerEncoder = indexerCtrl.getEncoder();
     indexerCLCtrl = indexerCtrl.getClosedLoopController();
     indexerCfg = new SparkMaxConfig();
-
     indexerCfg.encoder
         .positionConversionFactor(posCF)
         .velocityConversionFactor(velCF);
@@ -147,7 +146,7 @@ public class Hopper extends SubsystemBase {
   }
 
   public void setBeltsPercent(double pct) {
-    wideBeltCtrl.set(pct);
+    wideBeltCtrl.set(-pct);
     singleBeltCtrl.set(pct);
   }
 
@@ -185,11 +184,11 @@ public class Hopper extends SubsystemBase {
 
   public void setTestBindings(CommandXboxController xbox) {
     xbox.leftTrigger(0.5)
-        .onTrue(cmdPct(0.5))
+        .onTrue(cmdPct(0.3))
         .onFalse(cmdPct(0.0));
         
     xbox.rightTrigger(0.5)
-        .onTrue(cmdPct(1.0))
+        .onTrue(cmdPct(0.5))
         .onFalse(cmdPct(0.0));
 
     xbox.leftBumper()
