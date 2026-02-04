@@ -47,30 +47,35 @@ class RobotCamera {
     targets = null;
     // This method will be called once per scheduler run
     // Query the latest result from PhotonVision
-    results = camera.getAllUnreadResults(); // docs say this is preferred, other call deprecated
+    results = camera.getAllUnreadResults(); // docs say this is preferred, other call deprecated.  Only call this once per update loop
+
+    //This section looks at most recent photonpipeline result and counts the # of targets seen
     int lastIdx = results.size();
     if (lastIdx > 0) {
       lastResult = results.get(lastIdx - 1);
       hasTargets = lastResult.hasTargets();
       // Get a list of currently tracked targets.
       targets = lastResult.getTargets();
-
     }
 
     // @Jason,  I think currentPose should be set null at start of update,
     // it should prevent adding old estimates.  Same for estStdDevs?
-    
+    // @DL I think getAllUnreadResults will be zero length if there are no new pipeline results, so it shouldn't reprocess old frames
+
+    //This section will go through each unread result and generate a pose and timestamp pair and update the pose estimator.
     Optional<EstimatedRobotPose> visionEst = Optional.empty();
-    for (var result : camera.getAllUnreadResults()) {
+    for (var result : results) {
       multiTag = true;
-      visionEst = photonEstimator.estimateCoprocMultiTagPose(result);
+      visionEst = photonEstimator.estimateCoprocMultiTagPose(result); //multag if available
       if (visionEst.isEmpty()) { // less than 2 tages, no multitag available
         multiTag = false;
         visionEst = photonEstimator.estimateLowestAmbiguityPose(result); // use single tag estimator
       }
 
+      //this section for updating std dev of results - probably not useful without experimental confirmation of error matrix in constants.
       updateEstimationStdDevs(visionEst, result.getTargets());
 
+      //if visionest is not empty it must mean there was at least one tag in the pipeline result so worth updating currentpose.
       visionEst.ifPresent(
           est -> {
             currentPose = est.estimatedPose.toPose2d();

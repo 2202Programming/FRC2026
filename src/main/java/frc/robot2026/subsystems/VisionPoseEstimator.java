@@ -234,6 +234,9 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
         return m_estimator.update(gyro.getRotation2d(), meas_pos);       
     }
 
+    //@DL this is probably not the right way to do this; it's only using the most recent pose to feed into the m_estimator.
+    //each camera in photonvision has an internal/Local estimator that it may feed multiple pipeline results into each update cycle
+    //probably better if those actually updated m_estimator here instead of just using the most revent pose result.
     void photonvisionUpdateEstimator(){
         for (int i = 0; i < Vision.CAMERA_NAMES.length; i++){
             if (photon.camerasList.get(i).havePose()){
