@@ -125,7 +125,7 @@ public class Shooter extends SubsystemBase {
         FlyWheelConfig cfg = new FlyWheelConfig();
         cfg.inverted = false;
         cfg.rampRate = 0.0;         // not implemented in ctre, but could be
-        cfg.gearRatio = 18.0/24.0;  // new kraken pulleys
+        cfg.gearRatio = 1.0/1.0;  // new kraken pulleys
         cfg.stallAmp = 80;          // [amp] Use as stator amps
         cfg.freeAmp = 10;           // [amp] //unused
         cfg.maxOpenLoopRPM = 5800;  // measure at full power or motor spec
