@@ -11,6 +11,8 @@ import com.revrobotics.spark.SparkFlex;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -40,10 +42,22 @@ import frc.robot2026.subsystems.Climber;
 import frc.robot2026.subsystems.LimelightV2;
 import frc.robot2026.subsystems.Photonvision;
 import frc.robot2026.subsystems.VisionPoseEstimator;
+import frc.robot2026.util.PhotonvisionConfig;
 
 public class RobotSpec_ChassisBot implements IRobotSpec {
 
-  
+     final public PhotonvisionConfig PVConfig = new PhotonvisionConfig(
+      new String[] {"Back_Left", "back_right", "Front"},
+      new Transform3d[] {
+            new Transform3d(new Translation3d(6 / 39.37, -8 / 39.37, 16 / 39.37),
+                    new Rotation3d(0, 7 * (Math.PI / 180), 120 * (Math.PI / 180))),
+            new Transform3d(new Translation3d(6 / 39.37, -8 / 39.37, 16 / 39.37),
+                    new Rotation3d(0, 7 * (Math.PI / 180), 240 * (Math.PI / 180))),
+            new Transform3d(new Translation3d(6 / 39.37, -8 / 39.37, 16 / 39.37),
+                    new Rotation3d(0, 7 * (Math.PI / 180), 0))
+      }
+  );
+
   // Subsystems and other hardware on 2025 Robot rev Alpha
   // This should be the chassis bot.
   // $env:serialnum = "03282B65"
@@ -72,7 +86,7 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
           return new SwerveDrivetrain(SparkFlex.class);
       })
       .add(Photonvision.class, "photonvision", () -> {
-          return new Photonvision();
+          return new Photonvision(PVConfig);
       })
       .add(OdometryInterface.class, "odometry", () -> {
         var obj = new Odometry();

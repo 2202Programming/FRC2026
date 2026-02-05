@@ -20,6 +20,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot2026.Constants.Vision;
+import frc.robot2026.util.PhotonvisionConfig;
 import frc.robot2026.util.PoseUpdate;
 
 import static frc.robot2026.Constants.Vision.*;
@@ -209,11 +210,11 @@ public class Photonvision extends SubsystemBase {
   List<Double> PoseX = new ArrayList<Double>();
   List<Double> PoseY = new ArrayList<Double>();
 
-  public Photonvision() {
+  public Photonvision(PhotonvisionConfig config) {
     setName("photonvision");
 
-    for (int i = 0; i < Vision.CAMERA_NAMES.length; i++) {
-      camerasList.add(new RobotCamera(Vision.CAMERA_NAMES[i], i));
+    for (int i = 0; i < config.CAMERA_NAMES.length; i++) {
+      camerasList.add(new RobotCamera(config.CAMERA_NAMES[i], i));
       Photon_Has_Multi_Target.add(false);
       Photon_How_Many_Targets.add(-1);
       PoseX.add(-1.0);
