@@ -4,27 +4,31 @@
 
 package frc.robot2026.subsystems;
 
-import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib2202.command.WatcherCmd;
 import frc.lib2202.util.NeoServo;
 import frc.lib2202.util.PIDFController;
+import frc.robot2026.Constants.CAN;
 
 public class Intake extends SubsystemBase {
-  NeoServo bottomRoller;
-  NeoServo topRoller;
+  final NeoServo bottomRoller;
+  final NeoServo topRoller;
 
-  final SparkMax btmRlrMtr;
-  final SparkMax topRlrMtr;
+  final SparkBase btmRlrMtr;  // filled from Servo object
+  final SparkBase topRlrMtr;  // filled from Servo object
 
   boolean disable_servo = false;
 
-  PIDFController hwVelocity_PID = new PIDFController(0.0, 0.0, 0.0, 5.0 / 180.0 / 1.2); // [deg/s]
-  PIDController  swPosition_PID = new PIDController(0.0 ,0, 0);  //[deg]
+  PIDFController topHWVelocity_PID = new PIDFController(0.0, 0.0, 0.0, 5.0 / 180.0 / 1.2); // [deg/s]
+  PIDFController bottomHWVelocity_PID = new PIDFController(0.0, 0.0, 0.0, 5.0 / 180.0 / 1.2); // [deg/s]
+  PIDController  topPosition_PID = new PIDController(0.0 ,0, 0);  //[deg]
+  PIDController  bottomPosition_PID = new PIDController(0.0 ,0, 0);  //[deg]
 
   //convert to deg/s units at the geared output
   final double GearRatio = 5.0;
@@ -32,29 +36,35 @@ public class Intake extends SubsystemBase {
 
   // Motor settings for Servo
   final int STALL_CURRENT = 80;
-  final int FREE_CURRENT = 20;
-  final boolean motor_inverted = true;
+  final int FREE_CURRENT = 5;
+  final boolean top_motor_inverted = true;
+  final boolean bottom_motor_inverted = false;
+
   // Servo speed/positions
   final double maxVel = 100.0;
   final double maxAccel = 75.0;
 
   double cmdPos;
-  double cmdVel;
+  double cmdPct;
 
 //   final SparkBase controller;
 //   final SparkClosedLoopController cl_controller;
 
   /** Creates a new Intake. */
   public Intake() {
+    setName("Intake-Top=" + CAN.IntakeTopID + " | Intake-Bottom=" + CAN.IntakeBottomID);
+
     // setup any other hardware Pid values, like Izone 
-    hwVelocity_PID.setIZone(200.0); //[deg/s]  outside this region ignore integral
+    topHWVelocity_PID.setIZone(200.0); //[deg/s]  outside this region ignore integral
+    bottomHWVelocity_PID.setIZone(200.0); //[deg/s]  outside this region ignore integral
 
-    bottomRoller = new NeoServo(50, swPosition_PID, hwVelocity_PID, motor_inverted);
-    topRoller = new NeoServo(51, swPosition_PID, hwVelocity_PID, motor_inverted);
-
-    btmRlrMtr = new SparkMax(50, SparkMax.MotorType.kBrushless);
-    topRlrMtr = new SparkMax(50, SparkMax.MotorType.kBrushless);
-
+    //Setup servos, for velocity or position control.
+    topRoller = new NeoServo(CAN.IntakeTopID, topPosition_PID, topHWVelocity_PID, top_motor_inverted);
+    bottomRoller = new NeoServo(CAN.IntakeBottomID, bottomPosition_PID, bottomHWVelocity_PID, bottom_motor_inverted);
+    
+    //Mr.L Feedback - can't recreate controllers with CANID, it was used by NeoServo, so pull from it
+    btmRlrMtr = bottomRoller.getController(); //new SparkMax(50, SparkMax.MotorType.kBrushless);
+    topRlrMtr = topRoller.getController();    // new SparkMax(51, SparkMax.MotorType.kBrushless);
         // get the controllers out of the server so we can monitor in our watcher.
         // controller = servo.getController();
         // cl_controller = controller.getClosedLoopController();
@@ -67,14 +77,10 @@ public class Intake extends SubsystemBase {
   }
 
   // velocity control only used for testing, normal cmds will use position
-  public void setPercent(double vel) {
-    cmdVel = vel;
-    btmRlrMtr.set(vel);
-    topRlrMtr.set(-vel);
-  }
-
-  public void setRPM(double RPM) {
-    
+  public void setPercent(double pct) {
+    cmdPct = pct;
+    btmRlrMtr.set(pct);
+    topRlrMtr.set(pct);
   }
 
   public double getTVelocity() {
@@ -84,18 +90,6 @@ public class Intake extends SubsystemBase {
   public double getBVelocity() {
     return bottomRoller.getVelocity();
   }
-
-  // public double getMaxVel() {
-  //   return servo.getMaxVel();
-  // }
-
-  // public void setMaxVelocity(double vel) {
-  //   servo.setMaxVelocity(vel);
-  // }
-
-  // public double getCmdVelocity() {
-  //   return cmdVel;
-  // }
 
   @Override
   public void periodic() {
@@ -107,25 +101,45 @@ public class Intake extends SubsystemBase {
     }
   }
 
-  class ClimberWatcherCmd extends WatcherCmd {
-    NetworkTableEntry nt_topVelocity;  
-    NetworkTableEntry nt_btmVelocity;
+  public Command cmdPctPwr(double cmd_pct) {
+    return run(() -> {
+      this.setPercent(cmd_pct);
+    });
+  }
 
-    @Override
-    public String getTableName() {
-      return "Climber";
+  public void setTestBindings(CommandXboxController opr) {
+    opr.leftBumper()
+        .whileTrue(this.cmdPctPwr(0.5))
+        .onFalse(this.cmdPctPwr(0.0));
+
+    opr.rightBumper()
+        .whileTrue(this.cmdPctPwr(1.0))
+        .onFalse(this.cmdPctPwr(0.0));
+  }
+
+  @Override
+    public void initSendable(SendableBuilder builder) {
+        super.initSendable(builder);
+        //TODO add parameters here for tuning
+        builder.addDoubleProperty("vel_1_top", this.topRoller::getVelocity, this.topRoller::setSetpoint);
+        builder.addDoubleProperty("vel_2_bot", this.bottomRoller::getVelocity, this.bottomRoller::setSetpoint);
+
+        builder.addDoubleProperty("pct_pwr_top", this.topRlrMtr::get, this.topRlrMtr::set);
+        builder.addDoubleProperty("pct_pwr_btm", this.btmRlrMtr::get, this.btmRlrMtr::set);
     }
 
-    public void ntcreate() {
-      NetworkTable table = getTable();
-      nt_topVelocity = table.getEntry("topVelocity");
-      nt_btmVelocity = table.getEntry("btmVelocity");
+    // Add a watcher so we can see stuff on network tables
+    public WatcherCmd getWatcherCmd() {
+        return this.new IntakeWatcher();
     }
 
-    public void ntupdate() {
-      nt_topVelocity.setDouble(getTVelocity());
-      nt_btmVelocity.setDouble(getBVelocity());
 
+  class IntakeWatcher extends WatcherCmd {  
+    IntakeWatcher() {
+       addEntry("vel_top", Intake.this.topRoller::getVelocity, 2);
+       addEntry("vel_bottom", Intake.this.bottomRoller::getVelocity, 2);
     }
   }
+
 }
+
