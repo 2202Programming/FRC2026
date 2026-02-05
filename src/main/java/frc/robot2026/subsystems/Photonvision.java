@@ -16,15 +16,18 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot2026.Constants.Vision;
-import frc.robot2026.util.PhotonvisionConfig;
 import frc.robot2026.util.PoseUpdate;
 
 import static frc.robot2026.Constants.Vision.*;
+
+import frc.lib2202.builder.IRobotSpec;
+import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.command.WatcherCmd;
+import frc.lib2202.util.PhotonvisionConfig;
 
 //individual photonvision USB cameras
 class RobotCamera {
@@ -42,10 +45,10 @@ class RobotCamera {
   private double timeStamp;
   ArrayDeque<PoseUpdate> poseUpdateList;
   
-  public RobotCamera(String name, int camera_number) {
+  public RobotCamera(String name, int camera_number, Transform3d kRobotToCam) {
     camera = new PhotonCamera(name);
     this.camera_number = camera_number;
-    photonEstimator = new PhotonPoseEstimator(kTagLayout, kRobotToCam[camera_number]);
+    photonEstimator = new PhotonPoseEstimator(kTagLayout, kRobotToCam);
     poseUpdateList = new ArrayDeque<PoseUpdate>();
   }
 
@@ -209,12 +212,17 @@ public class Photonvision extends SubsystemBase {
   List<Boolean> Photon_Has_Multi_Target = new ArrayList<Boolean>();
   List<Double> PoseX = new ArrayList<Double>();
   List<Double> PoseY = new ArrayList<Double>();
+  PhotonvisionConfig config;
 
-  public Photonvision(PhotonvisionConfig config) {
+  public Photonvision() {
     setName("photonvision");
 
+    //pull camera names, transforms from robotspecs
+    IRobotSpec specs = RobotContainer.getRobotSpecs();
+    config = specs.getPVConfig();
+
     for (int i = 0; i < config.CAMERA_NAMES.length; i++) {
-      camerasList.add(new RobotCamera(config.CAMERA_NAMES[i], i));
+      camerasList.add(new RobotCamera(config.CAMERA_NAMES[i], i, config.kRobotToCam[i]));
       Photon_Has_Multi_Target.add(false);
       Photon_How_Many_Targets.add(-1);
       PoseX.add(-1.0);
@@ -265,7 +273,7 @@ public class Photonvision extends SubsystemBase {
   class PhotonWatcher extends WatcherCmd {
     PhotonWatcher() {
       RobotCamera currentCamera;
-      for (int i = 0; i < Vision.CAMERA_NAMES.length; i++) {
+      for (int i = 0; i < config.CAMERA_NAMES.length; i++) {
         currentCamera = camerasList.get(i);
         addEntry("Photon_How_Many_Targets[Cam" + i + "]", currentCamera::howManyTargets);
         addEntry("Photon Estimate X[Cam" + i + "]", currentCamera::getCurrentPoseX);

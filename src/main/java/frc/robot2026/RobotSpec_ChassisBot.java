@@ -37,26 +37,14 @@ import frc.lib2202.subsystem.swerve.config.ChassisConfig;
 import frc.lib2202.subsystem.swerve.config.ModuleConfig;
 import frc.lib2202.subsystem.swerve.config.ModuleConfig.CornerID;
 import frc.lib2202.util.PIDFController;
+import frc.lib2202.util.PhotonvisionConfig;
 import frc.robot2026.Constants.CAN;
 import frc.robot2026.subsystems.Climber;
 import frc.robot2026.subsystems.LimelightV2;
 import frc.robot2026.subsystems.Photonvision;
 import frc.robot2026.subsystems.VisionPoseEstimator;
-import frc.robot2026.util.PhotonvisionConfig;
 
 public class RobotSpec_ChassisBot implements IRobotSpec {
-
-     final public PhotonvisionConfig PVConfig = new PhotonvisionConfig(
-      new String[] {"Back_Left", "back_right", "Front"},
-      new Transform3d[] {
-            new Transform3d(new Translation3d(6 / 39.37, -8 / 39.37, 16 / 39.37),
-                    new Rotation3d(0, 7 * (Math.PI / 180), 120 * (Math.PI / 180))),
-            new Transform3d(new Translation3d(6 / 39.37, -8 / 39.37, 16 / 39.37),
-                    new Rotation3d(0, 7 * (Math.PI / 180), 240 * (Math.PI / 180))),
-            new Transform3d(new Translation3d(6 / 39.37, -8 / 39.37, 16 / 39.37),
-                    new Rotation3d(0, 7 * (Math.PI / 180), 0))
-      }
-  );
 
   // Subsystems and other hardware on 2025 Robot rev Alpha
   // This should be the chassis bot.
@@ -71,22 +59,24 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
       .add(HID_Subsystem.class, "DC", () -> {
         return new HID_Subsystem(0.3, 0.9, 0.05);
       })
-      // Sensors, limelight and drivetrain all use interfaces, so make sure their alias names
+      // Sensors, limelight and drivetrain all use interfaces, so make sure their
+      // alias names
       // match what is given here.
-      .add(Sensors.class, "sensors", ()-> {
-        return new Sensors(CAN.PIGEON_IMU_CAN); })
+      .add(Sensors.class, "sensors", () -> {
+        return new Sensors(CAN.PIGEON_IMU_CAN);
+      })
       .add(TrimTables.class)
-      .add(LimelightV2.class, "limelight", ()-> {
+      .add(LimelightV2.class, "limelight", () -> {
         // Limelight position in robot coords - this has LL in the front of bot
         Pose3d LimelightPosition = new Pose3d((0.7112 / 2.0) - .07, -0.28, .225,
-          new Rotation3d(0.0, 10.0/DEGperRAD, 0.0));
-        return new LimelightV2("limelight", LimelightPosition );
+            new Rotation3d(0.0, 10.0 / DEGperRAD, 0.0));
+        return new LimelightV2("limelight", LimelightPosition);
       })
-      .add(SwerveDrivetrain.class, "drivetrain", () ->{
-          return new SwerveDrivetrain(SparkFlex.class);
+      .add(SwerveDrivetrain.class, "drivetrain", () -> {
+        return new SwerveDrivetrain(SparkFlex.class);
       })
       .add(Photonvision.class, "photonvision", () -> {
-          return new Photonvision(PVConfig);
+        return new Photonvision();
       })
       .add(OdometryInterface.class, "odometry", () -> {
         var obj = new Odometry();
@@ -94,9 +84,8 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
         return obj;
       })
       // VisonPoseEstimator needs LL and Odometry, adds simplename and alias to lookup
-      .addAlias(VisionPoseEstimator.class, "vision_odo")    
-      .add(Climber.class)
-      ;
+      .addAlias(VisionPoseEstimator.class, "vision_odo")
+      .add(Climber.class);
 
   // Robot Speed Limits
   RobotLimits robotLimits = new RobotLimits(FeetPerSecond.of(15.0), DegreesPerSecond.of(180.0));
@@ -108,11 +97,11 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
   double kWheelDiameter = MperFT * 4.0 / 12.0; // [m]
 
   final ChassisConfig chassisConfig = new ChassisConfig(
-      //0.57785 / 2.0, 
-      //0.57785 / 2.0,  
-      //dpl - 28" x 28"
-      0.7112 / 2.0,  // x,  
-      0.7112 / 2.0,  // y, 
+      // 0.57785 / 2.0,
+      // 0.57785 / 2.0,
+      // dpl - 28" x 28"
+      0.7112 / 2.0, // x,
+      0.7112 / 2.0, // y,
       kWheelCorrectionFactor, // scale [] <= 1.0
       kWheelDiameter,
       kSteeringGR,
@@ -144,24 +133,39 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
   public ChassisConfig getChassisConfig() {
     return chassisConfig;
   }
+
+  @Override
+  public PhotonvisionConfig getPVConfig() {
+    return new PhotonvisionConfig(
+        new String[] { "Back_Left", "back_right", "Front" },
+        new Transform3d[] {
+            new Transform3d(new Translation3d(6 / 39.37, -8 / 39.37, 16 / 39.37),
+                new Rotation3d(0, 7 * (Math.PI / 180), 120 * (Math.PI / 180))),
+            new Transform3d(new Translation3d(6 / 39.37, -8 / 39.37, 16 / 39.37),
+                new Rotation3d(0, 7 * (Math.PI / 180), 240 * (Math.PI / 180))),
+            new Transform3d(new Translation3d(6 / 39.37, -8 / 39.37, 16 / 39.37),
+                new Rotation3d(0, 7 * (Math.PI / 180), 0))
+        });
+  }
+
   @Override
   public ModuleConfig[] getModuleConfigs() {
-    //TODO - correct offsets
+    // TODO - correct offsets
     ModuleConfig[] modules = new ModuleConfig[4];
-        modules[CornerID.FrontLeft.getIdx()] = new ModuleConfig(CornerID.FrontLeft,
+    modules[CornerID.FrontLeft.getIdx()] = new ModuleConfig(CornerID.FrontLeft,
         CAN.FL_CANCoder, CAN.FL_Drive, CAN.FL_Angle, 41.17587)
         .setInversions(false, true, false);
 
-        modules[CornerID.FrontRight.getIdx()] = new ModuleConfig(CornerID.FrontRight,
-        CAN.FR_CANCoder, CAN.FR_Drive, CAN.FR_Angle,-63.98)
+    modules[CornerID.FrontRight.getIdx()] = new ModuleConfig(CornerID.FrontRight,
+        CAN.FR_CANCoder, CAN.FR_Drive, CAN.FR_Angle, -63.98)
         .setInversions(true, true, false);
 
-        modules[CornerID.BackLeft.getIdx()] = new ModuleConfig(CornerID.BackLeft,
+    modules[CornerID.BackLeft.getIdx()] = new ModuleConfig(CornerID.BackLeft,
         CAN.BL_CANCoder, CAN.BL_Drive, CAN.BL_Angle, 50.45)
         .setInversions(false, true, false);
 
-        modules[CornerID.BackRight.getIdx()] = new ModuleConfig(CornerID.BackRight,
-        CAN.BR_CANCoder, CAN.BR_Drive, CAN.BR_Angle,  -66.27)
+    modules[CornerID.BackRight.getIdx()] = new ModuleConfig(CornerID.BackRight,
+        CAN.BR_CANCoder, CAN.BR_Drive, CAN.BR_Angle, -66.27)
         .setInversions(true, true, false);
 
     return modules;
@@ -169,9 +173,10 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
 
   @Override
   public void setBindings() {
-    //String odometryName = VisionPoseEstimator.class.getSimpleName(); // or novision "odometry"
-    //TODO switch to vision based when we have a LL
-    OdometryInterface odo = RobotContainer.getSubsystemOrNull("odometry");   
+    // String odometryName = VisionPoseEstimator.class.getSimpleName(); // or
+    // novision "odometry"
+    // TODO switch to vision based when we have a LL
+    OdometryInterface odo = RobotContainer.getSubsystemOrNull("odometry");
     DriveTrainInterface sdt = RobotContainer.getSubsystemOrNull("drivetrain");
     HID_Subsystem dc = RobotContainer.getSubsystem("DC");
 
@@ -181,21 +186,21 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
       var cmd = PathfindingCommand.warmupCommand();
       CommandScheduler.getInstance().schedule(cmd);
     }
-    
-    // Competition bindings 
+
+    // Competition bindings
     BindingsCompetition.ConfigureCompetition(dc, true);
-    
+
     // Place your test binding in ./testBinding/<yourFile>.java and call it here
     // comment out any conflicting bindings. Try not to push with your bindings
-    // active. Just comment them out. 
-   
+    // active. Just comment them out.
 
     // Anything else that needs to run after binding/commands are created
-    /* 
-    VisionPoseEstimator vpe = RobotContainer.getSubsystemOrNull(VisionPoseEstimator.class);
-    if (vpe != null) 
-      vpe.configureGyroCallback();
-    */
+    /*
+     * VisionPoseEstimator vpe =
+     * RobotContainer.getSubsystemOrNull(VisionPoseEstimator.class);
+     * if (vpe != null)
+     * vpe.configureGyroCallback();
+     */
 
     // show what cmds are running
     SmartDashboard.putData(CommandScheduler.getInstance());
@@ -205,18 +210,19 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
 
   @Override
   public void setupRegisteredCommands() {
-    RegisteredCommands.RegisterCommands(); 
+    RegisteredCommands.RegisterCommands();
 
-    //enable chooser - builds autochooser list, requires AutoBuilder to be configured
-    //thus SDT and some form of odometry.  Skip auto if not configured.
+    // enable chooser - builds autochooser list, requires AutoBuilder to be
+    // configured
+    // thus SDT and some form of odometry. Skip auto if not configured.
     if (AutoBuilder.isConfigured()) {
       autoChooser = AutoBuilder.buildAutoChooser();
-      SmartDashboard.putData("Auto Chooser", autoChooser);   
+      SmartDashboard.putData("Auto Chooser", autoChooser);
     }
   }
-  
+
   @Override
-  public SendableChooser<Command> getChooser() { 
+  public SendableChooser<Command> getChooser() {
     return autoChooser;
   }
 
@@ -227,7 +233,5 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
       drivetrain.setDefaultCommand(new FieldCentricDrive());
     }
   }
-
-  
 
 }

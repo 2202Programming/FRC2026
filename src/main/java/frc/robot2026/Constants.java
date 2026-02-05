@@ -117,19 +117,6 @@ public final class Constants {
   }  
 
     public static class Vision {
-      //photonvision camera names (needs to match photonvision UI naming)
-      public static final String[] CAMERA_NAMES = {"Back_Left","back_right","Front"};
-
-      // Robot to camera transforms.
-      // Example: Cam mounted facing forward, half a meter forward of center, half a meter up from center.
-      // Translation3d(0.5, 0.0, 0.5) 8 right 6 front  16 high
-    
-      public static final Transform3d[] kRobotToCam = {
-              new Transform3d(new Translation3d(6/39.37, -8/39.37, 16/39.37), new Rotation3d(0, 7*(Math.PI/180), 120*(Math.PI/180))),
-              new Transform3d(new Translation3d(6/39.37, -8/39.37, 16/39.37), new Rotation3d(0, 7*(Math.PI/180), 240*(Math.PI/180))),
-              new Transform3d(new Translation3d(6/39.37, -8/39.37, 16/39.37), new Rotation3d(0, 7*(Math.PI/180), 0))
-            };
-
 
       // The layout of the AprilTags on the field
       public static final AprilTagFieldLayout kTagLayout =
