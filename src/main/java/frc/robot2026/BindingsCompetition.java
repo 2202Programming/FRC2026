@@ -17,6 +17,7 @@ import frc.lib2202.subsystem.hid.HID_Subsystem;
 import frc.lib2202.subsystem.hid.TMJoystickController;
 import frc.lib2202.subsystem.swerve.DriveTrainInterface;
 import frc.robot2026.commands.IntakePwrSpin;
+import frc.robot2026.subsystems.Climber;
 
 /*
  * Please don't edit this without leads/mentor/driveteam review

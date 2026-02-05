@@ -37,16 +37,16 @@ import frc.lib2202.subsystem.swerve.config.ModuleConfig.CornerID;
 import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
 import frc.robot2026.subsystems.LimelightV2;
-import frc.robot2026.subsystems.Photonvision;
 import frc.robot2026.subsystems.VisionPoseEstimator;
 
-public class RobotSpec_Alpha2026 implements IRobotSpec {
+public class RobotSpec_AlphaBot implements IRobotSpec {
 
   
-  // Subsystems and other hardware on 2025 Robot rev Alpha
+  // 2026 Robot rev Alpha(most of code coped from Alpha2025)
+  //io sheet https://docs.google.com/spreadsheets/d/1eZ89R4oWHoCDpM9nOMC420o4i6Zx-Fgi8y4tpiL58a4/edit?gid=2120414614#gid=2120414614
   // This should be the chassis bot.
-  // $env:serialnum = "03282B65"
-  final SubsystemConfig ssconfig = new SubsystemConfig("Alpha2026", "03282B65")
+  // $env:serialnum = "25AE07D"
+  final SubsystemConfig ssconfig = new SubsystemConfig("Alpha_Bot2026", "25AE07D")
       // deferred construction via Supplier<Object> lambda
       .add(PowerDistribution.class, "PDP", () -> {
         var pdp = new PowerDistribution(CAN.PDP, ModuleType.kRev);
@@ -69,9 +69,6 @@ public class RobotSpec_Alpha2026 implements IRobotSpec {
       })
       .add(SwerveDrivetrain.class, "drivetrain", () ->{
           return new SwerveDrivetrain(SparkFlex.class);
-      })
-      .add(Photonvision.class, "photonvision", () -> {
-          return new Photonvision();
       })
       .add(OdometryInterface.class, "odometry", () -> {
         var obj = new Odometry();
@@ -105,7 +102,7 @@ public class RobotSpec_Alpha2026 implements IRobotSpec {
       new PIDFController(0.01, 0.0, 0.0, 0.0) // angle
   );
 
-  public RobotSpec_Alpha2026() {
+  public RobotSpec_AlphaBot() {
     // finish BetaBot's drivePIDF
     chassisConfig.drivePIDF.setIZone(0.2);
     // add the specs to the ssconfig

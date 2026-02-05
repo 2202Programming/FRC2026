@@ -6,9 +6,12 @@ package frc;
 
 import edu.wpi.first.wpilibj.RobotBase;
 import frc.lib2202.builder.Robot;
-import frc.robot2026.RobotSpec_Alpha2026;
-import frc.robot2026.RobotSpec_BotOnBoard1;
-//import frc.robot2026.RobotSpec_BotOnBoard_Epsilon;
+import frc.robot2026.RobotSpec_ChassisBot;
+import frc.robot2026.RobotSpec_BotOnBoard_Zeta;
+import frc.robot2026.RobotSpec_AlphaBot;
+import frc.robot2026.RobotSpec_BotOnBoard_Delta;
+import frc.robot2026.RobotSpec_BotOnBoard_Epsilon;
+
 
 public final class Main {
   private Main() {
@@ -16,10 +19,12 @@ public final class Main {
     //new RobotSpecDefault();  //example only, don't load spec
 
     // 2026 sub-tree
-    new RobotSpec_Alpha2026(); 
-    new RobotSpec_BotOnBoard1();
-    //new RobotSpec_BotOnBoard_Epsilon();
-
+    new RobotSpec_ChassisBot();          // $env:serialnum = "03282B65"
+    new RobotSpec_AlphaBot();            // $env:serialnum = "25AE07D"    
+    new RobotSpec_BotOnBoard_Delta();    // $env:serialnum = "3061025"
+    new RobotSpec_BotOnBoard_Epsilon();  // $env:serialnum = "0326F275"
+    new RobotSpec_BotOnBoard_Zeta();     // $env:serialnum = "0312db1a"
+    
   }
   public static void main(String... args) {
     new Main();
