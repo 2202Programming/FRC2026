@@ -18,6 +18,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib2202.util.PIDFController;
@@ -26,8 +27,8 @@ import frc.robot2026.Constants.DigitalIO;
 
 public class Hopper extends SubsystemBase {
 
-  final SparkMax wideBeltCtrl;
-  final SparkMax singleBeltCtrl;
+  // final SparkMax wideBeltCtrl;
+  // final SparkMax singleBeltCtrl;
   final SparkMax indexerCtrl;
  
   final RelativeEncoder indexerEncoder;
@@ -52,6 +53,8 @@ public class Hopper extends SubsystemBase {
   double D = 0.0;
   double F = 0.0;
   double kV = 12.0 / 5767.0; // Volts (somewhat arbitrary) / max RPM
+  double kS = 0.15; // amount of power required to overcome any mechanical slop,
+                    // and to start it barely moving.
 
   /**
    * Slot 0 is position control
@@ -62,8 +65,8 @@ public class Hopper extends SubsystemBase {
   public Hopper() {
     setName("Hopper");
 
-    wideBeltCtrl = new SparkMax(CAN.WideBeltID, MotorType.kBrushless);
-    singleBeltCtrl = new SparkMax(CAN.SingleBeltID, MotorType.kBrushless);
+    // wideBeltCtrl = new SparkMax(CAN.WideBeltID, MotorType.kBrushless);
+    // singleBeltCtrl = new SparkMax(CAN.SingleBeltID, MotorType.kBrushless);
     indexerCtrl = new SparkMax(CAN.IndexerID, MotorType.kBrushless);
 
     hwPidfCtrl = new PIDFController(P, I, D, F, "Indexer PIDF");
@@ -82,17 +85,17 @@ public class Hopper extends SubsystemBase {
     indexerCfg.closedLoop
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
         .p(P).i(I).d(D)
-        .outputRange(-1, 1) // sets the range of the controller
         .feedForward
-            .kV(kV, ClosedLoopSlot.kSlot0);
+            .kV(kV, ClosedLoopSlot.kSlot0)
+            .kS(kS, ClosedLoopSlot.kSlot0);
     
     // SLOT 1 CONFIG - VELOCITY
     indexerCfg.closedLoop
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
         .p(P).i(I).d(D)
-        .outputRange(-1, 1) // sets the range of the controller
         .feedForward
-            .kV(kV, ClosedLoopSlot.kSlot1);
+            .kV(kV, ClosedLoopSlot.kSlot1)
+            .kS(kS, ClosedLoopSlot.kSlot1);
     
     // POSITION CONTROL
     indexerCfg.closedLoop.maxMotion
@@ -124,6 +127,14 @@ public class Hopper extends SubsystemBase {
     return indexerEncoder.getPosition();
   }
 
+  // public double getKS() {
+  //   return 
+  // }
+
+  public void zeroPos() {
+    indexerEncoder.setPosition(0.0);
+  }
+
   public double getVelocity() {
     return indexerEncoder.getVelocity();
   }
@@ -137,26 +148,26 @@ public class Hopper extends SubsystemBase {
     indexerCLCtrl.setSetpoint(vel, ControlType.kMAXMotionVelocityControl, ClosedLoopSlot.kSlot1);
   }
   
-  // % Pwr control for wide belt + single belt
-  public void setWideBeltPercent(double pct) {
-    wideBeltCtrl.set(pct);
-  }
+  // // % Pwr control for wide belt + single belt
+  // public void setWideBeltPercent(double pct) {
+  //   wideBeltCtrl.set(pct);
+  // }
 
-  public void setSingleBeltPercent(double pct) {
-    singleBeltCtrl.set(pct);
-  }
+  // public void setSingleBeltPercent(double pct) {
+  //   singleBeltCtrl.set(pct);
+  // }
 
-  public void setBeltsPercent(double pct) {
-    wideBeltCtrl.set(pct);
-    singleBeltCtrl.set(pct);
-  }
+  // public void setBeltsPercent(double pct) {
+  //   wideBeltCtrl.set(pct);
+  //   singleBeltCtrl.set(pct);
+  // }
 
-  // Commands to control belt pwr
-  public Command cmdPct(double pct) {
-    return runOnce(() -> {
-      setBeltsPercent(pct);
-    });
-  }
+  // // Commands to control belt pwr
+  // public Command cmdPct(double pct) {
+  //   return runOnce(() -> {
+  //     setBeltsPercent(pct);
+  //   });
+  // }
 
   public Command setSingleBeltPct(double pct) {
     return runOnce(() -> {
@@ -164,14 +175,14 @@ public class Hopper extends SubsystemBase {
     });
   }
 
-  public Command setWideBeltPct(double pct) {
-    return runOnce(() -> {
-      setWideBeltPercent(pct);
-    });
-  }
+  // public Command setWideBeltPct(double pct) {
+  //   return runOnce(() -> {
+  //     setWideBeltPercent(pct);
+  //   });
+  // }
 
 
-  public Command setVelocity(double vel) {
+  public Command cmdSetVelocity(double vel) {
     return runOnce(() -> {
       setVelSetpoint(vel);
     });
@@ -184,28 +195,33 @@ public class Hopper extends SubsystemBase {
   }
 
   public void setTestBindings(CommandXboxController xbox) {
-    xbox.leftTrigger(0.5)
-        .onTrue(cmdPct(0.5))
-        .onFalse(cmdPct(0.0));
+    // xbox.leftTrigger(0.5)
+    //     .onTrue(cmdPct(0.5))
+    //     .onFalse(cmdPct(0.0));
         
-    xbox.rightTrigger(0.5)
-        .onTrue(cmdPct(1.0))
-        .onFalse(cmdPct(0.0));
+    // xbox.rightTrigger(0.5)
+    //     .onTrue(cmdPct(1.0))
+    //     .onFalse(cmdPct(0.0));
+
+    xbox.b().onTrue(new InstantCommand(() -> {
+      this.zeroPos();
+    }));
 
     xbox.leftBumper()
-        .onTrue(setVelocity(5.0))
-        .onFalse(setVelocity(0.0));
+        .whileTrue(cmdSetVelocity(2.0))
+        .onFalse(cmdSetVelocity(0.0));
 
     xbox.rightBumper()
-        .onTrue(setPosition(5.0));
+        .whileTrue(cmdSetVelocity(10.0))
+        .onFalse(cmdSetVelocity(0.0));
   }
   
   @Override
   public void initSendable(SendableBuilder builder) {
     super.initSendable(builder);
 
-    builder.addDoubleProperty("pct_pwr_wideBelt", this.wideBeltCtrl::get, this.wideBeltCtrl::set);
-    builder.addDoubleProperty("pct_pwr_singleBelt", this.singleBeltCtrl::get, this.singleBeltCtrl::set);
+    // builder.addDoubleProperty("pct_pwr_wideBelt", this.wideBeltCtrl::get, this.wideBeltCtrl::set);
+    // builder.addDoubleProperty("pct_pwr_singleBelt", this.singleBeltCtrl::get, this.singleBeltCtrl::set);
 
     builder.addDoubleProperty("encoder_position", this.indexerEncoder::getPosition, this.indexerEncoder::setPosition);
     builder.addDoubleProperty("encoder_velocity", this.indexerEncoder::getVelocity, null);
