@@ -32,6 +32,7 @@ import frc.lib2202.subsystem.swerve.DriveTrainInterface;
 import frc.lib2202.subsystem.swerve.IHeadingProvider;
 import frc.lib2202.util.VisionWatchdog;
 import frc.robot2026.Constants.Vision;
+import frc.robot2026.util.PoseUpdate;
 
 // Swerve Drive Train (drivetrain) must be created before Swerve-PoseEstimator
 
@@ -234,15 +235,15 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
         return m_estimator.update(gyro.getRotation2d(), meas_pos);       
     }
 
-    //@DL this is probably not the right way to do this; it's only using the most recent pose to feed into the m_estimator.
-    //each camera in photonvision has an internal/Local estimator that it may feed multiple pipeline results into each update cycle
-    //probably better if those actually updated m_estimator here instead of just using the most revent pose result.
+    //go through each camera and pull all pose updates that haven't been processed yet
     void photonvisionUpdateEstimator(){
+        RobotCamera tempCamera;
+        PoseUpdate tempPoseUpdate;
         for (int i = 0; i < Vision.CAMERA_NAMES.length; i++){
-            if (photon.camerasList.get(i).havePose()){
-                if (photon.camerasList.get(i).howManyTargets() > 0){
-                    m_estimator.addVisionMeasurement(photon.camerasList.get(i).getPose2d(), photon.camerasList.get(i).getTimeStamp());
-                }
+            tempCamera = photon.camerasList.get(i);
+            while(tempCamera.getPoseUpdateSize() > 0) {
+                tempPoseUpdate = tempCamera.popOldestPoseUpdate();
+                m_estimator.addVisionMeasurement(tempPoseUpdate.pose, tempPoseUpdate.timestamp);
             }
         }
     }

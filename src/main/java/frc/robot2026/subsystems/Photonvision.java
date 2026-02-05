@@ -4,6 +4,7 @@
 
 package frc.robot2026.subsystems;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +20,8 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot2026.Constants.Vision;
+import frc.robot2026.util.PoseUpdate;
+
 import static frc.robot2026.Constants.Vision.*;
 import frc.lib2202.command.WatcherCmd;
 
@@ -36,11 +39,13 @@ class RobotCamera {
   int camera_number;
   private Matrix<N3, N1> curStdDevs;
   private double timeStamp;
-
+  ArrayDeque<PoseUpdate> poseUpdateList;
+  
   public RobotCamera(String name, int camera_number) {
     camera = new PhotonCamera(name);
     this.camera_number = camera_number;
     photonEstimator = new PhotonPoseEstimator(kTagLayout, kRobotToCam[camera_number]);
+    poseUpdateList = new ArrayDeque<PoseUpdate>();
   }
 
   public void update() {
@@ -80,6 +85,7 @@ class RobotCamera {
           est -> {
             currentPose = est.estimatedPose.toPose2d();
             timeStamp = est.timestampSeconds;
+            poseUpdateList.add(new PoseUpdate(currentPose, timeStamp));
             var estStdDevs = getEstimationStdDevs();
           });
     }
@@ -93,6 +99,14 @@ class RobotCamera {
     if (targets == null)
       return -1; // targets seems like it can be null, protect - dpl
     return targets.size();
+  }
+
+  public PoseUpdate popOldestPoseUpdate(){
+    return poseUpdateList.pollFirst();
+  }
+
+  public int getPoseUpdateSize(){
+    return poseUpdateList.size();
   }
 
   public Boolean havePose(){
