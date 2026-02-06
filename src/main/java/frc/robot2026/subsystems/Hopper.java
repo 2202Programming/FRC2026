@@ -18,6 +18,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib2202.util.PIDFController;
@@ -51,7 +52,12 @@ public class Hopper extends SubsystemBase {
   double I = 0.0;
   double D = 0.0;
   double F = 0.0;
-  double kV = 12.0 / 5767.0; // Volts (somewhat arbitrary) / max RPM
+    double kV = 12.0 / 5767.0; // Volts (somewhat arbitrary) / max RPM
+    double kS = 0.15; // amount of power required to overcome any mechanical slop,
+                      // and to start it barely moving.
+
+  double vel_setpoint;
+  double pos_setpoint;
 
   /**
    * Slot 0 is position control
@@ -68,7 +74,7 @@ public class Hopper extends SubsystemBase {
 
     hwPidfCtrl = new PIDFController(P, I, D, F, "Indexer PIDF");
 
-    indexGate = new DigitalInput(DigitalIO.HopperIndexerID);
+    indexGate = new DigitalInput(DigitalIO.HopperIndexerID); // not being used as of 2/5/2025
 
     indexerEncoder = indexerCtrl.getEncoder();
     indexerCLCtrl = indexerCtrl.getClosedLoopController();
@@ -80,18 +86,18 @@ public class Hopper extends SubsystemBase {
     // SLOT 0 CONFIG - POSITION
     indexerCfg.closedLoop
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-        .p(P).i(I).d(D)
-        .outputRange(-1, 1) // sets the range of the controller
+        .p(hwPidfCtrl.getP()).i(hwPidfCtrl.getI()).d(hwPidfCtrl.getD()) // incredibly hacky but it keeps all the PID stuffs in one place
         .feedForward
-            .kV(kV, ClosedLoopSlot.kSlot0);
+            .kV(kV, ClosedLoopSlot.kSlot0)
+            .kS(kS, ClosedLoopSlot.kSlot0);
     
     // SLOT 1 CONFIG - VELOCITY
     indexerCfg.closedLoop
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-        .p(P).i(I).d(D)
-        .outputRange(-1, 1) // sets the range of the controller
+        .p(hwPidfCtrl.getP()).i(hwPidfCtrl.getI()).d(hwPidfCtrl.getD()) // incredibly hacky but it keeps all the PID stuffs in one place
         .feedForward
-            .kV(kV, ClosedLoopSlot.kSlot1);
+            .kV(kV, ClosedLoopSlot.kSlot1)
+            .kS(kS, ClosedLoopSlot.kSlot1);
     
     // POSITION CONTROL
     indexerCfg.closedLoop.maxMotion
@@ -106,7 +112,7 @@ public class Hopper extends SubsystemBase {
     indexerCtrl.configure(indexerCfg, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
   }
 
-  // Expose PIDS and other values for tuning
+  // Add updating position and velocity hardware slots to the periodic
   public void updatePosHardware() {
     hwPidfCtrl.copyChangesTo(indexerCtrl, indexerCfg, ClosedLoopSlot.kSlot0);
   }
@@ -115,26 +121,48 @@ public class Hopper extends SubsystemBase {
     hwPidfCtrl.copyChangesTo(indexerCtrl, indexerCfg, ClosedLoopSlot.kSlot1);
   }
 
-  public double getIAccum() {
-    return indexerCLCtrl.getIAccum();
+  public void periodic() {
+    updatePosHardware();
+    updateVelHardware();
   }
 
-  public double getPosition() {
+  // *** POSITION ***
+  public void setPosSetpoint(double pos) {
+    indexerCLCtrl.setSetpoint(pos, ControlType.kMAXMotionPositionControl, ClosedLoopSlot.kSlot0);
+  }
+
+  public double getPosSetpoint() {
+    return pos_setpoint;
+  }
+
+   public double getPosition() {
     return indexerEncoder.getPosition();
+  }
+
+  public void zeroPos() {
+    indexerEncoder.setPosition(0.0);
+  }
+
+  // *** VELOCITY ***
+  public void setVelSetpoint(double vel) {
+    indexerCLCtrl.setSetpoint(vel, ControlType.kMAXMotionVelocityControl, ClosedLoopSlot.kSlot1);
+    vel_setpoint = vel;
+  }
+
+  public double getVelSetpoint() {
+    return vel_setpoint;
   }
 
   public double getVelocity() {
     return indexerEncoder.getVelocity();
   }
-  
-  // Vel + Pos control for the indexer
-  public void setPosSetpoint(double pos) {
-    indexerCLCtrl.setSetpoint(pos, ControlType.kMAXMotionPositionControl, ClosedLoopSlot.kSlot0);
+
+  // *** MISC PID VARS ***
+  public double getIAccum() {
+    return indexerCLCtrl.getIAccum();
   }
 
-  public void setVelSetpoint(double vel) {
-    indexerCLCtrl.setSetpoint(vel, ControlType.kMAXMotionVelocityControl, ClosedLoopSlot.kSlot1);
-  }
+  // rampRate, iZone, iMaxAccum, kV, kS, free & stall amp, 
   
   // % Pwr control for wide belt + single belt
   public void setWideBeltPercent(double pct) {
@@ -169,8 +197,7 @@ public class Hopper extends SubsystemBase {
     });
   }
 
-
-  public Command setVelocity(double vel) {
+  public Command cmdSetVelocity(double vel) {
     return runOnce(() -> {
       setVelSetpoint(vel);
     });
@@ -191,12 +218,17 @@ public class Hopper extends SubsystemBase {
         .onTrue(cmdPct(0.5))
         .onFalse(cmdPct(0.0));
 
+    xbox.b().onTrue(new InstantCommand(() -> {
+      this.zeroPos();
+    }));
+
     xbox.leftBumper()
-        .onTrue(setVelocity(5.0))
-        .onFalse(setVelocity(0.0));
+        .whileTrue(cmdSetVelocity(2.0))
+        .onFalse(cmdSetVelocity(0.0));
 
     xbox.rightBumper()
-        .onTrue(setPosition(5.0));
+        .whileTrue(cmdSetVelocity(10.0))
+        .onFalse(cmdSetVelocity(0.0));
   }
   
   @Override
@@ -206,11 +238,10 @@ public class Hopper extends SubsystemBase {
     builder.addDoubleProperty("pct_pwr_wideBelt", this.wideBeltCtrl::get, this.wideBeltCtrl::set);
     builder.addDoubleProperty("pct_pwr_singleBelt", this.singleBeltCtrl::get, this.singleBeltCtrl::set);
 
-    builder.addDoubleProperty("encoder_position", this.indexerEncoder::getPosition, this.indexerEncoder::setPosition);
-    builder.addDoubleProperty("encoder_velocity", this.indexerEncoder::getVelocity, null);
+    builder.addDoubleProperty("pos_cmd", this::getPosSetpoint, this::setPosSetpoint);
+    builder.addDoubleProperty("vel_cmd", this::getVelSetpoint, this::setVelSetpoint);
+
+    // grab PIDs
+    hwPidfCtrl.initSendable(builder);
   }
-
-
-
-  public void periodic() {}
 }

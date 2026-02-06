@@ -9,11 +9,11 @@ import frc.lib2202.builder.RobotContainer;
 import frc.robot2026.subsystems.Intake;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class IntakePwrSpin extends Command {
+public class IntakePercentPwr extends Command {
   /** Creates a new SpinIntake. */
   final Intake intake;
   double speed;
-  public IntakePwrSpin(double speed) {
+  public IntakePercentPwr(double speed) {
     intake = RobotContainer.getSubsystem(Intake.class);
     this.speed = speed;
     addRequirements(intake);
@@ -22,7 +22,7 @@ public class IntakePwrSpin extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    intake.setPercent(speed);
+    intake.setPercent(speed); //[0.0 - 1.0]
   }
 
   // Called once the command ends or is interrupted.
