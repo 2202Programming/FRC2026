@@ -235,7 +235,8 @@ public class Photonvision extends SubsystemBase {
 
   public Photonvision(Config specs) {
     setName("photonvision");
-
+    config = specs;
+    
     for (int i = 0; i < config.CAMERA_NAMES.length; i++) {
       camerasList.add(new RobotCamera(config.CAMERA_NAMES[i], i, config.kRobotToCam[i]));
       Photon_Has_Multi_Target.add(false);
