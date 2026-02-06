@@ -37,7 +37,7 @@ import frc.lib2202.subsystem.swerve.config.ChassisConfig;
 import frc.lib2202.subsystem.swerve.config.ModuleConfig;
 import frc.lib2202.subsystem.swerve.config.ModuleConfig.CornerID;
 import frc.lib2202.util.PIDFController;
-import frc.lib2202.util.PhotonvisionConfig;
+
 import frc.robot2026.Constants.CAN;
 import frc.robot2026.subsystems.Climber;
 import frc.robot2026.subsystems.LimelightV2;
@@ -45,10 +45,12 @@ import frc.robot2026.subsystems.Photonvision;
 import frc.robot2026.subsystems.VisionPoseEstimator;
 
 public class RobotSpec_ChassisBot implements IRobotSpec {
-
   // Subsystems and other hardware on 2025 Robot rev Alpha
   // This should be the chassis bot.
   // $env:serialnum = "03282B65"
+
+   static Photonvision pv;
+
   final SubsystemConfig ssconfig = new SubsystemConfig("ChassisBot", "03282B65")
       // deferred construction via Supplier<Object> lambda
       .add(PowerDistribution.class, "PDP", () -> {
@@ -76,7 +78,20 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
         return new SwerveDrivetrain(SparkFlex.class);
       })
       .add(Photonvision.class, "photonvision", () -> {
-        return new Photonvision();
+        // create config object with our cameras and their positions
+        Photonvision.Config pvConfig = new Photonvision.Config(
+            new String[] { "Back_Left", "back_right", "Front" },
+            new Transform3d[] {
+                new Transform3d(new Translation3d(6 / 39.37, -8 / 39.37, 16 / 39.37),
+                    new Rotation3d(0, 7 * (Math.PI / 180), 120 * (Math.PI / 180))),
+                new Transform3d(new Translation3d(6 / 39.37, -8 / 39.37, 16 / 39.37),
+                    new Rotation3d(0, 7 * (Math.PI / 180), 240 * (Math.PI / 180))),
+                new Transform3d(new Translation3d(6 / 39.37, -8 / 39.37, 16 / 39.37),
+                    new Rotation3d(0, 7 * (Math.PI / 180), 0))
+            });
+        // now setup our PV subsystem
+        pv = new Photonvision(pvConfig);
+        return pv;
       })
       .add(OdometryInterface.class, "odometry", () -> {
         var obj = new Odometry();
@@ -86,6 +101,8 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
       // VisonPoseEstimator needs LL and Odometry, adds simplename and alias to lookup
       .addAlias(VisionPoseEstimator.class, "vision_odo")
       .add(Climber.class);
+
+
 
   // Robot Speed Limits
   RobotLimits robotLimits = new RobotLimits(FeetPerSecond.of(15.0), DegreesPerSecond.of(180.0));
@@ -132,20 +149,6 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
   @Override
   public ChassisConfig getChassisConfig() {
     return chassisConfig;
-  }
-
-  @Override
-  public PhotonvisionConfig getPVConfig() {
-    return new PhotonvisionConfig(
-        new String[] { "Back_Left", "back_right", "Front" },
-        new Transform3d[] {
-            new Transform3d(new Translation3d(6 / 39.37, -8 / 39.37, 16 / 39.37),
-                new Rotation3d(0, 7 * (Math.PI / 180), 120 * (Math.PI / 180))),
-            new Transform3d(new Translation3d(6 / 39.37, -8 / 39.37, 16 / 39.37),
-                new Rotation3d(0, 7 * (Math.PI / 180), 240 * (Math.PI / 180))),
-            new Transform3d(new Translation3d(6 / 39.37, -8 / 39.37, 16 / 39.37),
-                new Rotation3d(0, 7 * (Math.PI / 180), 0))
-        });
   }
 
   @Override

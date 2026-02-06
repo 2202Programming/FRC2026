@@ -31,7 +31,6 @@ import frc.lib2202.subsystem.SignalLight.Color;
 import frc.lib2202.subsystem.swerve.DriveTrainInterface;
 import frc.lib2202.subsystem.swerve.IHeadingProvider;
 import frc.lib2202.util.VisionWatchdog;
-import frc.robot2026.Constants.Vision;
 import frc.robot2026.util.PoseUpdate;
 
 // Swerve Drive Train (drivetrain) must be created before Swerve-PoseEstimator
@@ -225,7 +224,7 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
             m_estimator.setVisionMeasurementStdDevs(stdDev);
             m_estimator.addVisionMeasurement(pose, ts);
 
-            if (photon != null) photonvisionUpdateEstimator();
+            processPhotonVision();
 
             if (watchdog != null)
                 watchdog.update(pose, prev_llPose);
@@ -235,24 +234,22 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
         return m_estimator.update(gyro.getRotation2d(), meas_pos);       
     }
 
-    //go through each camera and pull all pose updates that haven't been processed yet
-    void photonvisionUpdateEstimator(){
-        RobotCamera tempCamera;
-        PoseUpdate tempPoseUpdate;
-        for (int i = 0; i < Vision.CAMERA_NAMES.length; i++){
-            tempCamera = photon.camerasList.get(i);
-            while(tempCamera.getPoseUpdateSize() > 0) {
-                tempPoseUpdate = tempCamera.popOldestPoseUpdate();
-                m_estimator.addVisionMeasurement(tempPoseUpdate.pose, tempPoseUpdate.timestamp);
-            }
-        }
+
+    // PhotonVision builds list of updates, we grab it here and apply it
+    void processPhotonVision() {
+        if (photon == null) return;
+
+        var updates = photon.getAllUpdates();
+        for (PoseUpdate update : updates) { 
+            m_estimator.addVisionMeasurement(update.pose, update.timestamp);
+        };        
     }
 
     public void configureGyroCallback(){
         AllianceAwareGyroReset.AddRotationCallback(this::setAnglePose);
     }
     
-    
+
     // see if we can get the LL stddevs for mt1[0..5] and mt2[6..11]
     double[] default_stddevs = new double[12];
     public double[] getStddevs() {

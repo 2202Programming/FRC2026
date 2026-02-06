@@ -4,15 +4,21 @@
 
 package frc.robot2026.subsystems;
 
+import static frc.robot2026.Constants.Vision.kMultiTagStdDevs;
+import static frc.robot2026.Constants.Vision.kSingleTagStdDevs;
+import static frc.robot2026.Constants.Vision.kTagLayout;
+
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
+
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -20,14 +26,8 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot2026.util.PoseUpdate;
-
-import static frc.robot2026.Constants.Vision.*;
-
-import frc.lib2202.builder.IRobotSpec;
-import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.command.WatcherCmd;
-import frc.lib2202.util.PhotonvisionConfig;
+import frc.robot2026.util.PoseUpdate;
 
 //individual photonvision USB cameras
 class RobotCamera {
@@ -90,6 +90,8 @@ class RobotCamera {
             currentPose = est.estimatedPose.toPose2d();
             timeStamp = est.timestampSeconds;
             poseUpdateList.add(new PoseUpdate(currentPose, timeStamp));
+            
+            @SuppressWarnings("unused")
             var estStdDevs = getEstimationStdDevs();
           });
     }
@@ -201,25 +203,38 @@ class RobotCamera {
       }
     }
   }
-
 }
 
 public class Photonvision extends SubsystemBase {
-  /** Creates a new Photonvision. */
 
+  //Helper Config class to setup camears names and locations for Photonvision Subsystem
+  public static class Config {
+    // photonvision camera names (needs to match photonvision UI naming)
+    public String[] CAMERA_NAMES;
+
+    // Robot to camera transforms.
+    // https://docs.photonvision.org/en/latest/docs/apriltag-pipelines/coordinate-systems.html
+    public Transform3d[] kRobotToCam;
+
+    public Config(String[] CAMERA_NAMES, Transform3d[] kRobotToCam){
+        this.CAMERA_NAMES = CAMERA_NAMES;
+        this.kRobotToCam = kRobotToCam;
+    }
+}
+
+
+  /** Creates a new Photonvision. */
   public List<RobotCamera> camerasList = new ArrayList<RobotCamera>();
   List<Integer> Photon_How_Many_Targets = new ArrayList<Integer>();
   List<Boolean> Photon_Has_Multi_Target = new ArrayList<Boolean>();
   List<Double> PoseX = new ArrayList<Double>();
   List<Double> PoseY = new ArrayList<Double>();
-  PhotonvisionConfig config;
+  Photonvision.Config config;
 
-  public Photonvision() {
+  List<PoseUpdate> latest_updates;  // keep pointer to last collected updates
+
+  public Photonvision(Config specs) {
     setName("photonvision");
-
-    //pull camera names, transforms from robotspecs
-    IRobotSpec specs = RobotContainer.getRobotSpecs();
-    config = specs.getPVConfig();
 
     for (int i = 0; i < config.CAMERA_NAMES.length; i++) {
       camerasList.add(new RobotCamera(config.CAMERA_NAMES[i], i, config.kRobotToCam[i]));
@@ -229,7 +244,6 @@ public class Photonvision extends SubsystemBase {
       PoseY.add(-1.0);
     }
     getWatcherCmd();
-
   }
 
   @Override
@@ -245,10 +259,19 @@ public class Photonvision extends SubsystemBase {
     }
   }
 
-  void process(List<PhotonTrackedTarget> targets) {
-    // todo
-  }
+  // build list of all the updates we have, called by VPE or other estimator
+  public List<PoseUpdate> getAllUpdates() {
+    List<PoseUpdate> updates = new ArrayList<PoseUpdate>();  
 
+    for (int i = 0; i < config.CAMERA_NAMES.length; i++){
+      RobotCamera tempCamera = camerasList.get(i);
+      while(tempCamera.getPoseUpdateSize() > 0) {
+         updates.add(tempCamera.popOldestPoseUpdate());
+      }
+    }
+    return updates;
+  }
+  
   // Add a watcher so we can see stuff on network tables
   public WatcherCmd getWatcherCmd() {
     return this.new PhotonWatcher();
