@@ -1,7 +1,12 @@
 package frc.robot2026;
 
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -107,4 +112,16 @@ public final class Constants {
     public static AprilTagFields fieldChoice = AprilTagFields.k2025ReefscapeAndyMark; // k2025ReefscapeWelded;
     public static AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(fieldChoice);
   }  
+
+    public static class Vision {
+
+      // The layout of the AprilTags on the field
+      public static final AprilTagFieldLayout kTagLayout =
+              AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+
+        // The standard deviations of our vision estimated poses, which affect correction rate
+        // (Fake values. Experiment and determine estimation noise on an actual robot.)
+        public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(4, 4, 8);
+        public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 1);
+  }
 }

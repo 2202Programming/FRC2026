@@ -31,6 +31,7 @@ import frc.lib2202.subsystem.SignalLight.Color;
 import frc.lib2202.subsystem.swerve.DriveTrainInterface;
 import frc.lib2202.subsystem.swerve.IHeadingProvider;
 import frc.lib2202.util.VisionWatchdog;
+import frc.robot2026.util.PoseUpdate;
 
 // Swerve Drive Train (drivetrain) must be created before Swerve-PoseEstimator
 
@@ -52,6 +53,7 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
     final VisionWatchdog watchdog;
     final ILimelight limelight;
     final SignalLight signal;
+    final Photonvision photon;
     
     // stddev based on distance/quality of tag
     final Matrix<N3, N1> closeStdDevs =VecBuilder.fill(0.25, 0.25, Units.degreesToRadians(5.0));
@@ -97,6 +99,7 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
         gyro = RobotContainer.getRobotSpecs().getHeadingProvider();
         limelight = RobotContainer.getSubsystemOrNull(limelightName);
         signal = RobotContainer.getObjectOrNull("light");
+        photon = RobotContainer.getObjectOrNull("photonvision");
 
         altName = limelight.getLLName();  //debug
 
@@ -220,6 +223,9 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
 
             m_estimator.setVisionMeasurementStdDevs(stdDev);
             m_estimator.addVisionMeasurement(pose, ts);
+
+            processPhotonVision();
+
             if (watchdog != null)
                 watchdog.update(pose, prev_llPose);
         }
@@ -229,11 +235,21 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
     }
 
 
+    // PhotonVision builds list of updates, we grab it here and apply it
+    void processPhotonVision() {
+        if (photon == null) return;
+
+        var updates = photon.getAllUpdates();
+        for (PoseUpdate update : updates) { 
+            m_estimator.addVisionMeasurement(update.pose, update.timestamp);
+        };        
+    }
+
     public void configureGyroCallback(){
         AllianceAwareGyroReset.AddRotationCallback(this::setAnglePose);
     }
     
-    
+
     // see if we can get the LL stddevs for mt1[0..5] and mt2[6..11]
     double[] default_stddevs = new double[12];
     public double[] getStddevs() {

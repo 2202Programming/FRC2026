@@ -34,10 +34,6 @@ public class RobotSpec_BotOnBoard_Delta implements IRobotSpec {
         pdp.clearStickyFaults();
         return pdp;
       })
-      .add(HID_Subsystem.class, "DC", () -> {
-        return new HID_Subsystem(0.3, 0.9, 0.05);
-
-      })
       // .add(Intake.class)
       .add(Shooter.class, "Shooter", () ->{
         return new Shooter("flex"); //opts: rev,ctre,multi
