@@ -1,6 +1,9 @@
 package frc.robot2026;
 
 
+import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.hardware.CANrange;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
@@ -78,6 +81,10 @@ public final class Constants {
     // IMU
     public static final int PIGEON_IMU_CAN = 60;
 
+    // CANRange
+    public static final int CANRANGE_R_CAN = 62;
+    public static final int CANRANGE_L_CAN = 61;
+  
   }
 
   public static final class PWM{

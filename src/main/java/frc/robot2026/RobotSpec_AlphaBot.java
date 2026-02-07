@@ -72,6 +72,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
       .add(SwerveDrivetrain.class, "drivetrain", () ->{
           return new SwerveDrivetrain(SparkFlex.class);
       })
+      .add(Sensors.class,"sensors")
       .add(OdometryInterface.class, "odometry", () -> {
         var obj = new Odometry();
         obj.new OdometryWatcher();
