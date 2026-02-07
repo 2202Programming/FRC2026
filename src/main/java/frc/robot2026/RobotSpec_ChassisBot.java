@@ -110,7 +110,7 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
   RobotLimits robotLimits = new RobotLimits(FeetPerSecond.of(15.0), DegreesPerSecond.of(180.0));
 
   // Chassis
-  double kWheelCorrectionFactor = .987;
+  double kWheelCorrectionFactor = .9875;
   double kSteeringGR = 21.428;
   double kDriveGR = 6.12;
   double kWheelDiameter = MperFT * 4.0 / 12.0; // [m]
