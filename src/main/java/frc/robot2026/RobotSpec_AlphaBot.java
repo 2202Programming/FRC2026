@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib2202.builder.IRobotSpec;
 import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.builder.RobotLimits;
@@ -46,8 +47,8 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
   // 2026 Robot rev Alpha(most of code coped from Alpha2025)
   //io sheet https://docs.google.com/spreadsheets/d/1eZ89R4oWHoCDpM9nOMC420o4i6Zx-Fgi8y4tpiL58a4/edit?gid=2120414614#gid=2120414614
   // This should be the chassis bot.
-  // $env:serialnum = "25AE07D"
-  final SubsystemConfig ssconfig = new SubsystemConfig("Alpha_Bot2026", "25AE07D")
+  // $env:serialnum = "025AE07D"
+  final SubsystemConfig ssconfig = new SubsystemConfig("AlphaBot2026", "025AE07D")
       // deferred construction via Supplier<Object> lambda
       .add(PowerDistribution.class, "PDP", () -> {
         var pdp = new PowerDistribution(CAN.PDP, ModuleType.kRev);
@@ -83,25 +84,26 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
       ;
 
   // Robot Speed Limits
-  RobotLimits robotLimits = new RobotLimits(FeetPerSecond.of(15.0), DegreesPerSecond.of(180.0));
+  RobotLimits robotLimits = new RobotLimits(FeetPerSecond.of(15.0),DegreesPerSecond.of(360.0));
 
   // Chassis
   double kWheelCorrectionFactor = 1.02;
-  double kSteeringGR = 21.428;
-  double kDriveGR = 6.12;
+  double kSteeringGR = 12.8;
+  double kDriveGR = 5.36;
   double kWheelDiameter = MperFT * 4.0 / 12.0; // [m]
 
   final ChassisConfig chassisConfig = new ChassisConfig(
       //0.57785 / 2.0, 
       //0.57785 / 2.0,  
       //dpl - 28" x 28"
-      0.7112 / 2.0,  // x,  
-      0.7112 / 2.0,  // y, 
+      0.53 / 2.0,  // x,  
+      0.575 / 2.0,  // y, 
       kWheelCorrectionFactor, // scale [] <= 1.0
       kWheelDiameter,
       kSteeringGR,
       kDriveGR,
-      new PIDFController(0.085, 0.00055, 0.0, 0.21292), // drive
+      //DPL, AH, JW - 12.0 factor for rev 2026 firmware using Volts and not PCT-Pwr
+      new PIDFController(0.085, 0.00055, 0.0, 12.0*0.21292), // drive
       new PIDFController(0.01, 0.0, 0.0, 0.0) // angle
   );
 
@@ -139,20 +141,20 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
     //TODO - correct offsets
     ModuleConfig[] modules = new ModuleConfig[4];
         modules[CornerID.FrontLeft.getIdx()] = new ModuleConfig(CornerID.FrontLeft,
-        CAN.FL_CANCoder, CAN.FL_Drive, CAN.FL_Angle, 41.17587)
-        .setInversions(false, true, false);
+        CAN.FL_CANCoder, CAN.FL_Drive, CAN.FL_Angle, 72.201)
+        .setInversions(false, true, true);
 
         modules[CornerID.FrontRight.getIdx()] = new ModuleConfig(CornerID.FrontRight,
-        CAN.FR_CANCoder, CAN.FR_Drive, CAN.FR_Angle,-63.98)
-        .setInversions(true, true, false);
+        CAN.FR_CANCoder, CAN.FR_Drive, CAN.FR_Angle,-103.98)
+        .setInversions(true, true, true);
 
         modules[CornerID.BackLeft.getIdx()] = new ModuleConfig(CornerID.BackLeft,
-        CAN.BL_CANCoder, CAN.BL_Drive, CAN.BL_Angle, 50.45)
-        .setInversions(false, true, false);
+        CAN.BL_CANCoder, CAN.BL_Drive, CAN.BL_Angle, -124.365)
+        .setInversions(false, true, true);
 
         modules[CornerID.BackRight.getIdx()] = new ModuleConfig(CornerID.BackRight,
-        CAN.BR_CANCoder, CAN.BR_Drive, CAN.BR_Angle,  -66.27)
-        .setInversions(true, true, false);
+        CAN.BR_CANCoder, CAN.BR_Drive, CAN.BR_Angle,  102.92)
+        .setInversions(true, true, true);
 
     return modules;
   }
@@ -173,7 +175,8 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
     }
     
     // Competition bindings 
-    BindingsCompetition.ConfigureCompetition(dc, true);
+    BindingsCompetition.ConfigureCompetition(dc, false);
+    DpltestBinding.calbrate((CommandXboxController)dc.Operator());
     
     // Place your test binding in ./testBinding/<yourFile>.java and call it here
     // comment out any conflicting bindings. Try not to push with your bindings
