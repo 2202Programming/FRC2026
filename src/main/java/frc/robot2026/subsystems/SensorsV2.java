@@ -10,7 +10,7 @@ import frc.lib2202.command.WatcherCmd;
 import frc.robot2026.Constants.CAN;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Sensors extends SubsystemBase {
+public class SensorsV2 extends SubsystemBase {
   /** Creates a new Sensors. */
 
   private CANrange canRange_L;
@@ -21,12 +21,13 @@ public class Sensors extends SubsystemBase {
   // CANivore name
   final CANBus kCANrangeCANbus = new CANBus("rio");
 
-  public Sensors() {
-    setName("sensors");
+  public SensorsV2() {
+    setName("sensorsV2");
     // Construct the CANrange object
     canRange_L = new CANrange(CAN.CANRANGE_L_CAN, kCANrangeCANbus);
     canRange_R = new CANrange(CAN.CANRANGE_R_CAN, kCANrangeCANbus);
-
+    canRange_L_Distance = 0.0;
+    canRange_R_Distance = 0.0;
     getWatcherCmd();
   }
 
@@ -39,7 +40,7 @@ public class Sensors extends SubsystemBase {
 
   // Add a watcher so we can see stuff on network tables
   public WatcherCmd getWatcherCmd() {
-    return this.new SensorWatcher();
+    return this.new SensorV2Watcher();
   }
 
   public double getCANRangeL() {
@@ -50,10 +51,10 @@ public class Sensors extends SubsystemBase {
     return canRange_R_Distance;
   }
 
-  class SensorWatcher extends WatcherCmd {
-    SensorWatcher() {
-        addEntry("canRange Left", Sensors.this::getCANRangeL);
-        addEntry("canRange Right", Sensors.this::getCANRangeR);
+  class SensorV2Watcher extends WatcherCmd {
+    SensorV2Watcher() {
+        addEntry("canRange Left", SensorsV2.this::getCANRangeL);
+        addEntry("canRange Right", SensorsV2.this::getCANRangeR);
       }
   }
 }
