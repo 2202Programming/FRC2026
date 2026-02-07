@@ -33,7 +33,7 @@ public class Climber extends SubsystemBase {
     final int FREE_CURRENT = 5;   // [Amp] placeholder  
     
     public final Arm l_arm;
-    //public final Arm r_arm; 
+    public final Arm r_arm; 
     /* My logic for making these public is to allow access to the individual methods while outside the system.
        Otherwise that will just mean making more methods, and that seems like a waste - Gavin 
         Could be, normally SubSystem API should eliminate the need. We will see. Class needs to be public too 
@@ -109,47 +109,66 @@ public class Climber extends SubsystemBase {
         }        
     }
 
-    public Climber() {
+    public Climber(boolean oneArm) {
         setName("climber");
         // Set up in this format to use both arms as needed.
-        l_arm = new Arm(CAN.l_arm,"L", true, "Left Arm");
-        //r_arm = new Arm(CAN.r_arm,"R", true, "Right Arm");
+        if (oneArm) {
+            l_arm = new Arm(CAN.r_arm,"L", true, "Left Arm");
+            r_arm = null;
+        } else {
+            l_arm = new Arm(CAN.l_arm,"L", true, "Left Arm");
+            r_arm = new Arm(CAN.r_arm,"R", true, "Right Arm");
+        }
+        
     }
 
     public Command setVelocityCmd(double vel, Arm arm) {
+        if (arm == null) {
+            return Commands.print("Arm DNE, Could not set velocity");
+        }
         return runOnce(() -> {
-            arm.setVelocity(vel);  //switches Neo to vel mode
+        arm.setVelocity(vel);  //switches Neo to vel mode
         });
     }
 
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
+        if (r_arm != null) {
+            r_arm.servo.periodic();
+        }
         l_arm.servo.periodic();
-        //r_arm.servo.periodic();
     }
 
     @Override
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
-        l_arm.initSendable(builder);
-        //r_arm.initSendable(builder);        
+        if (r_arm != null) {
+             r_arm.initSendable(builder);
+        }
+        l_arm.initSendable(builder);        
     }
         
     // Climber API - most of these should use both l/r arms together I think
     // May not be necessary, arms will be running separately as they climb up the side of the building
 
     public Command setSetpointCmd(double pos, Arm arm) {
+        if (arm == null) {
+            return Commands.print("Arm DNE, could not command position");
+        }
         return runOnce(() -> {
-            arm.setSetpoint(pos);
-        });         
+        arm.setSetpoint(pos);
+        });
+         
     }
 
     public Command armsSetpointCmd(double pos) {
         return runOnce(() -> {  // simple instant cmd, sequenct not needed
             // if we need to move arms at same time, set both arms to same position
+            if (r_arm != null) {
+                r_arm.setSetpoint(pos);
+            } 
             l_arm.setSetpoint(pos);
-            //r_arm.setSetpoint(pos);
         });         
     }
 
@@ -158,15 +177,21 @@ public class Climber extends SubsystemBase {
     public Command armsCalibrateCmd(double position) {
         return runOnce(() -> {
             //no sequence needed, these can run in single cmd.
-            //r_arm.setPosition(position);
+            if (r_arm != null) {
+                r_arm.setPosition(position);
+            }
             l_arm.setPosition(position);
+            
         });
     }
 
     // Simple check, only used in the arms to point command. 
     public boolean armsAtPos() {
-        //return l_arm.atSetpoint() && r_arm.atSetpoint();
-        return l_arm.atSetpoint();
+        if (r_arm == null) {
+            return l_arm.atSetpoint();
+        }
+        return l_arm.atSetpoint() && r_arm.atSetpoint();
+        
     }
 
 
@@ -180,6 +205,9 @@ public class Climber extends SubsystemBase {
 
     //specify arm of choice if desired. Could cause issues if one of our arms is just flying around, but should still function OK
     public Command armsToPoint(double pos, Arm arm) {
+        if (arm == null) {
+            return Commands.print("Arm Does not exist, cannot send to point");
+        }
         return Commands.sequence(
             setSetpointCmd(pos, arm),
             Commands.waitUntil(arm::atSetpoint),
@@ -188,8 +216,10 @@ public class Climber extends SubsystemBase {
     }
 
     public boolean atSetpoint(){
-        //return l_arm.atSetpoint() && r_arm.atSetpoint();
-        return l_arm.atSetpoint();
+        if (r_arm == null) {
+            return l_arm.atSetpoint();
+        }
+        return l_arm.atSetpoint() && r_arm.atSetpoint(); 
     }
 
     public Command getWatcher(){
@@ -204,8 +234,8 @@ public class Climber extends SubsystemBase {
         // Got about 70amps at 12cm/s, could hit 14 without issues
         xbox.povLeft().whileTrue(this.setVelocityCmd(14.0, l_arm)).onFalse(this.setVelocityCmd(0.0, l_arm));
         xbox.povRight().whileTrue(this.setVelocityCmd(-14.0, l_arm)).onFalse(this.setVelocityCmd(0.0, l_arm));
-        //xbox.povUp().whileTrue(this.setVelocityCmd(2.0, r_arm)).onFalse(this.setVelocityCmd(0.0, r_arm));
-        //xbox.povDown().whileTrue(this.setVelocityCmd(-2.0, r_arm)).onFalse(this.setVelocityCmd(0.0, r_arm));
+        xbox.povUp().whileTrue(this.setVelocityCmd(2.0, r_arm)).onFalse(this.setVelocityCmd(0.0, r_arm));
+        xbox.povDown().whileTrue(this.setVelocityCmd(-2.0, r_arm)).onFalse(this.setVelocityCmd(0.0, r_arm));
 
         // Move arms to 0 point
         xbox.x().onTrue(armsSetpointCmd(0.0)); 
@@ -215,15 +245,19 @@ public class Climber extends SubsystemBase {
     
     class ClimberWatcher extends WatcherCmd {
         ClimberWatcher() {
-            addEntry("L_position", Climber.this.l_arm::getPosition, 1);
-            //addEntry("R_position", Climber.this.r_arm::getPosition, 1);
+            
+            addEntry("R_position", Climber.this.l_arm::getPosition, 1);
             addEntry("AtSetpoint", Climber.this::atSetpoint);
             addEntry("Left Arm Motor Current", Climber.this.l_arm.servo.getController()::getOutputCurrent);
             //addEntry("Left Accum Error", Climber.this.l_arm.servo.getController().getClosedLoopController()::get);
             addEntry("Left Accum Error", Climber.this.l_arm.servo.getController().getClosedLoopController()::getIAccum);
             //addEntry("Left Stalled", Climber.this.l_arm.servo.getOutputCurrent());
             l_arm.servo.getWatcher();
-           //r_arm.servo.getWatcher();
+            if (r_arm != null) {
+                // put all Right Arm watchers within
+                addEntry("L_position", Climber.this.r_arm::getPosition, 1);
+                r_arm.servo.getWatcher();
+            }
         }
     }
 
