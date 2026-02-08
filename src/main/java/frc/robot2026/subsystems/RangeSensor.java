@@ -4,25 +4,36 @@
 
 package frc.robot2026.subsystems;
 
+import static frc.lib2202.Constants.DEGperRAD;
+
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.hardware.CANrange;
 import frc.lib2202.command.WatcherCmd;
 import frc.robot2026.Constants.CAN;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class SensorsV2 extends SubsystemBase {
+public class RangeSensor extends SubsystemBase {
   /** Creates a new Sensors. */
 
-  private CANrange canRange_L;
-  private CANrange canRange_R;
-  private Double canRange_L_Distance;
-  private Double canRange_R_Distance;
+  private final CANrange canRange_L;
+  private final CANrange canRange_R;
+  private final double separation_Distance;
+  private double canRange_L_Distance;
+  private double canRange_R_Distance;
+  private double wall_angle;
+ 
+
   // Specify the CAN bus name, e.g., "rio" (roboRIO), "can0" (Linux), or a
   // CANivore name
   final CANBus kCANrangeCANbus = new CANBus("rio");
 
-  public SensorsV2() {
-    setName("sensorsV2");
+  public RangeSensor() {
+    this(.5);  // estimated default distance between Range sensors
+  }
+
+  public RangeSensor(double sep_dist_m) {
+    setName("range");
+    separation_Distance = sep_dist_m;
     // Construct the CANrange object
     canRange_L = new CANrange(CAN.CANRANGE_L_CAN, kCANrangeCANbus);
     canRange_R = new CANrange(CAN.CANRANGE_R_CAN, kCANrangeCANbus);
@@ -36,11 +47,25 @@ public class SensorsV2 extends SubsystemBase {
     // This method will be called once per scheduler run
     canRange_L_Distance = canRange_L.getDistance().getValueAsDouble();
     canRange_R_Distance = canRange_R.getDistance().getValueAsDouble();
+    wall_angle = angle();
+  }
+
+  double angle(){
+    double diff = canRange_L_Distance - canRange_R_Distance;
+    return Math.atan2(diff, separation_Distance);
   }
 
   // Add a watcher so we can see stuff on network tables
   public WatcherCmd getWatcherCmd() {
-    return this.new SensorV2Watcher();
+    return this.new RangeSensorWatcher();
+  }
+
+  public double getWallAngle() {
+    return wall_angle;
+  }
+
+  public double getWallAngleDeg() {
+    return wall_angle*DEGperRAD;
   }
 
   public double getCANRangeL() {
@@ -51,10 +76,11 @@ public class SensorsV2 extends SubsystemBase {
     return canRange_R_Distance;
   }
 
-  class SensorV2Watcher extends WatcherCmd {
-    SensorV2Watcher() {
-        addEntry("canRange Left", SensorsV2.this::getCANRangeL);
-        addEntry("canRange Right", SensorsV2.this::getCANRangeR);
+  class RangeSensorWatcher extends WatcherCmd {
+    RangeSensorWatcher() {
+        addEntry("Range Left", RangeSensor.this::getCANRangeL);
+        addEntry("Range Right", RangeSensor.this::getCANRangeR);  
+        addEntry("Range Angle", RangeSensor.this::getWallAngleDeg); 
       }
   }
 }

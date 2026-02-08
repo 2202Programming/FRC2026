@@ -39,7 +39,7 @@ import frc.lib2202.subsystem.swerve.config.ModuleConfig.CornerID;
 import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
 import frc.robot2026.subsystems.LimelightV2;
-import frc.robot2026.subsystems.SensorsV2;
+import frc.robot2026.subsystems.RangeSensor;
 import frc.robot2026.subsystems.VisionPoseEstimator;
 
 
@@ -74,7 +74,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
       .add(SwerveDrivetrain.class, "drivetrain", () ->{
           return new SwerveDrivetrain(SparkFlex.class);
       })
-      .add(SensorsV2.class,"sensorsV2")
+      .add(RangeSensor.class)
       .add(OdometryInterface.class, "odometry", () -> {
         var obj = new Odometry();
         obj.new OdometryWatcher();
