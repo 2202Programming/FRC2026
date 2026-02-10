@@ -41,6 +41,7 @@ import frc.robot2026.Constants.CAN;
 import frc.robot2026.subsystems.LimelightV2;
 import frc.robot2026.subsystems.RangeSensor;
 import frc.robot2026.subsystems.VisionPoseEstimator;
+import frc.robot2026.testBindings.DpltestBinding;
 
 
 public class RobotSpec_AlphaBot implements IRobotSpec {

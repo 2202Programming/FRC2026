@@ -14,7 +14,6 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -45,6 +44,7 @@ import frc.robot2026.subsystems.Climber;
 import frc.robot2026.subsystems.LimelightV2;
 import frc.robot2026.subsystems.Photonvision;
 import frc.robot2026.subsystems.VisionPoseEstimator;
+import frc.robot2026.testBindings.DpltestBinding;
 
 public class RobotSpec_ChassisBot implements IRobotSpec {
   // Subsystems and other hardware on 2025 Robot rev Alpha
@@ -182,6 +182,7 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
     // novision "odometry"
     // TODO switch to vision based when we have a LL
     OdometryInterface odo = RobotContainer.getSubsystemOrNull("odometry");
+    VisionPoseEstimator vpe = RobotContainer.getSubsystemOrNull("vision_odo");
     DriveTrainInterface sdt = RobotContainer.getSubsystemOrNull("drivetrain");
     HID_Subsystem dc = RobotContainer.getSubsystem("DC");
     Climber cl = RobotContainer.getSubsystem("climber");
@@ -197,20 +198,19 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
 
     // Competition bindings
     BindingsCompetition.ConfigureCompetition(dc, false);
-    DpltestBinding.calbrate((CommandXboxController)dc.Operator());
+    
+    //Take care testing binding don't collide
+    DpltestBinding.calbrate(operator);  // rt/left bumper, rt/lt Trigger
+    cl.setDemoBindings(operator);       //pov,a,x
 
-    cl.setDemoBindings(operator);
     // Place your test binding in ./testBinding/<yourFile>.java and call it here
     // comment out any conflicting bindings. Try not to push with your bindings
     // active. Just comment them out.
 
     // Anything else that needs to run after binding/commands are created
-    /*
-     * VisionPoseEstimator vpe =
-     * RobotContainer.getSubsystemOrNull(VisionPoseEstimator.class);
-     * if (vpe != null)
-     * vpe.configureGyroCallback();
-     */
+    
+    // maybe beter way, but this registers vpe with the aliance-aware reset cmd.
+    if (vpe != null) vpe.configureGyroCallback();
 
     // show what cmds are running
     SmartDashboard.putData(CommandScheduler.getInstance());
