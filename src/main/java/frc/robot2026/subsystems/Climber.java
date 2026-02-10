@@ -23,7 +23,8 @@ public class Climber extends SubsystemBase {
     public final static double ClimbCalibrateVel = 2.0; // [cm/s]
 
     final double GearRatio = 1.0 / 25.0;
-    double conversionFactor = 2 * Math.PI * 1.0 * 2.54 * GearRatio;  // Circumfrance of pulley * inches to CM * gear ratio
+    final double R_pully = 1.0;  //[cm] radius of pully
+    double conversionFactor = 2.0 * Math.PI * R_pully * GearRatio;  // Circumfrance of pulley * gear ratio
     final double maxVel = 100.0; // placeholder. [cm/s]
     final double maxAccel = 10.0; // placevholder [cm/s^2]
     double posTol = 0.25; // [cm]
@@ -65,10 +66,8 @@ public class Climber extends SubsystemBase {
             servo.setPosition(PowerUpPosition);
         }
         
-        public void initSendable(SendableBuilder builder) {
-// getter was causing race command
- //           builder.addDoubleProperty("vel_cmd",  this::getVelocityCmd, this::setVelocity );
-            builder.addDoubleProperty("vel_cmd",  null, this::setVelocity );
+        public void initSendable(SendableBuilder builder) {           
+            builder.addDoubleProperty("vel_cmd",  null, this::setVelocity ); //getter must be null
             builder.addDoubleProperty("velocity",  this::getVelocity, null );
             builder.addDoubleProperty("vel_max", servo::getMaxVel, servo::setMaxVelocity);
             posPID.initSendable(builder);
@@ -118,8 +117,7 @@ public class Climber extends SubsystemBase {
             l_arm = new Arm(CAN.l_arm,"L", false, "Left Arm");
             r_arm = new Arm(CAN.r_arm,"R", false, "Right Arm");
         }
-        getWatcher();
-        
+        getWatcher();        
     }
 
     public Command setVelocityCmd(double vel, Arm arm) {
