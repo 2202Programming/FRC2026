@@ -19,12 +19,11 @@ import frc.robot2026.Constants.CAN;
 public class Climber extends SubsystemBase {
     /** Creates a new Climber. */
     public final static double PowerUpPosition = 0.0; // [cm]
-    public final static double ExtendPosition = 27.0; // [cm]
-    public final static double ClimbPosition = -3.5; // [cm]
+    public final static double ExtendPosition = 22.2; // [cm]
     public final static double ClimbCalibrateVel = 2.0; // [cm/s]
 
     final double GearRatio = 1.0 / 25.0;
-    double conversionFactor = 3.5 * 2.54 * GearRatio;
+    double conversionFactor = 2 * Math.PI * 1.0 * 2.54 * GearRatio;  // Circumfrance of pulley * inches to CM * gear ratio
     final double maxVel = 100.0; // placeholder. [cm/s]
     final double maxAccel = 10.0; // placevholder [cm/s^2]
     double posTol = 0.25; // [cm]
@@ -72,7 +71,7 @@ public class Climber extends SubsystemBase {
             builder.addDoubleProperty("vel_cmd",  null, this::setVelocity );
             builder.addDoubleProperty("velocity",  this::getVelocity, null );
             builder.addDoubleProperty("vel_max", servo::getMaxVel, servo::setMaxVelocity);
-            hwVelPID.initSendable(builder);
+            posPID.initSendable(builder);
         }
 
         //Arm API - mostly wrappers around servo
@@ -113,12 +112,13 @@ public class Climber extends SubsystemBase {
         setName("climber");
         // Set up in this format to use both arms as needed.
         if (oneArm) {
-            l_arm = new Arm(CAN.r_arm,"L", true, "Left Arm");
+            l_arm = new Arm(CAN.l_arm,"L", false, "Left Arm");
             r_arm = null;
         } else {
-            l_arm = new Arm(CAN.l_arm,"L", true, "Left Arm");
-            r_arm = new Arm(CAN.r_arm,"R", true, "Right Arm");
+            l_arm = new Arm(CAN.l_arm,"L", false, "Left Arm");
+            r_arm = new Arm(CAN.r_arm,"R", false, "Right Arm");
         }
+        getWatcher();
         
     }
 
@@ -232,13 +232,17 @@ public class Climber extends SubsystemBase {
         */
         //velocity cmds while held it should spin, to test or align in pitt
         // Got about 70amps at 12cm/s, could hit 14 without issues
-        xbox.povLeft().whileTrue(this.setVelocityCmd(14.0, l_arm)).onFalse(this.setVelocityCmd(0.0, l_arm));
-        xbox.povRight().whileTrue(this.setVelocityCmd(-14.0, l_arm)).onFalse(this.setVelocityCmd(0.0, l_arm));
-        xbox.povUp().whileTrue(this.setVelocityCmd(2.0, r_arm)).onFalse(this.setVelocityCmd(0.0, r_arm));
-        xbox.povDown().whileTrue(this.setVelocityCmd(-2.0, r_arm)).onFalse(this.setVelocityCmd(0.0, r_arm));
+        xbox.povLeft().whileTrue(this.setVelocityCmd(-14.0, l_arm)).onFalse(this.setVelocityCmd(0.0, l_arm));
+        xbox.povRight().whileTrue(this.setVelocityCmd(14.0, l_arm)).onFalse(this.setVelocityCmd(0.0, l_arm));
+        xbox.povUp().whileTrue(this.setVelocityCmd(-2.0, r_arm)).onFalse(this.setVelocityCmd(0.0, r_arm));
+        xbox.povDown().whileTrue(this.setVelocityCmd(2.0, r_arm)).onFalse(this.setVelocityCmd(0.0, r_arm));
 
         // Move arms to 0 point
         xbox.x().onTrue(armsSetpointCmd(0.0)); 
+        xbox.a().onTrue(armsToPoint(20,l_arm));
+
+        //Due to absolute bullshit, the computer is completely off in its math. Somehow. 20 Cm commanded turns into 15 Cm. 28 Cm is actually 21 Cm. I dont know what to do but hey, we get consistant results. Consitantly Wrong, but i'll take it.
+
         // tell the arms "here is zero"
         xbox.y().onTrue(armsCalibrateCmd(0.0));
     }
@@ -246,16 +250,17 @@ public class Climber extends SubsystemBase {
     class ClimberWatcher extends WatcherCmd {
         ClimberWatcher() {
             
-            addEntry("R_position", Climber.this.l_arm::getPosition, 1);
+            addEntry("L_position", Climber.this.l_arm::getPosition, 1);
             addEntry("AtSetpoint", Climber.this::atSetpoint);
             addEntry("Left Arm Motor Current", Climber.this.l_arm.servo.getController()::getOutputCurrent);
+            addEntry("L_Velocity", Climber.this.l_arm::getVelocity);
             //addEntry("Left Accum Error", Climber.this.l_arm.servo.getController().getClosedLoopController()::get);
             addEntry("Left Accum Error", Climber.this.l_arm.servo.getController().getClosedLoopController()::getIAccum);
             //addEntry("Left Stalled", Climber.this.l_arm.servo.getOutputCurrent());
             l_arm.servo.getWatcher();
             if (r_arm != null) {
                 // put all Right Arm watchers within
-                addEntry("L_position", Climber.this.r_arm::getPosition, 1);
+                addEntry("R_position", Climber.this.r_arm::getPosition, 1);
                 r_arm.servo.getWatcher();
             }
         }
