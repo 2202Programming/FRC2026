@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -101,8 +102,9 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
       })
       // VisonPoseEstimator needs LL and Odometry, adds simplename and alias to lookup
       .addAlias(VisionPoseEstimator.class, "vision_odo")
-      //.add(Climber.class)
-      ;
+      .add(Climber.class, "climber", () -> {
+        return new Climber(true);
+      });
 
 
 
@@ -182,6 +184,9 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
     OdometryInterface odo = RobotContainer.getSubsystemOrNull("odometry");
     DriveTrainInterface sdt = RobotContainer.getSubsystemOrNull("drivetrain");
     HID_Subsystem dc = RobotContainer.getSubsystem("DC");
+    Climber cl = RobotContainer.getSubsystem("climber");
+
+    CommandXboxController operator = (CommandXboxController)dc.Operator();
 
     // Initialize PathPlanner, if we have needed Subsystems
     if (odo != null && sdt != null) {
@@ -194,6 +199,7 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
     BindingsCompetition.ConfigureCompetition(dc, false);
     DpltestBinding.calbrate((CommandXboxController)dc.Operator());
 
+    cl.setDemoBindings(operator);
     // Place your test binding in ./testBinding/<yourFile>.java and call it here
     // comment out any conflicting bindings. Try not to push with your bindings
     // active. Just comment them out.
