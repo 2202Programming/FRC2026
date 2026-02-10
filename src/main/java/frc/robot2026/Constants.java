@@ -1,9 +1,5 @@
 package frc.robot2026;
 
-
-import com.ctre.phoenix6.CANBus;
-import com.ctre.phoenix6.hardware.CANrange;
-
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
