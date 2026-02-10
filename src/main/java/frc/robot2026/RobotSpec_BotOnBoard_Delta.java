@@ -23,7 +23,7 @@ public class RobotSpec_BotOnBoard_Delta implements IRobotSpec {
 
   //Bot On Board Delta
   // $env:serialnum = "3061025"
-  final SubsystemConfig ssconfig = new SubsystemConfig("BotOnBoard_Delta", "3061025")
+  final SubsystemConfig ssconfig = new SubsystemConfig("BotOnBoard_Delta", "03061025")
       // Add the subsystems or components use by this Bot-on-Board    
       // Bot-On-Board can always use controlers for test binding
        .add(HID_Subsystem.class, "DC", () -> {

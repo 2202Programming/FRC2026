@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib2202.builder.IRobotSpec;
 import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.builder.RobotLimits;
@@ -100,7 +101,8 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
       })
       // VisonPoseEstimator needs LL and Odometry, adds simplename and alias to lookup
       .addAlias(VisionPoseEstimator.class, "vision_odo")
-      .add(Climber.class);
+      //.add(Climber.class)
+      ;
 
 
 
@@ -108,22 +110,20 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
   RobotLimits robotLimits = new RobotLimits(FeetPerSecond.of(15.0), DegreesPerSecond.of(180.0));
 
   // Chassis
-  double kWheelCorrectionFactor = 1.02;
+  double kWheelCorrectionFactor = .9875;
   double kSteeringGR = 21.428;
   double kDriveGR = 6.12;
   double kWheelDiameter = MperFT * 4.0 / 12.0; // [m]
 
   final ChassisConfig chassisConfig = new ChassisConfig(
-      // 0.57785 / 2.0,
-      // 0.57785 / 2.0,
-      // dpl - 28" x 28"
-      0.7112 / 2.0, // x,
-      0.7112 / 2.0, // y,
+      0.58 / 2.0,  //coord front-left x
+      0.58 / 2.0,  //coord front-left y
       kWheelCorrectionFactor, // scale [] <= 1.0
       kWheelDiameter,
       kSteeringGR,
       kDriveGR,
-      new PIDFController(0.085, 0.00055, 0.0, 0.21292), // drive
+      //fix kf for rev voltage ctrl and not pct-pwr
+      new PIDFController(0.085, 0.00055, 0.0, 12.0*0.21292), // drive
       new PIDFController(0.01, 0.0, 0.0, 0.0) // angle
   );
 
@@ -191,7 +191,8 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
     }
 
     // Competition bindings
-    BindingsCompetition.ConfigureCompetition(dc, true);
+    BindingsCompetition.ConfigureCompetition(dc, false);
+    DpltestBinding.calbrate((CommandXboxController)dc.Operator());
 
     // Place your test binding in ./testBinding/<yourFile>.java and call it here
     // comment out any conflicting bindings. Try not to push with your bindings
