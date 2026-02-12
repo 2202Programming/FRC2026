@@ -26,7 +26,9 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib2202.command.WatcherCmd;
+import frc.robot2026.command.pathing.goDistance;
 import frc.robot2026.util.PoseUpdate;
 
 //individual photonvision USB cameras
@@ -293,6 +295,12 @@ public class Photonvision extends SubsystemBase {
   public double getPoseY(int listPos) {
     return camerasList.get(listPos).getCurrentPoseY();
   }
+
+    public void setDemoBindings(CommandXboxController xbox) {
+
+        xbox.x().onTrue(new goDistance(1.0));
+
+    }
 
   class PhotonWatcher extends WatcherCmd {
     PhotonWatcher() {
