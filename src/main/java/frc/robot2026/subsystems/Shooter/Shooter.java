@@ -10,35 +10,40 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib2202.command.WatcherCmd;
 import frc.lib2202.util.PIDFController;
-import frc.robot2026.Constants.CAN;
 
 public class Shooter extends SubsystemBase {
     final IFlyWheel flywheel;
     final FlyWheelConfig cfg;
+    final boolean mirrored;
 
     public Shooter() {
-        this("rev");
+        this("rev", 0, true);
     }
 
-    public Shooter(String controllerType) {
-        setName("Shooter-" + CAN.ShooterID);
+    public Shooter(String controllerType, int ShooterID) {
+        this(controllerType, ShooterID, true);
+    }
+
+    public Shooter(String controllerType, int ShooterID, boolean mirrored) {
+        this.mirrored = mirrored;
+        setName("Shooter-" + ShooterID);
         // pick which controller we are using
         if (controllerType.equalsIgnoreCase("ctre")) {
             cfg = initFlyWheelConfigCTRE();
 
-            flywheel = new FlyWheelCtre(CAN.ShooterID, cfg);
+            flywheel = new FlyWheelCtre(ShooterID, cfg);
         }
         else if (controllerType.equalsIgnoreCase("multi")) {
             cfg = initMultiFlyWheelConfigREV();
-            flywheel = new FlyWheelRev(CAN.ShooterID, cfg);
+            flywheel = new FlyWheelRev(ShooterID, cfg);
         }
         else if (controllerType.equalsIgnoreCase("flex")) {
             cfg = initFlyWheelConfigREVFlex();
-            flywheel = new FlyWheelRevFlex(CAN.ShooterFLEXID, cfg);
+            flywheel = new FlyWheelRevFlex(ShooterID, cfg); 
         }
         else {
             cfg = initFlyWheelConfigREV();
-            flywheel = new FlyWheelRev(CAN.ShooterID, cfg);
+            flywheel = new FlyWheelRev(ShooterID, cfg);
         }
         this.getWatcherCmd();        
     }
@@ -52,7 +57,7 @@ public class Shooter extends SubsystemBase {
         double iZone = 1.0;     // setting it to 0.0 seems to 'unlock' it
 
         FlyWheelConfig cfg = new FlyWheelConfig();
-        cfg.inverted = true;
+        cfg.inverted = mirrored;
         cfg.rampRate = 0.0;         // try to soften the startup, zero disables
         cfg.gearRatio = 24.0/18.0;  // this was measured -- DPL + BG 1/19/26 
         cfg.stallAmp = 60;          // [amp] Check motor specs for amps
@@ -75,7 +80,7 @@ public class Shooter extends SubsystemBase {
         double iZone = 1.0;     // setting it to 0.0 seems to 'unlock' it
 
         FlyWheelConfig cfg = new FlyWheelConfig();
-        cfg.inverted = true;
+        cfg.inverted = mirrored;
         cfg.rampRate = 0.0;         // try to soften the startup, zero disables
         cfg.gearRatio = 50.0/24.0;  // 
         cfg.stallAmp = 90;          // [amp] Check motor specs for amps
@@ -99,7 +104,7 @@ public class Shooter extends SubsystemBase {
         double iZone = 1.0;     // setting it to 0.0 seems to 'unlock' it
 
         FlyWheelConfig cfg = new FlyWheelConfig();
-        cfg.inverted = false;
+        cfg.inverted = mirrored;
         cfg.rampRate = 0.0;         // try to soften the startup, zero disables
         cfg.gearRatio = 1.0 ; 
         cfg.stallAmp = 80;          // [amp] Check motor specs for amps TESTING 80 FOR MULTI DUE TO HIGH DROP
@@ -123,7 +128,7 @@ public class Shooter extends SubsystemBase {
         double iZone = 0.0;      // unused in Talon CTRE controller
 
         FlyWheelConfig cfg = new FlyWheelConfig();
-        cfg.inverted = false;
+        cfg.inverted = mirrored;
         cfg.rampRate = 0.0;         // not implemented in ctre, but could be
         cfg.gearRatio = 1.0/1.0;  // new kraken pulleys
         cfg.stallAmp = 80;          // [amp] Use as stator amps

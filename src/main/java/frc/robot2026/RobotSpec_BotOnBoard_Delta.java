@@ -35,8 +35,11 @@ public class RobotSpec_BotOnBoard_Delta implements IRobotSpec {
         return pdp;
       })
       // .add(Intake.class)
-      .add(Shooter.class, "Shooter", () ->{
-        return new Shooter("flex"); //opts: rev,ctre,multi
+      .add(Shooter.class, "ShooterRight", () ->{
+        return new Shooter("ctre", CAN.ShooterIDRight, false); //opts: rev,ctre,multi
+      })
+      .add(Shooter.class, "ShooterLeft", () -> {
+        return new Shooter("ctre", CAN.ShooterIDLeft);
       })
       ;
 
