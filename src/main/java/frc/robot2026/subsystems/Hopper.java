@@ -27,8 +27,8 @@ import frc.robot2026.Constants.DigitalIO;
 
 public class Hopper extends SubsystemBase {
 
-  final SparkMax wideBeltCtrl;
-  final SparkMax singleBeltCtrl;
+  // final SparkMax wideBeltCtrl;
+  // final SparkMax singleBeltCtrl;
   final SparkMax indexerCtrl;
  
   final RelativeEncoder indexerEncoder;
@@ -47,6 +47,9 @@ public class Hopper extends SubsystemBase {
 
   double velCruiseVel = 5.0; //[RPS]
   double velMaxAccel = 5.0; //[RPS]
+
+  final ClosedLoopSlot positionSlot = ClosedLoopSlot.kSlot0;
+  final ClosedLoopSlot velocitySlot = ClosedLoopSlot.kSlot1;
 
   double P = 0.0;
   double I = 0.0;
@@ -68,13 +71,13 @@ public class Hopper extends SubsystemBase {
   public Hopper() {
     setName("Hopper");
 
-    wideBeltCtrl = new SparkMax(CAN.WideBeltID, MotorType.kBrushless);
-    singleBeltCtrl = new SparkMax(CAN.SingleBeltID, MotorType.kBrushless);
+    // wideBeltCtrl = new SparkMax(CAN.WideBeltID, MotorType.kBrushless);
+    // singleBeltCtrl = new SparkMax(CAN.SingleBeltID, MotorType.kBrushless);
     indexerCtrl = new SparkMax(CAN.IndexerID, MotorType.kBrushless);
 
     hwPidfCtrl = new PIDFController(P, I, D, F, "Indexer PIDF");
 
-    indexGate = new DigitalInput(DigitalIO.HopperIndexerID); // not being used as of 2/5/2025
+    indexGate = new DigitalInput(DigitalIO.HopperIndexerID); // not being used as of 2/5/2026
 
     indexerEncoder = indexerCtrl.getEncoder();
     indexerCLCtrl = indexerCtrl.getClosedLoopController();
@@ -86,49 +89,51 @@ public class Hopper extends SubsystemBase {
     // SLOT 0 CONFIG - POSITION
     indexerCfg.closedLoop
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-        .p(hwPidfCtrl.getP()).i(hwPidfCtrl.getI()).d(hwPidfCtrl.getD()) // incredibly hacky but it keeps all the PID stuffs in one place
+        .p(P, positionSlot).i(I, positionSlot).d(D, positionSlot) // incredibly hacky but it keeps all the PID stuffs in one place
         .feedForward
-            .kV(kV, ClosedLoopSlot.kSlot0)
-            .kS(kS, ClosedLoopSlot.kSlot0);
+            .kV(kV, positionSlot)
+            .kS(kS, positionSlot);
     
     // SLOT 1 CONFIG - VELOCITY
     indexerCfg.closedLoop
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-        .p(hwPidfCtrl.getP()).i(hwPidfCtrl.getI()).d(hwPidfCtrl.getD()) // incredibly hacky but it keeps all the PID stuffs in one place
+        .p(P, positionSlot).i(I, positionSlot).d(D, positionSlot) // incredibly hacky but it keeps all the PID stuffs in one place
         .feedForward
-            .kV(kV, ClosedLoopSlot.kSlot1)
-            .kS(kS, ClosedLoopSlot.kSlot1);
+            .kV(kV, velocitySlot)
+            .kS(kS, velocitySlot);
     
     // POSITION CONTROL
     indexerCfg.closedLoop.maxMotion
-        .cruiseVelocity(posCruiseVel, ClosedLoopSlot.kSlot0) 
-        .maxAcceleration(posMaxAccel, ClosedLoopSlot.kSlot0);
+        .cruiseVelocity(posCruiseVel, positionSlot) 
+        .maxAcceleration(posMaxAccel, positionSlot);
 
     // VELOCITY CONTROL
     indexerCfg.closedLoop.maxMotion
-        .cruiseVelocity(velCruiseVel, ClosedLoopSlot.kSlot1)
-        .maxAcceleration(velMaxAccel, ClosedLoopSlot.kSlot1);
+        .cruiseVelocity(velCruiseVel, velocitySlot)
+        .maxAcceleration(velMaxAccel, velocitySlot);
 
+    hwPidfCtrl.copyTo(indexerCtrl, indexerCfg, velocitySlot);
+    
     indexerCtrl.configure(indexerCfg, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
   }
 
   // Add updating position and velocity hardware slots to the periodic
-  public void updatePosHardware() {
-    hwPidfCtrl.copyChangesTo(indexerCtrl, indexerCfg, ClosedLoopSlot.kSlot0);
-  }
+  // public void updatePosHardware() {
+  //   hwPidfCtrl.copyChangesTo(indexerCtrl, indexerCfg, positionSlot);
+  // }
 
   public void updateVelHardware() {
-    hwPidfCtrl.copyChangesTo(indexerCtrl, indexerCfg, ClosedLoopSlot.kSlot1);
+    hwPidfCtrl.copyChangesTo(indexerCtrl, indexerCfg, velocitySlot);
   }
 
   public void periodic() {
-    updatePosHardware();
     updateVelHardware();
   }
 
   // *** POSITION ***
   public void setPosSetpoint(double pos) {
-    indexerCLCtrl.setSetpoint(pos, ControlType.kMAXMotionPositionControl, ClosedLoopSlot.kSlot0);
+    return;
+    // indexerCLCtrl.setSetpoint(pos, ControlType.kMAXMotionPositionControl, positionSlot);
   }
 
   public double getPosSetpoint() {
@@ -145,7 +150,7 @@ public class Hopper extends SubsystemBase {
 
   // *** VELOCITY ***
   public void setVelSetpoint(double vel) {
-    indexerCLCtrl.setSetpoint(vel, ControlType.kMAXMotionVelocityControl, ClosedLoopSlot.kSlot1);
+    indexerCLCtrl.setSetpoint(vel, ControlType.kMAXMotionVelocityControl, velocitySlot);
     vel_setpoint = vel;
   }
 
@@ -165,37 +170,37 @@ public class Hopper extends SubsystemBase {
   // rampRate, iZone, iMaxAccum, kV, kS, free & stall amp, 
   
   // % Pwr control for wide belt + single belt
-  public void setWideBeltPercent(double pct) {
-    wideBeltCtrl.set(pct);
-  }
+  // public void setWideBeltPercent(double pct) {
+  //   wideBeltCtrl.set(pct);
+  // }
 
-  public void setSingleBeltPercent(double pct) {
-    singleBeltCtrl.set(pct);
-  }
+  // public void setSingleBeltPercent(double pct) {
+  //   singleBeltCtrl.set(pct);
+  // }
 
-  public void setBeltsPercent(double pct) {
-    wideBeltCtrl.set(-pct);
-    singleBeltCtrl.set(pct);
-  }
+  // public void setBeltsPercent(double pct) {
+  //   wideBeltCtrl.set(-pct);
+  //   singleBeltCtrl.set(pct);
+  // }
 
   // Commands to control belt pwr
-  public Command cmdPct(double pct) {
-    return runOnce(() -> {
-      setBeltsPercent(pct);
-    });
-  }
+  // public Command cmdPct(double pct) {
+  //   return runOnce(() -> {
+  //     setBeltsPercent(pct);
+  //   });
+  // }
 
-  public Command setSingleBeltPct(double pct) {
-    return runOnce(() -> {
-      setSingleBeltPct(pct);
-    });
-  }
+  // public Command setSingleBeltPct(double pct) {
+  //   return runOnce(() -> {
+  //     setSingleBeltPct(pct);
+  //   });
+  // }
 
-  public Command setWideBeltPct(double pct) {
-    return runOnce(() -> {
-      setWideBeltPercent(pct);
-    });
-  }
+  // public Command setWideBeltPct(double pct) {
+  //   return runOnce(() -> {
+  //     setWideBeltPercent(pct);
+  //   });
+  // }
 
   public Command cmdSetVelocity(double vel) {
     return runOnce(() -> {
@@ -210,36 +215,45 @@ public class Hopper extends SubsystemBase {
   }
 
   public void setTestBindings(CommandXboxController xbox) {
-    xbox.leftTrigger(0.5)
-        .onTrue(cmdPct(0.3))
-        .onFalse(cmdPct(0.0));
+    // xbox.leftTrigger(0.5)
+    //     .onTrue(cmdPct(0.3))
+    //     .onFalse(cmdPct(0.0));
         
-    xbox.rightTrigger(0.5)
-        .onTrue(cmdPct(0.5))
-        .onFalse(cmdPct(0.0));
+    // xbox.rightTrigger(0.5)
+    //     .onTrue(cmdPct(0.5))
+    //     .onFalse(cmdPct(0.0));
 
     xbox.b().onTrue(new InstantCommand(() -> {
       this.zeroPos();
     }));
 
-    xbox.leftBumper()
+    xbox.a()
         .whileTrue(cmdSetVelocity(2.0))
         .onFalse(cmdSetVelocity(0.0));
 
-    xbox.rightBumper()
+    xbox.x()
+        .whileTrue(cmdSetVelocity(5.0))
+        .onFalse(cmdSetVelocity(0.0));
+
+    xbox.y()
         .whileTrue(cmdSetVelocity(10.0))
         .onFalse(cmdSetVelocity(0.0));
+
+    xbox.rightBumper().onTrue(cmdSetVelocity(0.0));
   }
   
   @Override
   public void initSendable(SendableBuilder builder) {
     super.initSendable(builder);
 
-    builder.addDoubleProperty("pct_pwr_wideBelt", this.wideBeltCtrl::get, this.wideBeltCtrl::set);
-    builder.addDoubleProperty("pct_pwr_singleBelt", this.singleBeltCtrl::get, this.singleBeltCtrl::set);
+    // builder.addDoubleProperty("pct_pwr_wideBelt", this.wideBeltCtrl::get, this.wideBeltCtrl::set);
+    // builder.addDoubleProperty("pct_pwr_singleBelt", this.singleBeltCtrl::get, this.singleBeltCtrl::set);
 
     builder.addDoubleProperty("pos_cmd", this::getPosSetpoint, this::setPosSetpoint);
     builder.addDoubleProperty("vel_cmd", this::getVelSetpoint, this::setVelSetpoint);
+
+    builder.addDoubleProperty("vel", this::getVelocity, null);
+    builder.addDoubleProperty("pos", this::getPosition, null);
 
     // grab PIDs
     hwPidfCtrl.initSendable(builder);
