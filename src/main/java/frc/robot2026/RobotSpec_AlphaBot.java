@@ -39,7 +39,9 @@ import frc.lib2202.subsystem.swerve.config.ModuleConfig.CornerID;
 import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
 import frc.robot2026.subsystems.LimelightV2;
+import frc.robot2026.subsystems.RangeSensor;
 import frc.robot2026.subsystems.VisionPoseEstimator;
+import frc.robot2026.testBindings.DpltestBinding;
 
 
 public class RobotSpec_AlphaBot implements IRobotSpec {
@@ -73,6 +75,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
       .add(SwerveDrivetrain.class, "drivetrain", () ->{
           return new SwerveDrivetrain(SparkFlex.class);
       })
+      .add(RangeSensor.class)
       .add(OdometryInterface.class, "odometry", () -> {
         var obj = new Odometry();
         obj.new OdometryWatcher();
@@ -92,9 +95,6 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
   double kWheelDiameter = MperFT * 4.0 / 12.0; // [m]
 
   final ChassisConfig chassisConfig = new ChassisConfig(
-      //0.57785 / 2.0, 
-      //0.57785 / 2.0,  
-      //dpl - 28" x 28"
       0.53 / 2.0,  // x,  
       0.575 / 2.0,  // y, 
       kWheelCorrectionFactor, // scale [] <= 1.0
@@ -105,10 +105,6 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
       new PIDFController(0.085, 0.00055, 0.0, 12.0*0.21292), // drive
       new PIDFController(0.01, 0.0, 0.0, 0.0) // angle
   );
-
-
-
-
 
 
 
@@ -136,8 +132,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
     return chassisConfig;
   }
   @Override
-  public ModuleConfig[] getModuleConfigs() {
-    //TODO - correct offsets
+  public ModuleConfig[] getModuleConfigs() {    
     ModuleConfig[] modules = new ModuleConfig[4];
         modules[CornerID.FrontLeft.getIdx()] = new ModuleConfig(CornerID.FrontLeft,
         CAN.FL_CANCoder, CAN.FL_Drive, CAN.FL_Angle, 72.201)
@@ -160,9 +155,8 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
 
   @Override
   public void setBindings() {
-    //String odometryName = VisionPoseEstimator.class.getSimpleName(); // or novision "odometry"
-    //TODO switch to vision based when we have a LL
-    OdometryInterface odo = RobotContainer.getSubsystemOrNull("odometry");   
+    String odometryName = "vision_odo"; // or novision "odometry"
+    OdometryInterface odo = RobotContainer.getSubsystemOrNull(odometryName);   
     DriveTrainInterface sdt = RobotContainer.getSubsystemOrNull("drivetrain");
     HID_Subsystem dc = RobotContainer.getSubsystem("DC");
 
@@ -175,19 +169,17 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
     
     // Competition bindings 
     BindingsCompetition.ConfigureCompetition(dc, false);
-    DpltestBinding.calbrate((CommandXboxController)dc.Operator());
-    
+
     // Place your test binding in ./testBinding/<yourFile>.java and call it here
     // comment out any conflicting bindings. Try not to push with your bindings
-    // active. Just comment them out. 
+    // active. Just comment them out.   
+    DpltestBinding.calbrate((CommandXboxController)dc.Operator());
    
-
-    // Anything else that needs to run after binding/commands are created
-    /* 
-    VisionPoseEstimator vpe = RobotContainer.getSubsystemOrNull(VisionPoseEstimator.class);
-    if (vpe != null) 
-      vpe.configureGyroCallback();
-    */
+    // Anything else that needs to run after binding/commands are created 
+    VisionPoseEstimator vpe = RobotContainer.getSubsystemOrNull("vision_odo");
+    if (vpe != null) { 
+      vpe.configureGyroCallback(); 
+    }
 
     // show what cmds are running
     SmartDashboard.putData(CommandScheduler.getInstance());
@@ -199,12 +191,17 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
   public void setupRegisteredCommands() {
     RegisteredCommands.RegisterCommands(); 
 
-    //enable chooser - builds autochooser list, requires AutoBuilder to be configured
-    //thus SDT and some form of odometry.  Skip auto if not configured.
+    // Builds autochooser list from PathPlanner's autos.
+    // Requires AutoBuilder to be configured thus SDT and some form of odometry.
+    // Skip auto if not configured.
     if (AutoBuilder.isConfigured()) {
       autoChooser = AutoBuilder.buildAutoChooser();
       SmartDashboard.putData("Auto Chooser", autoChooser);   
     }
+
+    // if needed other auto commands can be added here
+    // autoChooser.addOption(Name:, cmd);
+
   }
   
   @Override

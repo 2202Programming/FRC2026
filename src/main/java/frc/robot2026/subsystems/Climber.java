@@ -19,12 +19,12 @@ import frc.robot2026.Constants.CAN;
 public class Climber extends SubsystemBase {
     /** Creates a new Climber. */
     public final static double PowerUpPosition = 0.0; // [cm]
-    public final static double ExtendPosition = 27.0; // [cm]
-    public final static double ClimbPosition = -3.5; // [cm]
+    public final static double ExtendPosition = 22.2; // [cm]
     public final static double ClimbCalibrateVel = 2.0; // [cm/s]
 
     final double GearRatio = 1.0 / 25.0;
-    double conversionFactor = 3.5 * 2.54 * GearRatio;
+    final double R_pully = 1.0;  //[cm] radius of pully
+    double conversionFactor = 2.0 * Math.PI * R_pully * GearRatio;  // Circumfrance of pulley * gear ratio
     final double maxVel = 100.0; // placeholder. [cm/s]
     final double maxAccel = 10.0; // placevholder [cm/s^2]
     double posTol = 0.25; // [cm]
@@ -66,13 +66,11 @@ public class Climber extends SubsystemBase {
             servo.setPosition(PowerUpPosition);
         }
         
-        public void initSendable(SendableBuilder builder) {
-// getter was causing race command
- //           builder.addDoubleProperty("vel_cmd",  this::getVelocityCmd, this::setVelocity );
-            builder.addDoubleProperty("vel_cmd",  null, this::setVelocity );
+        public void initSendable(SendableBuilder builder) {           
+            builder.addDoubleProperty("vel_cmd",  null, this::setVelocity ); //getter must be null
             builder.addDoubleProperty("velocity",  this::getVelocity, null );
             builder.addDoubleProperty("vel_max", servo::getMaxVel, servo::setMaxVelocity);
-            hwVelPID.initSendable(builder);
+            posPID.initSendable(builder);
         }
 
         //Arm API - mostly wrappers around servo
@@ -109,47 +107,66 @@ public class Climber extends SubsystemBase {
         }        
     }
 
-    public Climber() {
+    public Climber(boolean oneArm) {
         setName("climber");
         // Set up in this format to use both arms as needed.
-        l_arm = new Arm(CAN.l_arm,"L", true, "Left Arm");
-        r_arm = new Arm(CAN.r_arm,"R", true, "Right Arm");
+        if (oneArm) {
+            l_arm = new Arm(CAN.l_arm,"L", false, "Left Arm");
+            r_arm = null;
+        } else {
+            l_arm = new Arm(CAN.l_arm,"L", false, "Left Arm");
+            r_arm = new Arm(CAN.r_arm,"R", false, "Right Arm");
+        }
+        getWatcher();        
     }
 
     public Command setVelocityCmd(double vel, Arm arm) {
+        if (arm == null) {
+            return Commands.print("Arm DNE, Could not set velocity");
+        }
         return runOnce(() -> {
-            arm.setVelocity(vel);  //switches Neo to vel mode
+        arm.setVelocity(vel);  //switches Neo to vel mode
         });
     }
 
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
+        if (r_arm != null) {
+            r_arm.servo.periodic();
+        }
         l_arm.servo.periodic();
-        r_arm.servo.periodic();
     }
 
     @Override
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
-        l_arm.initSendable(builder);
-        r_arm.initSendable(builder);        
+        if (r_arm != null) {
+             r_arm.initSendable(builder);
+        }
+        l_arm.initSendable(builder);        
     }
         
     // Climber API - most of these should use both l/r arms together I think
     // May not be necessary, arms will be running separately as they climb up the side of the building
 
     public Command setSetpointCmd(double pos, Arm arm) {
+        if (arm == null) {
+            return Commands.print("Arm DNE, could not command position");
+        }
         return runOnce(() -> {
-            arm.setSetpoint(pos);
-        });         
+        arm.setSetpoint(pos);
+        });
+         
     }
 
     public Command armsSetpointCmd(double pos) {
         return runOnce(() -> {  // simple instant cmd, sequenct not needed
             // if we need to move arms at same time, set both arms to same position
+            if (r_arm != null) {
+                r_arm.setSetpoint(pos);
+            } 
             l_arm.setSetpoint(pos);
-            r_arm.setSetpoint(pos);
         });         
     }
 
@@ -158,14 +175,21 @@ public class Climber extends SubsystemBase {
     public Command armsCalibrateCmd(double position) {
         return runOnce(() -> {
             //no sequence needed, these can run in single cmd.
-            r_arm.setPosition(position);
+            if (r_arm != null) {
+                r_arm.setPosition(position);
+            }
             l_arm.setPosition(position);
+            
         });
     }
 
     // Simple check, only used in the arms to point command. 
     public boolean armsAtPos() {
+        if (r_arm == null) {
+            return l_arm.atSetpoint();
+        }
         return l_arm.atSetpoint() && r_arm.atSetpoint();
+        
     }
 
 
@@ -179,6 +203,9 @@ public class Climber extends SubsystemBase {
 
     //specify arm of choice if desired. Could cause issues if one of our arms is just flying around, but should still function OK
     public Command armsToPoint(double pos, Arm arm) {
+        if (arm == null) {
+            return Commands.print("Arm Does not exist, cannot send to point");
+        }
         return Commands.sequence(
             setSetpointCmd(pos, arm),
             Commands.waitUntil(arm::atSetpoint),
@@ -187,7 +214,10 @@ public class Climber extends SubsystemBase {
     }
 
     public boolean atSetpoint(){
-        return l_arm.atSetpoint() && r_arm.atSetpoint();
+        if (r_arm == null) {
+            return l_arm.atSetpoint();
+        }
+        return l_arm.atSetpoint() && r_arm.atSetpoint(); 
     }
 
     public Command getWatcher(){
@@ -200,28 +230,37 @@ public class Climber extends SubsystemBase {
         */
         //velocity cmds while held it should spin, to test or align in pitt
         // Got about 70amps at 12cm/s, could hit 14 without issues
-        xbox.povLeft().whileTrue(this.setVelocityCmd(14.0, l_arm)).onFalse(this.setVelocityCmd(0.0, l_arm));
-        xbox.povRight().whileTrue(this.setVelocityCmd(-14.0, l_arm)).onFalse(this.setVelocityCmd(0.0, l_arm));
-        xbox.povUp().whileTrue(this.setVelocityCmd(2.0, r_arm)).onFalse(this.setVelocityCmd(0.0, r_arm));
-        xbox.povDown().whileTrue(this.setVelocityCmd(-2.0, r_arm)).onFalse(this.setVelocityCmd(0.0, r_arm));
+        xbox.povLeft().whileTrue(this.setVelocityCmd(-14.0, l_arm)).onFalse(this.setVelocityCmd(0.0, l_arm));
+        xbox.povRight().whileTrue(this.setVelocityCmd(14.0, l_arm)).onFalse(this.setVelocityCmd(0.0, l_arm));
+        xbox.povUp().whileTrue(this.setVelocityCmd(-2.0, r_arm)).onFalse(this.setVelocityCmd(0.0, r_arm));
+        xbox.povDown().whileTrue(this.setVelocityCmd(2.0, r_arm)).onFalse(this.setVelocityCmd(0.0, r_arm));
 
         // Move arms to 0 point
         xbox.x().onTrue(armsSetpointCmd(0.0)); 
+        xbox.a().onTrue(armsToPoint(20,l_arm));
+
+        //Due to absolute bullshit, the computer is completely off in its math. Somehow. 20 Cm commanded turns into 15 Cm. 28 Cm is actually 21 Cm. I dont know what to do but hey, we get consistant results. Consitantly Wrong, but i'll take it.
+
         // tell the arms "here is zero"
         xbox.y().onTrue(armsCalibrateCmd(0.0));
     }
     
     class ClimberWatcher extends WatcherCmd {
         ClimberWatcher() {
+            
             addEntry("L_position", Climber.this.l_arm::getPosition, 1);
-            addEntry("R_position", Climber.this.r_arm::getPosition, 1);
             addEntry("AtSetpoint", Climber.this::atSetpoint);
             addEntry("Left Arm Motor Current", Climber.this.l_arm.servo.getController()::getOutputCurrent);
+            addEntry("L_Velocity", Climber.this.l_arm::getVelocity);
             //addEntry("Left Accum Error", Climber.this.l_arm.servo.getController().getClosedLoopController()::get);
             addEntry("Left Accum Error", Climber.this.l_arm.servo.getController().getClosedLoopController()::getIAccum);
             //addEntry("Left Stalled", Climber.this.l_arm.servo.getOutputCurrent());
             l_arm.servo.getWatcher();
-            r_arm.servo.getWatcher();
+            if (r_arm != null) {
+                // put all Right Arm watchers within
+                addEntry("R_position", Climber.this.r_arm::getPosition, 1);
+                r_arm.servo.getWatcher();
+            }
         }
     }
 

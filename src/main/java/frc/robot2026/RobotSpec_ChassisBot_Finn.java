@@ -3,16 +3,11 @@ package frc.robot2026;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.FeetPerSecond;
 import static frc.lib2202.Constants.MperFT;
-import static frc.lib2202.Constants.DEGperRAD;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathfindingCommand;
 import com.revrobotics.spark.SparkFlex;
 
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -25,10 +20,8 @@ import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.builder.RobotLimits;
 import frc.lib2202.builder.SubsystemConfig;
 import frc.lib2202.command.swerve.FieldCentricDrive;
-import frc.lib2202.subsystem.Odometry;
 import frc.lib2202.subsystem.OdometryInterface;
 import frc.lib2202.subsystem.Sensors;
-import frc.lib2202.subsystem.UX.TrimTables;
 import frc.lib2202.subsystem.hid.HID_Subsystem;
 import frc.lib2202.subsystem.swerve.AutoPPConfigure;
 import frc.lib2202.subsystem.swerve.DriveTrainInterface;
@@ -38,22 +31,15 @@ import frc.lib2202.subsystem.swerve.config.ChassisConfig;
 import frc.lib2202.subsystem.swerve.config.ModuleConfig;
 import frc.lib2202.subsystem.swerve.config.ModuleConfig.CornerID;
 import frc.lib2202.util.PIDFController;
-
 import frc.robot2026.Constants.CAN;
 import frc.robot2026.subsystems.Climber;
-import frc.robot2026.subsystems.LimelightV2;
-import frc.robot2026.subsystems.Photonvision;
 import frc.robot2026.subsystems.VisionPoseEstimator;
 import frc.robot2026.testBindings.DpltestBinding;
 
-public class RobotSpec_ChassisBot implements IRobotSpec {
-  // Subsystems and other hardware on 2025 Robot rev Alpha
-  // This should be the chassis bot.
+public class RobotSpec_ChassisBot_Finn implements IRobotSpec { 
   // $env:serialnum = "03282B65"
 
-   static Photonvision pv;
-
-  final SubsystemConfig ssconfig = new SubsystemConfig("ChassisBot", "03282B65")
+  final SubsystemConfig ssconfig = new SubsystemConfig("ChassisBot_FIN", "FINN_FIX_ME")
       // deferred construction via Supplier<Object> lambda
       .add(PowerDistribution.class, "PDP", () -> {
         var pdp = new PowerDistribution(CAN.PDP, ModuleType.kRev);
@@ -63,48 +49,14 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
       .add(HID_Subsystem.class, "DC", () -> {
         return new HID_Subsystem(0.3, 0.9, 0.05);
       })
-      // Sensors, limelight and drivetrain all use interfaces, so make sure their
-      // alias names
-      // match what is given here.
       .add(Sensors.class, "sensors", () -> {
         return new Sensors(CAN.PIGEON_IMU_CAN);
       })
-      .add(TrimTables.class)
-      .add(LimelightV2.class, "limelight", () -> {
-        // Limelight position in robot coords - this has LL in the front of bot
-        Pose3d LimelightPosition = new Pose3d((0.7112 / 2.0) - .07, -0.28, .225,
-            new Rotation3d(0.0, 10.0 / DEGperRAD, 0.0));
-        return new LimelightV2("limelight", LimelightPosition);
-      })
+     
       .add(SwerveDrivetrain.class, "drivetrain", () -> {
         return new SwerveDrivetrain(SparkFlex.class);
       })
-      .add(Photonvision.class, "photonvision", () -> {
-        // create config object with our cameras and their positions
-        Photonvision.Config pvConfig = new Photonvision.Config(
-            new String[] { "Back_Left", "back_right", "Front" },
-            new Transform3d[] {
-                new Transform3d(new Translation3d(6 / 39.37, -8 / 39.37, 16 / 39.37),
-                    new Rotation3d(0, 7 * (Math.PI / 180), 120 * (Math.PI / 180))),
-                new Transform3d(new Translation3d(6 / 39.37, -8 / 39.37, 16 / 39.37),
-                    new Rotation3d(0, 7 * (Math.PI / 180), 240 * (Math.PI / 180))),
-                new Transform3d(new Translation3d(6 / 39.37, -8 / 39.37, 16 / 39.37),
-                    new Rotation3d(0, 7 * (Math.PI / 180), 0))
-            });
-        // now setup our PV subsystem
-        pv = new Photonvision(pvConfig);
-        return pv;
-      })
-      .add(OdometryInterface.class, "odometry", () -> {
-        var obj = new Odometry();
-        obj.new OdometryWatcher();
-        return obj;
-      })
-      // VisonPoseEstimator needs LL and Odometry, adds simplename and alias to lookup
-      .addAlias(VisionPoseEstimator.class, "vision_odo")
-      .add(Climber.class, "climber", () -> {
-        return new Climber(true);
-      });
+     ;
 
 
 
@@ -129,7 +81,7 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
       new PIDFController(0.01, 0.0, 0.0, 0.0) // angle
   );
 
-  public RobotSpec_ChassisBot() {
+  public RobotSpec_ChassisBot_Finn() {
     // finish BetaBot's drivePIDF
     chassisConfig.drivePIDF.setIZone(0.2);
     // add the specs to the ssconfig
@@ -155,7 +107,7 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
 
   @Override
   public ModuleConfig[] getModuleConfigs() {
-    // TODO - correct offsets
+    // TODO - correct offsets for FINN - maybe grab from 2025
     ModuleConfig[] modules = new ModuleConfig[4];
     modules[CornerID.FrontLeft.getIdx()] = new ModuleConfig(CornerID.FrontLeft,
         CAN.FL_CANCoder, CAN.FL_Drive, CAN.FL_Angle, 41.17587)
