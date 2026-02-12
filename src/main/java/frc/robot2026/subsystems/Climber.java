@@ -19,7 +19,7 @@ import frc.robot2026.Constants.CAN;
 public class Climber extends SubsystemBase {
     /** Creates a new Climber. */
     public final static double PowerUpPosition = 0.0; // [cm]
-    public final static double ExtendPosition = 22.2; // [cm]
+    public final static double ExtendPosition = 22.2; // [cm]  Was reading 28
     public final static double ClimbCalibrateVel = 2.0; // [cm/s]
 
     final double GearRatio = 1.0 / 25.0;
@@ -32,6 +32,8 @@ public class Climber extends SubsystemBase {
     final int STALL_CURRENT = 80; // [Amp] placeholder 
     final int FREE_CURRENT = 5;   // [Amp] placeholder  
     
+    double climbingPos = 21; //[cm]
+
     public final Arm l_arm;
     public final Arm r_arm; 
     /* My logic for making these public is to allow access to the individual methods while outside the system.
@@ -44,7 +46,7 @@ public class Climber extends SubsystemBase {
         String name;
      
         // each arm needs own copy of pids, especially the softare position pid which is run by servo.periodic()
-        PIDController posPID = new PIDController(4.0, 0.0015, 0.125);
+        PIDController posPID = new PIDController(4.0, 0.0015, 0.125); //TODO These values are speculative, they couldnt be properly measured due to conversion error. Fix -G
         PIDFController hwVelPID = new PIDFController(0.02, 0.00015, 0, 0.0285); // Little bit of bouncing, could do better
 
         Arm(int CANID, String side, boolean inverted, String name) {            
@@ -232,14 +234,12 @@ public class Climber extends SubsystemBase {
         // Got about 70amps at 12cm/s, could hit 14 without issues
         xbox.povLeft().whileTrue(this.setVelocityCmd(-14.0, l_arm)).onFalse(this.setVelocityCmd(0.0, l_arm));
         xbox.povRight().whileTrue(this.setVelocityCmd(14.0, l_arm)).onFalse(this.setVelocityCmd(0.0, l_arm));
-        xbox.povUp().whileTrue(this.setVelocityCmd(-2.0, r_arm)).onFalse(this.setVelocityCmd(0.0, r_arm));
-        xbox.povDown().whileTrue(this.setVelocityCmd(2.0, r_arm)).onFalse(this.setVelocityCmd(0.0, r_arm));
+        xbox.povUp().whileTrue(this.setVelocityCmd(-14.0, r_arm)).onFalse(this.setVelocityCmd(0.0, r_arm));
+        xbox.povDown().whileTrue(this.setVelocityCmd(14.0, r_arm)).onFalse(this.setVelocityCmd(0.0, r_arm));
 
         // Move arms to 0 point
         xbox.x().onTrue(armsSetpointCmd(0.0)); 
-        xbox.a().onTrue(armsToPoint(20,l_arm));
-
-        //Due to absolute bullshit, the computer is completely off in its math. Somehow. 20 Cm commanded turns into 15 Cm. 28 Cm is actually 21 Cm. I dont know what to do but hey, we get consistant results. Consitantly Wrong, but i'll take it.
+        xbox.a().onTrue(armsToPoint(climbingPos, l_arm)); //using a variable here so we can continue testing
 
         // tell the arms "here is zero"
         xbox.y().onTrue(armsCalibrateCmd(0.0));
@@ -248,17 +248,18 @@ public class Climber extends SubsystemBase {
     class ClimberWatcher extends WatcherCmd {
         ClimberWatcher() {
             
-            addEntry("L_position", Climber.this.l_arm::getPosition, 1);
             addEntry("AtSetpoint", Climber.this::atSetpoint);
+            addEntry("L_position", Climber.this.l_arm::getPosition, 1);
             addEntry("Left Arm Motor Current", Climber.this.l_arm.servo.getController()::getOutputCurrent);
             addEntry("L_Velocity", Climber.this.l_arm::getVelocity);
-            //addEntry("Left Accum Error", Climber.this.l_arm.servo.getController().getClosedLoopController()::get);
             addEntry("Left Accum Error", Climber.this.l_arm.servo.getController().getClosedLoopController()::getIAccum);
-            //addEntry("Left Stalled", Climber.this.l_arm.servo.getOutputCurrent());
             l_arm.servo.getWatcher();
             if (r_arm != null) {
                 // put all Right Arm watchers within
                 addEntry("R_position", Climber.this.r_arm::getPosition, 1);
+                addEntry("Right arm Motor Current", Climber.this.r_arm.servo.getController()::getOutputCurrent);
+                addEntry("R_Velocity", Climber.this.r_arm::getVelocity);
+                addEntry("Right Accum Error", Climber.this.r_arm.servo.getController().getClosedLoopController()::getIAccum);
                 r_arm.servo.getWatcher();
             }
         }
