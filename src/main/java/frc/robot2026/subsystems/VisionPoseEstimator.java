@@ -224,11 +224,12 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
             m_estimator.setVisionMeasurementStdDevs(stdDev);
             m_estimator.addVisionMeasurement(pose, ts);
 
-            processPhotonVision();
-
+            //@DL - this should probably run independantly of this limelight IF statement section
             if (watchdog != null)
                 watchdog.update(pose, prev_llPose);
         }
+
+        processPhotonVision();
 
         //llPose calc - adds heading and drivetrain measurements
         return m_estimator.update(gyro.getRotation2d(), meas_pos);       
