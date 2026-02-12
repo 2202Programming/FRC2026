@@ -54,7 +54,7 @@ public final class Constants {
     public static final int BR_CANCoder = 31;
 
     public static final int FR_Angle = 26;
-    public static final int FR_Drive = 999;
+    public static final int FR_Drive = 27;
     public static final int FR_CANCoder = 30;
 
     public static final int r_arm = 53;
@@ -66,7 +66,7 @@ public final class Constants {
 
     //Hopper
     // AH: changed to support hooper on multishooter
-    public static final int IndexerID = 27;
+    public static final int IndexerID = 42;
     public static final int SingleBeltID = 50;
     public static final int WideBeltID = 52;
 
