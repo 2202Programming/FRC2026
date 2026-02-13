@@ -225,6 +225,7 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
             m_estimator.addVisionMeasurement(pose, ts);
 
             //@DL - this should probably run independantly of this limelight IF statement section
+            //@JR - I think it is correct, only call WD if there was an LL update. Really I think we can remove the WD.
             if (watchdog != null)
                 watchdog.update(pose, prev_llPose);
         }
