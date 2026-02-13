@@ -111,8 +111,7 @@ public final class Constants {
 
   //The Field info use WPILIB data
   public class TheField {
-    //TODO update field for 2026
-    public static AprilTagFields fieldChoice = AprilTagFields.k2025ReefscapeAndyMark; // k2025ReefscapeWelded;
+    public static AprilTagFields fieldChoice = AprilTagFields.k2026RebuiltAndymark;
     public static AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(fieldChoice);
   }  
 

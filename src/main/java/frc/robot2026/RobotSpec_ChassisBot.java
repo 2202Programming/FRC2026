@@ -200,8 +200,9 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
     BindingsCompetition.ConfigureCompetition(dc, false);
     
     //Take care testing binding don't collide
-    DpltestBinding.calbrate(operator);  // rt/left bumper, rt/lt Trigger
-    cl.setDemoBindings(operator);       //pov,a,x
+    //DpltestBinding.calbrate(operator);  // rt/left bumper, rt/lt Trigger
+    //cl.setDemoBindings(operator);       //pov,a,x
+    pv.setDemoBindings(operator);
 
     // Place your test binding in ./testBinding/<yourFile>.java and call it here
     // comment out any conflicting bindings. Try not to push with your bindings
