@@ -200,7 +200,7 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
     BindingsCompetition.ConfigureCompetition(dc, false);
     
     //Take care testing binding don't collide
-    DpltestBinding.calbrate(operator);  // rt/left bumper, rt/lt Trigger
+    //DpltestBinding.calbrate(operator);  // rt/left bumper, rt/lt Trigger
     //cl.setDemoBindings(operator);       //pov,a,x
     pv.setDemoBindings(operator);
 

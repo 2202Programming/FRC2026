@@ -28,6 +28,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib2202.command.WatcherCmd;
+import frc.lib2202.command.pathing.runPathResetStart;
 import frc.robot2026.command.pathing.goDistance;
 import frc.robot2026.util.PoseUpdate;
 
@@ -299,6 +300,7 @@ public class Photonvision extends SubsystemBase {
     public void setDemoBindings(CommandXboxController xbox) {
 
         xbox.x().onTrue(new goDistance(1.0));
+        xbox.a().onTrue(new runPathResetStart("Path1"));
 
     }
 
