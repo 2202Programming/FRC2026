@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.lib2202.builder.RobotContainer;
+import frc.robot2026.command.pathing.runPath;
 
 /*
  * Place commands named in PathPlaner autos here.
@@ -16,7 +17,7 @@ import frc.lib2202.builder.RobotContainer;
 public class RegisteredCommands {
     
     public static void RegisterCommands() {
-        // NamedCommands.registerCommand("Pickup",   new InstantCommand(() -> {  elevator_Subsystem.setHeight(Levels.PickUp); }));
+        NamedCommands.registerCommand("Path1",   new runPath("Path1"));
     }
 
 }
