@@ -17,7 +17,7 @@ import frc.robot2026.command.pathing.runPath;
 public class RegisteredCommands {
     
     public static void RegisterCommands() {
-        NamedCommands.registerCommand("Path1",   new runPath("Path1"));
+        //NamedCommands.registerCommand("Path1",   new runPath("Path1"));
     }
 
 }
