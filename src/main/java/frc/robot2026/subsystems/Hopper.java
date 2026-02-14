@@ -9,10 +9,13 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.FeedbackSensor;
+import com.revrobotics.spark.SparkBase;
+import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.config.FeedForwardConfig;
+import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -21,11 +24,19 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
 import frc.robot2026.Constants.DigitalIO;
 
 public class Hopper extends SubsystemBase {
+
+   /**
+   * Slot 0 is position control
+   * Slot 1 is velocity control
+   * 
+   * Default slot is slot 0 --- must define a slot else it will default to slot 0 
+   **/
+  final ClosedLoopSlot PositionSlot = ClosedLoopSlot.kSlot0;
+  final ClosedLoopSlot VelocitySlot = ClosedLoopSlot.kSlot1;
 
   // final SparkMax wideBeltCtrl;
   // final SparkMax singleBeltCtrl;
@@ -35,47 +46,42 @@ public class Hopper extends SubsystemBase {
   final SparkMaxConfig indexerCfg;
   final SparkClosedLoopController indexerCLCtrl;
 
-  final PIDFController hwPidfCtrl;
+  final FeedForwardConfig ffObj;
 
   final DigitalInput indexGate;
 
   double posCF = 1.0; // temp
-  double velCF = 1.0 / 60.0; // leaves in RPM
+  double velCF = 1.0; // leaves in RPM
 
   double posCruiseVel =  5.0; //[RPS]
   double posMaxAccel = 5.0; //[RPS]
 
-  double velCruiseVel = 5.0; //[RPS]
-  double velMaxAccel = 5.0; //[RPS]
+  double velCruiseVel = 5767.0; //[RPM]
+  double velMaxAccel = 4000.0; //[RPM]
 
-  final ClosedLoopSlot positionSlot = ClosedLoopSlot.kSlot0;
-  final ClosedLoopSlot velocitySlot = ClosedLoopSlot.kSlot1;
 
-  double P = 0.0;
-  double I = 0.0;
-  double D = 0.0;
-  double F = 0.0;
+  // These values are mostly dummy and will only work properly on a motor with no load
+  double P = 0.00025;
+  double I = 0.000000325;
+    double iMaxAccum = 0.0125;
+    double iZone = 20.0;
+  double D = 0.00125;
+  // double F = 0.0;
     double kV = 12.0 / 5767.0; // Volts (somewhat arbitrary) / max RPM
-    double kS = 0.15; // amount of power required to overcome any mechanical slop,
-                      // and to start it barely moving.
+    double kS = 0.053; // amount of power required to overcome any mechanical slop,
+                          // and to start it barely moving.
 
   double vel_setpoint;
   double pos_setpoint;
 
-  /**
-   * Slot 0 is position control
-   * Slot 1 is velocity control
-   * 
-   * Default slot is slot 0 --- must define a slot else it will default to slot 0
-   */
+  boolean m_changes = false;
+  
   public Hopper() {
     setName("Hopper");
 
     // wideBeltCtrl = new SparkMax(CAN.WideBeltID, MotorType.kBrushless);
     // singleBeltCtrl = new SparkMax(CAN.SingleBeltID, MotorType.kBrushless);
     indexerCtrl = new SparkMax(CAN.IndexerID, MotorType.kBrushless);
-
-    hwPidfCtrl = new PIDFController(P, I, D, F, "Indexer PIDF");
 
     indexGate = new DigitalInput(DigitalIO.HopperIndexerID); // not being used as of 2/5/2026
 
@@ -89,32 +95,32 @@ public class Hopper extends SubsystemBase {
     // SLOT 0 CONFIG - POSITION
     indexerCfg.closedLoop
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-        .p(P, positionSlot).i(I, positionSlot).d(D, positionSlot) // incredibly hacky but it keeps all the PID stuffs in one place
+        .p(P, PositionSlot).i(I, PositionSlot).d(D, PositionSlot) // incredibly hacky but it keeps all the PID stuffs in one place
         .feedForward
-            .kV(kV, positionSlot)
-            .kS(kS, positionSlot);
-    
+            .kV(kV, PositionSlot)
+            .kS(kS, PositionSlot);
+
     // SLOT 1 CONFIG - VELOCITY
     indexerCfg.closedLoop
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-        .p(P, positionSlot).i(I, positionSlot).d(D, positionSlot) // incredibly hacky but it keeps all the PID stuffs in one place
+        .p(P, VelocitySlot).i(I, VelocitySlot).d(D, VelocitySlot) // incredibly hacky but it keeps all the PID stuffs in one place
         .feedForward
-            .kV(kV, velocitySlot)
-            .kS(kS, velocitySlot);
+            .kV(kV, VelocitySlot)
+            .kS(kS, VelocitySlot);
+
+     ffObj = indexerCfg.closedLoop.feedForward;
     
     // POSITION CONTROL
     indexerCfg.closedLoop.maxMotion
-        .cruiseVelocity(posCruiseVel, positionSlot) 
-        .maxAcceleration(posMaxAccel, positionSlot);
+        .cruiseVelocity(posCruiseVel, PositionSlot) 
+        .maxAcceleration(posMaxAccel, PositionSlot);
 
     // VELOCITY CONTROL
     indexerCfg.closedLoop.maxMotion
-        .cruiseVelocity(velCruiseVel, velocitySlot)
-        .maxAcceleration(velMaxAccel, velocitySlot);
-
-    hwPidfCtrl.copyTo(indexerCtrl, indexerCfg, velocitySlot);
+        .cruiseVelocity(velCruiseVel, VelocitySlot)
+        .maxAcceleration(velMaxAccel, VelocitySlot);
     
-    indexerCtrl.configure(indexerCfg, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+    indexerCtrl.configure(indexerCfg, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   // Add updating position and velocity hardware slots to the periodic
@@ -122,12 +128,24 @@ public class Hopper extends SubsystemBase {
   //   hwPidfCtrl.copyChangesTo(indexerCtrl, indexerCfg, positionSlot);
   // }
 
-  public void updateVelHardware() {
-    hwPidfCtrl.copyChangesTo(indexerCtrl, indexerCfg, velocitySlot);
-  }
+  private void update(SparkBase motorController, SparkBaseConfig motorConfig, ClosedLoopSlot slot) {
+        // skip if no changes or no attached hw typical if use PIDF without calling copyTo()
+        if (!m_changes || motorConfig == null || motorController == null) return;
 
+        motorConfig.closedLoop.pid(P, I, D, slot);
+        motorConfig.closedLoop.iMaxAccum(iMaxAccum, slot);
+        motorConfig.closedLoop.iZone(iZone);
+        motorConfig.closedLoop.feedForward.sv(kS, kV, slot);
+        
+        // send to HW if we have a pid change, use async so robot loop isn't delayed
+        var status = motorController.configureAsync(motorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+        System.out.println(status);
+        m_changes = false;
+    }
+
+  @Override
   public void periodic() {
-    updateVelHardware();
+    update(indexerCtrl, indexerCfg, VelocitySlot);
   }
 
   // *** POSITION ***
@@ -148,9 +166,21 @@ public class Hopper extends SubsystemBase {
     indexerEncoder.setPosition(0.0);
   }
 
+  public void setkS(double newkS) {
+    ffObj.kS(newkS);
+    kS = newkS;
+    m_changes = true;
+  }
+
+  public void setkV(double newkV) {
+    ffObj.kV(newkV);
+    kV = newkV;
+    m_changes = true;
+  }
+
   // *** VELOCITY ***
   public void setVelSetpoint(double vel) {
-    indexerCLCtrl.setSetpoint(vel, ControlType.kMAXMotionVelocityControl, velocitySlot);
+    indexerCLCtrl.setSetpoint(vel, ControlType.kMAXMotionVelocityControl, VelocitySlot);
     vel_setpoint = vel;
   }
 
@@ -167,7 +197,25 @@ public class Hopper extends SubsystemBase {
     return indexerCLCtrl.getIAccum();
   }
 
-  // rampRate, iZone, iMaxAccum, kV, kS, free & stall amp, 
+  public double getIMaxAccum() {
+    return iMaxAccum;
+  }
+
+  public void setIMaxAccum(double newIMaxAccum) {
+    iMaxAccum = newIMaxAccum;
+    m_changes = true;
+  }
+
+  public double getIZone() {
+    return iZone;
+  }
+
+  public void setIZone(double newIZone) {
+    iZone = newIZone;
+    m_changes = true;
+  }
+
+  // rampRate, iZone, iMaxAccum, free & stall amp, 
   
   // % Pwr control for wide belt + single belt
   // public void setWideBeltPercent(double pct) {
@@ -228,15 +276,15 @@ public class Hopper extends SubsystemBase {
     }));
 
     xbox.a()
-        .whileTrue(cmdSetVelocity(2.0))
+        .whileTrue(cmdSetVelocity(100.0))
         .onFalse(cmdSetVelocity(0.0));
 
     xbox.x()
-        .whileTrue(cmdSetVelocity(5.0))
+        .whileTrue(cmdSetVelocity(500.0))
         .onFalse(cmdSetVelocity(0.0));
 
     xbox.y()
-        .whileTrue(cmdSetVelocity(10.0))
+        .whileTrue(cmdSetVelocity(1000.0))
         .onFalse(cmdSetVelocity(0.0));
 
     xbox.rightBumper().onTrue(cmdSetVelocity(0.0));
@@ -252,10 +300,32 @@ public class Hopper extends SubsystemBase {
     builder.addDoubleProperty("pos_cmd", this::getPosSetpoint, this::setPosSetpoint);
     builder.addDoubleProperty("vel_cmd", this::getVelSetpoint, this::setVelSetpoint);
 
-    builder.addDoubleProperty("vel", this::getVelocity, null);
+    builder.addDoubleProperty("RPM", this::getVelocity, null);
     builder.addDoubleProperty("pos", this::getPosition, null);
 
-    // grab PIDs
-    hwPidfCtrl.initSendable(builder);
+    builder.addDoubleProperty("kS", () -> {return this.kS;}, null);
+    builder.addDoubleProperty("setkS", null, this::setkS);
+    builder.addDoubleProperty("kV", () -> {return this.kV;}, null);
+    builder.addDoubleProperty("setkV", null, this::setkV);
+
+    builder.addDoubleProperty("P", () -> {return P;}, (double v) -> {
+                    this.P = v;
+                    m_changes = true;
+                  });
+    
+    builder.addDoubleProperty("I", () -> {return I;}, (double i) -> {
+                    this.I = i;
+                    m_changes = true;
+                  });
+
+        builder.addDoubleProperty("iAccum", this::getIAccum, null);
+        builder.addDoubleProperty("setIMaxAccum", null, this::setIMaxAccum);
+        builder.addDoubleProperty("iZone", null, this::setIZone);
+
+
+    builder.addDoubleProperty("D", () -> {return D;}, (double d) -> {
+                    this.D = d;
+                    m_changes = true;
+                  });
   }
 }

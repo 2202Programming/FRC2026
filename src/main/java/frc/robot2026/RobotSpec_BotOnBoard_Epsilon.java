@@ -29,7 +29,7 @@ public class RobotSpec_BotOnBoard_Epsilon implements IRobotSpec {
         return new HID_Subsystem(0.3, 0.9, 0.05);
       })
       .add(PowerDistribution.class, "PDP", () -> {
-        var pdp = new PowerDistribution(CAN.PDP, ModuleType.kRev);
+        var pdp = new PowerDistribution(CAN.PDP, ModuleType.kCTRE);
         pdp.clearStickyFaults();
         return pdp;
       })
