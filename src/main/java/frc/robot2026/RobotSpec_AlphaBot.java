@@ -38,10 +38,10 @@ import frc.lib2202.subsystem.swerve.config.ModuleConfig;
 import frc.lib2202.subsystem.swerve.config.ModuleConfig.CornerID;
 import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
+import frc.robot2026.subsystems.Intake;
 import frc.robot2026.subsystems.LimelightV2;
 import frc.robot2026.subsystems.RangeSensor;
 import frc.robot2026.subsystems.VisionPoseEstimator;
-import frc.robot2026.testBindings.DpltestBinding;
 
 
 public class RobotSpec_AlphaBot implements IRobotSpec {
@@ -83,6 +83,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
       })
       // VisonPoseEstimator needs LL and Odometry, adds simplename and alias to lookup
       .addAlias(VisionPoseEstimator.class, "vision_odo") 
+      .add(Intake.class)
       ;
 
   // Robot Speed Limits
@@ -159,6 +160,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
     OdometryInterface odo = RobotContainer.getSubsystemOrNull(odometryName);   
     DriveTrainInterface sdt = RobotContainer.getSubsystemOrNull("drivetrain");
     HID_Subsystem dc = RobotContainer.getSubsystem("DC");
+    Intake intake = RobotContainer.getSubsystemOrNull(Intake.class);
 
     // Initialize PathPlanner, if we have needed Subsystems
     if (odo != null && sdt != null) {
@@ -173,8 +175,10 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
     // Place your test binding in ./testBinding/<yourFile>.java and call it here
     // comment out any conflicting bindings. Try not to push with your bindings
     // active. Just comment them out.   
-    DpltestBinding.calbrate((CommandXboxController)dc.Operator());
-   
+    //DpltestBinding.calbrate((CommandXboxController)dc.Operator()); //lr bumps lr triggers
+    if (intake != null) {
+      intake.setTestBindings((CommandXboxController)dc.Operator()); // lr bumps
+    }
     // Anything else that needs to run after binding/commands are created 
     VisionPoseEstimator vpe = RobotContainer.getSubsystemOrNull("vision_odo");
     if (vpe != null) { 

@@ -17,18 +17,18 @@ import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
 
 public class Intake extends SubsystemBase {
-  final NeoServo bottomRoller;
+  //final NeoServo bottomRoller;
   final NeoServo topRoller;
 
-  final SparkBase btmRlrMtr;  // filled from Servo object
+  //final SparkBase btmRlrMtr;  // filled from Servo object
   final SparkBase topRlrMtr;  // filled from Servo object
 
-  boolean disable_servo = false;
+  boolean disable_servo = true;
 
   PIDFController topHWVelocity_PID = new PIDFController(0.0, 0.0, 0.0, 5.0 / 180.0 / 1.2); // [deg/s]
-  PIDFController bottomHWVelocity_PID = new PIDFController(0.0, 0.0, 0.0, 5.0 / 180.0 / 1.2); // [deg/s]
+  //PIDFController bottomHWVelocity_PID = new PIDFController(0.0, 0.0, 0.0, 5.0 / 180.0 / 1.2); // [deg/s]
   PIDController  topPosition_PID = new PIDController(0.0 ,0, 0);  //[deg]
-  PIDController  bottomPosition_PID = new PIDController(0.0 ,0, 0);  //[deg]
+  //PIDController  bottomPosition_PID = new PIDController(0.0 ,0, 0);  //[deg]
 
   //convert to deg/s units at the geared output
   final double GearRatio = 5.0;
@@ -52,24 +52,24 @@ public class Intake extends SubsystemBase {
 
   /** Creates a new Intake. */
   public Intake() {
-    setName("Intake-Top=" + CAN.IntakeTopID + " | Intake-Bottom=" + CAN.IntakeBottomID);
+    setName("Intake-" + CAN.IntakeTopID);// + " | Intake-Bottom=" + CAN.IntakeBottomID);
 
     // setup any other hardware Pid values, like Izone 
     topHWVelocity_PID.setIZone(200.0); //[deg/s]  outside this region ignore integral
-    bottomHWVelocity_PID.setIZone(200.0); //[deg/s]  outside this region ignore integral
+   // bottomHWVelocity_PID.setIZone(200.0); //[deg/s]  outside this region ignore integral
 
     //Setup servos, for velocity or position control.
     topRoller = new NeoServo(CAN.IntakeTopID, topPosition_PID, topHWVelocity_PID, top_motor_inverted);
-    bottomRoller = new NeoServo(CAN.IntakeBottomID, bottomPosition_PID, bottomHWVelocity_PID, bottom_motor_inverted);
+    //bottomRoller = new NeoServo(CAN.IntakeBottomID, bottomPosition_PID, bottomHWVelocity_PID, bottom_motor_inverted);
     
     //Mr.L Feedback - can't recreate controllers with CANID, it was used by NeoServo, so pull from it
-    btmRlrMtr = bottomRoller.getController(); //new SparkMax(50, SparkMax.MotorType.kBrushless);
+   // btmRlrMtr = bottomRoller.getController(); //new SparkMax(50, SparkMax.MotorType.kBrushless);
     topRlrMtr = topRoller.getController();    // new SparkMax(51, SparkMax.MotorType.kBrushless);
         // get the controllers out of the server so we can monitor in our watcher.
         // controller = servo.getController();
         // cl_controller = controller.getClosedLoopController();
 
-        bottomRoller.setSmartCurrentLimit(STALL_CURRENT, FREE_CURRENT);
+       // bottomRoller.setSmartCurrentLimit(STALL_CURRENT, FREE_CURRENT);
         topRoller.setSmartCurrentLimit(STALL_CURRENT, FREE_CURRENT);
 
         // We are going to use position command, so need to set power on POS
@@ -79,7 +79,7 @@ public class Intake extends SubsystemBase {
   // velocity control only used for testing, normal cmds will use position
   public void setPercent(double pct) {
     cmdPct = pct;
-    btmRlrMtr.set(pct);
+    //btmRlrMtr.set(pct);
     topRlrMtr.set(pct);
   }
 
@@ -88,7 +88,7 @@ public class Intake extends SubsystemBase {
   }
   
   public double getBVelocity() {
-    return bottomRoller.getVelocity();
+    return 0.0; //bottomRoller.getVelocity();
   }
 
   @Override
@@ -96,24 +96,24 @@ public class Intake extends SubsystemBase {
     // This method will be called once per scheduler run
     // power mode testing, disable servo if testing with duty-cycle
     if (!disable_servo) {
-      bottomRoller.periodic();
+      //bottomRoller.periodic();
       topRoller.periodic();
     }
   }
 
   public Command cmdPctPwr(double cmd_pct) {
-    return run(() -> {
+    return runOnce(() -> {
       this.setPercent(cmd_pct);
     });
   }
 
   public void setTestBindings(CommandXboxController opr) {
     opr.leftBumper()
-        .whileTrue(this.cmdPctPwr(0.5))
+        .onTrue(this.cmdPctPwr(0.5))
         .onFalse(this.cmdPctPwr(0.0));
 
     opr.rightBumper()
-        .whileTrue(this.cmdPctPwr(1.0))
+        .onTrue(this.cmdPctPwr(1.0))
         .onFalse(this.cmdPctPwr(0.0));
   }
 
@@ -122,10 +122,10 @@ public class Intake extends SubsystemBase {
         super.initSendable(builder);
         //TODO add parameters here for tuning
         builder.addDoubleProperty("vel_1_top", this.topRoller::getVelocity, this.topRoller::setSetpoint);
-        builder.addDoubleProperty("vel_2_bot", this.bottomRoller::getVelocity, this.bottomRoller::setSetpoint);
+        //builder.addDoubleProperty("vel_2_bot", this.bottomRoller::getVelocity, this.bottomRoller::setSetpoint);
 
         builder.addDoubleProperty("pct_pwr_top", this.topRlrMtr::get, this.topRlrMtr::set);
-        builder.addDoubleProperty("pct_pwr_btm", this.btmRlrMtr::get, this.btmRlrMtr::set);
+        //builder.addDoubleProperty("pct_pwr_btm", this.btmRlrMtr::get, this.btmRlrMtr::set);
     }
 
     // Add a watcher so we can see stuff on network tables
@@ -137,7 +137,7 @@ public class Intake extends SubsystemBase {
   class IntakeWatcher extends WatcherCmd {  
     IntakeWatcher() {
        addEntry("vel_top", Intake.this.topRoller::getVelocity, 2);
-       addEntry("vel_bottom", Intake.this.bottomRoller::getVelocity, 2);
+       //addEntry("vel_bottom", Intake.this.bottomRoller::getVelocity, 2);
     }
   }
 
