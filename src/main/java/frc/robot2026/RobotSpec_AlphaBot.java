@@ -42,6 +42,7 @@ import frc.robot2026.subsystems.LimelightV2;
 import frc.robot2026.subsystems.RangeSensor;
 import frc.robot2026.subsystems.VisionPoseEstimator;
 import frc.robot2026.testBindings.DpltestBinding;
+import frc.robot2026.subsystems.Shooter.Shooter;
 
 
 public class RobotSpec_AlphaBot implements IRobotSpec {
@@ -83,6 +84,12 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
       })
       // VisonPoseEstimator needs LL and Odometry, adds simplename and alias to lookup
       .addAlias(VisionPoseEstimator.class, "vision_odo") 
+      .add(Shooter.class, "left shooter", () ->{
+        return new Shooter("flex", Constants.CAN.ShooterIDLeft, true);
+      })
+      .add(Shooter.class, "right shooter", () ->{
+        return new Shooter("flex", Constants.CAN.ShooterIDRight, false);
+      })
       ;
 
   // Robot Speed Limits
