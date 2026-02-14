@@ -61,8 +61,8 @@ public final class Constants {
     public static final int l_arm = 52;
    
     // Intake
-    public static final int IntakeTopID = 40; // this canID is correct DONT CHANGE IT
-    public static final int IntakeBottomID = 41; 
+    public static final int IntakeID = 40; // this canID is correct DONT CHANGE IT
+    //public static final int IntakeBottomID = 41; 
 
     //Hopper
     // AH: changed to support hooper on multishooter
