@@ -191,7 +191,7 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
 
     // Initialize PathPlanner, if we have needed Subsystems
     if (odo != null && sdt != null) {
-      AutoPPConfigure.configureAutoBuilder(sdt, odo);
+      AutoPPConfigure.configureAutoBuilder(sdt, vpe);
       var cmd = PathfindingCommand.warmupCommand();
       CommandScheduler.getInstance().schedule(cmd);
     }
