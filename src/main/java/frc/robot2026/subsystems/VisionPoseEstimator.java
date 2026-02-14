@@ -302,6 +302,11 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
     public Pose2d getPose() {
         return llPose;
     }
+
+    public double getRotationDegrees(){
+        return llPose.getRotation().getDegrees();
+    }
+
     @Override
     public void printPose() {
         System.out.println("***VisionPoseEstimator " + m_ll_name + 
@@ -333,6 +338,7 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
         private final Field2d field;
 
         public VisionPoseEstimatorMonitorCmd() {
+            addEntry("VPE Rotation", VisionPoseEstimator.this::getRotationDegrees);
             field = new Field2d();
             SmartDashboard.putData("PathWatcher", field);
             field.setRobotPose(llPose);

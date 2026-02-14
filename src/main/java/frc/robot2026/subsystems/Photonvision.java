@@ -22,6 +22,7 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -31,6 +32,7 @@ import frc.lib2202.command.WatcherCmd;
 import frc.lib2202.command.pathing.runPathResetStart;
 import frc.robot2026.command.pathing.goDistance;
 import frc.robot2026.command.pathing.runPath;
+import frc.robot2026.command.pose.resetPoseWithVisionAllianceAware;
 import frc.robot2026.util.PoseUpdate;
 
 //individual photonvision USB cameras
@@ -48,7 +50,7 @@ class RobotCamera {
   private Matrix<N3, N1> curStdDevs;
   private double timeStamp;
   ArrayDeque<PoseUpdate> poseUpdateList;
-  
+
   public RobotCamera(String name, int camera_number, Transform3d kRobotToCam) {
     camera = new PhotonCamera(name);
     this.camera_number = camera_number;
@@ -60,9 +62,11 @@ class RobotCamera {
     targets = null;
     // This method will be called once per scheduler run
     // Query the latest result from PhotonVision
-    results = camera.getAllUnreadResults(); // docs say this is preferred, other call deprecated.  Only call this once per update loop
+    results = camera.getAllUnreadResults(); // docs say this is preferred, other call deprecated. Only call this once
+                                            // per update loop
 
-    //This section looks at most recent photonpipeline result and counts the # of targets seen
+    // This section looks at most recent photonpipeline result and counts the # of
+    // targets seen
     int lastIdx = results.size();
     if (lastIdx > 0) {
       lastResult = results.get(lastIdx - 1);
@@ -71,30 +75,38 @@ class RobotCamera {
       targets = lastResult.getTargets();
     }
 
-    // @Jason,  I think currentPose should be set null at start of update,
-    // it should prevent adding old estimates.  Same for estStdDevs?
-    // @DL I think getAllUnreadResults will be zero length if there are no new pipeline results, so it shouldn't reprocess old frames
+    // @Jason, I think currentPose should be set null at start of update,
+    // it should prevent adding old estimates. Same for estStdDevs?
+    // @DL I think getAllUnreadResults will be zero length if there are no new
+    // pipeline results, so it shouldn't reprocess old frames
 
-    //This section will go through each unread result and generate a pose and timestamp pair and update the pose estimator.
+    // This section will go through each unread result and generate a pose and
+    // timestamp pair and update the pose estimator.
     Optional<EstimatedRobotPose> visionEst = Optional.empty();
     for (var result : results) {
       multiTag = true;
-      visionEst = photonEstimator.estimateCoprocMultiTagPose(result); //multag if available
+      visionEst = photonEstimator.estimateCoprocMultiTagPose(result); // multag if available
       if (visionEst.isEmpty()) { // less than 2 tages, no multitag available
         multiTag = false;
-        visionEst = photonEstimator.estimateLowestAmbiguityPose(result); // use single tag estimator
+        if (result.hasTargets()) {
+          if (result.getBestTarget().getPoseAmbiguity() < 0.2) { // reject single target estimates with high ambiguity
+            visionEst = photonEstimator.estimateLowestAmbiguityPose(result); // use single tag estimator
+          }
+        }
       }
 
-      //this section for updating std dev of results - probably not useful without experimental confirmation of error matrix in constants.
+      // this section for updating std dev of results - probably not useful without
+      // experimental confirmation of error matrix in constants.
       updateEstimationStdDevs(visionEst, result.getTargets());
 
-      //if visionest is not empty it must mean there was at least one tag in the pipeline result so worth updating currentpose.
+      // if visionest is not empty it must mean there was at least one tag in the
+      // pipeline result so worth updating currentpose.
       visionEst.ifPresent(
           est -> {
             currentPose = est.estimatedPose.toPose2d();
             timeStamp = est.timestampSeconds;
             poseUpdateList.add(new PoseUpdate(currentPose, timeStamp));
-            
+
             @SuppressWarnings("unused")
             var estStdDevs = getEstimationStdDevs();
           });
@@ -111,19 +123,19 @@ class RobotCamera {
     return targets.size();
   }
 
-  public PoseUpdate popOldestPoseUpdate(){
+  public PoseUpdate popOldestPoseUpdate() {
     return poseUpdateList.pollFirst();
   }
 
-  public int getPoseUpdateSize(){
+  public int getPoseUpdateSize() {
     return poseUpdateList.size();
   }
 
-  public Boolean havePose(){
+  public Boolean havePose() {
     return (currentPose != null);
   }
 
-  public Pose2d getPose2d(){
+  public Pose2d getPose2d() {
     return currentPose;
   }
 
@@ -211,7 +223,8 @@ class RobotCamera {
 
 public class Photonvision extends SubsystemBase {
 
-  //Helper Config class to setup camears names and locations for Photonvision Subsystem
+  // Helper Config class to setup camears names and locations for Photonvision
+  // Subsystem
   public static class Config {
     // photonvision camera names (needs to match photonvision UI naming)
     public String[] CAMERA_NAMES;
@@ -220,12 +233,11 @@ public class Photonvision extends SubsystemBase {
     // https://docs.photonvision.org/en/latest/docs/apriltag-pipelines/coordinate-systems.html
     public Transform3d[] kRobotToCam;
 
-    public Config(String[] CAMERA_NAMES, Transform3d[] kRobotToCam){
-        this.CAMERA_NAMES = CAMERA_NAMES;
-        this.kRobotToCam = kRobotToCam;
+    public Config(String[] CAMERA_NAMES, Transform3d[] kRobotToCam) {
+      this.CAMERA_NAMES = CAMERA_NAMES;
+      this.kRobotToCam = kRobotToCam;
     }
-}
-
+  }
 
   /** Creates a new Photonvision. */
   public List<RobotCamera> camerasList = new ArrayList<RobotCamera>();
@@ -235,12 +247,12 @@ public class Photonvision extends SubsystemBase {
   List<Double> PoseY = new ArrayList<Double>();
   Photonvision.Config config;
 
-  List<PoseUpdate> latest_updates;  // keep pointer to last collected updates
+  List<PoseUpdate> latest_updates; // keep pointer to last collected updates
 
   public Photonvision(Config specs) {
     setName("photonvision");
     config = specs;
-    
+
     for (int i = 0; i < config.CAMERA_NAMES.length; i++) {
       camerasList.add(new RobotCamera(config.CAMERA_NAMES[i], i, config.kRobotToCam[i]));
       Photon_Has_Multi_Target.add(false);
@@ -266,17 +278,17 @@ public class Photonvision extends SubsystemBase {
 
   // build list of all the updates we have, called by VPE or other estimator
   public List<PoseUpdate> getAllUpdates() {
-    List<PoseUpdate> updates = new ArrayList<PoseUpdate>();  
+    List<PoseUpdate> updates = new ArrayList<PoseUpdate>();
 
-    for (int i = 0; i < config.CAMERA_NAMES.length; i++){
+    for (int i = 0; i < config.CAMERA_NAMES.length; i++) {
       RobotCamera tempCamera = camerasList.get(i);
-      while(tempCamera.getPoseUpdateSize() > 0) {
-         updates.add(tempCamera.popOldestPoseUpdate());
+      while (tempCamera.getPoseUpdateSize() > 0) {
+        updates.add(tempCamera.popOldestPoseUpdate());
       }
     }
     return updates;
   }
-  
+
   // Add a watcher so we can see stuff on network tables
   public WatcherCmd getWatcherCmd() {
     return this.new PhotonWatcher();
@@ -284,6 +296,31 @@ public class Photonvision extends SubsystemBase {
 
   public int howManyTargets(int listPos) {
     return camerasList.get(listPos).howManyTargets();
+  }
+
+  public int totalTargetsAllCameras() {
+    int totalTargets = 0;
+    for (int i = 0; i < config.CAMERA_NAMES.length; i++) {
+      totalTargets = totalTargets + howManyTargets(i);
+    }
+    return totalTargets;
+  }
+
+  public Rotation2d getAverageRot() {
+    double totalDegrees = 0;
+    int numberOfGoodTargets = 0;
+    for (int i = 0; i < config.CAMERA_NAMES.length; i++) {
+      if (howManyTargets(i) > 0) {
+        numberOfGoodTargets++;
+        totalDegrees = totalDegrees + camerasList.get(i).getPose2d().getRotation().getDegrees();
+      }
+    }
+    return new Rotation2d(Math.toRadians(totalDegrees / numberOfGoodTargets));
+  }
+
+  public double getAverageRotDegrees(){
+    Rotation2d tempRot = getAverageRot();
+    return tempRot.getDegrees();
   }
 
   public boolean hasMultitarget(int listPos) {
@@ -298,15 +335,16 @@ public class Photonvision extends SubsystemBase {
     return camerasList.get(listPos).getCurrentPoseY();
   }
 
-    public void setDemoBindings(CommandXboxController xbox) {
+  public void setDemoBindings(CommandXboxController xbox) {
 
-        xbox.x().onTrue(new goDistance(1.0));
-        xbox.a().onTrue(new runPathResetStart("Path1"));
-        xbox.b().onTrue(new runPath("Path1"));
-    }
+    xbox.x().onTrue(new goDistance(1.0));
+    xbox.a().onTrue(new resetPoseWithVisionAllianceAware());
+    xbox.b().onTrue(new runPath("Path1"));
+  }
 
   class PhotonWatcher extends WatcherCmd {
     PhotonWatcher() {
+      addEntry("Photon Average Rotation", Photonvision.this::getAverageRotDegrees);
       RobotCamera currentCamera;
       for (int i = 0; i < config.CAMERA_NAMES.length; i++) {
         currentCamera = camerasList.get(i);
