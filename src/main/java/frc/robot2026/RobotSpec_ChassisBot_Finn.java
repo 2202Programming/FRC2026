@@ -20,6 +20,7 @@ import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.builder.RobotLimits;
 import frc.lib2202.builder.SubsystemConfig;
 import frc.lib2202.command.swerve.FieldCentricDrive;
+import frc.lib2202.subsystem.Odometry;
 import frc.lib2202.subsystem.OdometryInterface;
 import frc.lib2202.subsystem.Sensors;
 import frc.lib2202.subsystem.hid.HID_Subsystem;
@@ -32,14 +33,14 @@ import frc.lib2202.subsystem.swerve.config.ModuleConfig;
 import frc.lib2202.subsystem.swerve.config.ModuleConfig.CornerID;
 import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
-import frc.robot2026.subsystems.Climber;
+
 import frc.robot2026.subsystems.VisionPoseEstimator;
 import frc.robot2026.testBindings.DpltestBinding;
 
 public class RobotSpec_ChassisBot_Finn implements IRobotSpec { 
-  // $env:serialnum = "03282B65"
+  // $env:serialnum = "03415A8E"
 
-  final SubsystemConfig ssconfig = new SubsystemConfig("ChassisBot_FIN", "FINN_FIX_ME")
+  final SubsystemConfig ssconfig = new SubsystemConfig("ChassisBot_FINN", "03415A8E")
       // deferred construction via Supplier<Object> lambda
       .add(PowerDistribution.class, "PDP", () -> {
         var pdp = new PowerDistribution(CAN.PDP, ModuleType.kRev);
@@ -52,10 +53,15 @@ public class RobotSpec_ChassisBot_Finn implements IRobotSpec {
       .add(Sensors.class, "sensors", () -> {
         return new Sensors(CAN.PIGEON_IMU_CAN);
       })
-     
       .add(SwerveDrivetrain.class, "drivetrain", () -> {
         return new SwerveDrivetrain(SparkFlex.class);
       })
+      .add(OdometryInterface.class, "odometry", () -> {
+        var obj = new Odometry();
+        obj.new OdometryWatcher();
+        return obj;
+      })
+
      ;
 
 
@@ -110,19 +116,19 @@ public class RobotSpec_ChassisBot_Finn implements IRobotSpec {
     // TODO - correct offsets for FINN - maybe grab from 2025
     ModuleConfig[] modules = new ModuleConfig[4];
     modules[CornerID.FrontLeft.getIdx()] = new ModuleConfig(CornerID.FrontLeft,
-        CAN.FL_CANCoder, CAN.FL_Drive, CAN.FL_Angle, 41.17587)
+        CAN.FL_CANCoder, CAN.FL_Drive, CAN.FL_Angle, -3.3846)
         .setInversions(false, true, false);
 
     modules[CornerID.FrontRight.getIdx()] = new ModuleConfig(CornerID.FrontRight,
-        CAN.FR_CANCoder, CAN.FR_Drive, CAN.FR_Angle, -63.98)
+        CAN.FR_CANCoder, CAN.FR_Drive, CAN.FR_Angle, -112.847)
         .setInversions(true, true, false);
 
     modules[CornerID.BackLeft.getIdx()] = new ModuleConfig(CornerID.BackLeft,
-        CAN.BL_CANCoder, CAN.BL_Drive, CAN.BL_Angle, 50.45)
+        CAN.BL_CANCoder, CAN.BL_Drive, CAN.BL_Angle, -42.626)
         .setInversions(false, true, false);
 
     modules[CornerID.BackRight.getIdx()] = new ModuleConfig(CornerID.BackRight,
-        CAN.BR_CANCoder, CAN.BR_Drive, CAN.BR_Angle, -66.27)
+        CAN.BR_CANCoder, CAN.BR_Drive, CAN.BR_Angle, -161.895)
         .setInversions(true, true, false);
 
     return modules;
@@ -137,8 +143,7 @@ public class RobotSpec_ChassisBot_Finn implements IRobotSpec {
     VisionPoseEstimator vpe = RobotContainer.getSubsystemOrNull("vision_odo");
     DriveTrainInterface sdt = RobotContainer.getSubsystemOrNull("drivetrain");
     HID_Subsystem dc = RobotContainer.getSubsystem("DC");
-    Climber cl = RobotContainer.getSubsystem("climber");
-
+    
     CommandXboxController operator = (CommandXboxController)dc.Operator();
 
     // Initialize PathPlanner, if we have needed Subsystems
@@ -153,7 +158,7 @@ public class RobotSpec_ChassisBot_Finn implements IRobotSpec {
     
     //Take care testing binding don't collide
     DpltestBinding.calbrate(operator);  // rt/left bumper, rt/lt Trigger
-    cl.setDemoBindings(operator);       //pov,a,x
+    //cl.setDemoBindings(operator);       //pov,a,x
 
     // Place your test binding in ./testBinding/<yourFile>.java and call it here
     // comment out any conflicting bindings. Try not to push with your bindings
