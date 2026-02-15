@@ -17,7 +17,7 @@ import frc.lib2202.subsystem.swerve.config.ChassisConfig;
 import frc.lib2202.subsystem.swerve.config.ModuleConfig;
 import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
-import frc.robot2026.subsystems.Hopper;
+import frc.robot2026.subsystems.Hopper.Hopper;
 import frc.robot2026.subsystems.Shooter.Shooter;
 
 public class RobotSpec_BotOnBoard_Zeta implements IRobotSpec {

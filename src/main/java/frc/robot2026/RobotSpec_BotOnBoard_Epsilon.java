@@ -16,7 +16,7 @@ import frc.lib2202.builder.RobotLimits;
 import frc.lib2202.builder.SubsystemConfig;
 import frc.lib2202.subsystem.hid.HID_Subsystem;
 import frc.robot2026.Constants.CAN;
-import frc.robot2026.subsystems.Hopper;
+import frc.robot2026.subsystems.Hopper.Hopper;
 
 public class RobotSpec_BotOnBoard_Epsilon implements IRobotSpec {
 
@@ -33,7 +33,6 @@ public class RobotSpec_BotOnBoard_Epsilon implements IRobotSpec {
         pdp.clearStickyFaults();
         return pdp;
       })
-       // .add(Intake.class)
       .add(Hopper.class)      
   ;
       
