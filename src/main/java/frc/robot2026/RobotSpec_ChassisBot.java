@@ -82,14 +82,31 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
       .add(Photonvision.class, "photonvision", () -> {
         // create config object with our cameras and their positions
         Photonvision.Config pvConfig = new Photonvision.Config(
+            // Fairly confident about x/y/z/yaw, not sure about pitch/roll for back cameras
+            // Measurements:
+            // All cameras 9.4 cm off ground
+            // Front Camera:
+            // 23 cm in front of robot center
+            // 19 cm to the right (negative) of robot center
+            // Angled 2deg up from horizon
+            //
+            // Back Right
+            // 14 cm in front of robot center
+            // 25 cm to the right of robot center
+            // Angled 11deg up from horizon
+            //
+            // Back Left
+            // 13 cm in front of robot center
+            // 13 cm right of robot center
+            // Angled 11deg up from horizon 
             new String[] { "Back_Left", "back_right", "Front" },
             new Transform3d[] {
-                new Transform3d(new Translation3d(6 / 39.37, -8 / 39.37, 16 / 39.37),
-                    new Rotation3d(0, 7 * (Math.PI / 180), 120 * (Math.PI / 180))),
-                new Transform3d(new Translation3d(6 / 39.37, -8 / 39.37, 16 / 39.37),
-                    new Rotation3d(0, 7 * (Math.PI / 180), 240 * (Math.PI / 180))),
-                new Transform3d(new Translation3d(6 / 39.37, -8 / 39.37, 16 / 39.37),
-                    new Rotation3d(0, 7 * (Math.PI / 180), 0))
+                new Transform3d(new Translation3d(13/100, - 13/100, 9.4/100),
+                    new Rotation3d(- (2/3) * (Math.PI / 180), (4/3) * (Math.PI / 180), 120 * (Math.PI / 180))),
+                new Transform3d(new Translation3d(14/100, - 25 /100, 9.4/100),
+                    new Rotation3d(-(11/3) * (Math.PI / 180), - (22/3) * (Math.PI / 180), 240 * (Math.PI / 180))),
+                new Transform3d(new Translation3d(23/100, - 19/100, 9.4/100),
+                    new Rotation3d(0, - 7 * (Math.PI / 180), 0))
             });
         // now setup our PV subsystem
         pv = new Photonvision(pvConfig);
