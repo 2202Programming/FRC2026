@@ -33,8 +33,8 @@ public class RobotSpec_BotOnBoard_Epsilon implements IRobotSpec {
         pdp.clearStickyFaults();
         return pdp;
       })
-      .add(Hopper.class)      
-  ;
+      .add(Hopper.class)
+      ;
       
 
   // Robot Speed Limits

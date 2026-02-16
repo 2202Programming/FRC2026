@@ -62,20 +62,20 @@ public class Hopper extends SubsystemBase {
   double posMaxAccel = 5.0;
 
   double velCruiseVel = 5767.0; // Max RPM of the motor // [RPM]
-  double velMaxAccel = 4000.0; // Max accel of the motor // [RPM/s]
+  double velMaxAccel = 10000.0; // Max accel of the motor // [RPM/s]
 
   // These values are mostly dummy and will only work properly on a motor with no load
-  double P = 0.00025;
+  double P = 0.0002;
   double I = 0.000000325; // Tune this extremely carefully
   double D = 0.00125;
 
   double iMaxAccum = 0.0125;
-  double iZone = 20.0; // Needs tweaking
+  double iZone = 12.5; // Needs tweaking
 
   double kV = 12.0 / 5767.0; // Volts / max RPM
   double kS = 0.053; // amount of power required to overcome any mechanical slop and to make it barely move
 
-  double rampRate = 0.0;
+  double rampRate = 0.0; // untuned, unknown if needed
 
   // Operational Variables
   double vel_setpoint;
@@ -154,7 +154,7 @@ public class Hopper extends SubsystemBase {
 
     motorConfig.closedLoopRampRate(rampRate);
 
-    motorConfig.closedLoop.maxMotion.maxAcceleration(posMaxAccel);
+    motorConfig.closedLoop.maxMotion.maxAcceleration(velMaxAccel);
 
     // send to HW if we have a pid change, use async so robot loop isn't delayed
     var status = motorController.configureAsync(motorConfig, ResetMode.kNoResetSafeParameters,
