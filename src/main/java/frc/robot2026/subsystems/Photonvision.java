@@ -298,12 +298,29 @@ public class Photonvision extends SubsystemBase {
     return camerasList.get(listPos).howManyTargets();
   }
 
+  public int howManyCameras() {
+    return config.CAMERA_NAMES.length;
+  }
+
+  public Pose2d getCameraPose(int position) {
+    return camerasList.get(position).getPose2d();
+  }
+
   public int totalTargetsAllCameras() {
     int totalTargets = 0;
     for (int i = 0; i < config.CAMERA_NAMES.length; i++) {
       totalTargets = totalTargets + howManyTargets(i);
     }
     return totalTargets;
+  }
+
+  public boolean anyMultiTags() {
+    boolean anyMultiTags = false;
+    for (int i = 0; i < config.CAMERA_NAMES.length; i++) {
+      if (camerasList.get(i).hasMultitarget())
+        anyMultiTags = true;
+    }
+    return anyMultiTags;
   }
 
   public Rotation2d getAverageRot() {
@@ -318,7 +335,7 @@ public class Photonvision extends SubsystemBase {
     return new Rotation2d(Math.toRadians(totalDegrees / numberOfGoodTargets));
   }
 
-  public double getAverageRotDegrees(){
+  public double getAverageRotDegrees() {
     Rotation2d tempRot = getAverageRot();
     return tempRot.getDegrees();
   }

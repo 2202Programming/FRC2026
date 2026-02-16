@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib2202.builder.IRobotSpec;
 import frc.lib2202.builder.RobotContainer;
@@ -40,6 +41,7 @@ import frc.lib2202.subsystem.swerve.config.ModuleConfig.CornerID;
 import frc.lib2202.util.PIDFController;
 
 import frc.robot2026.Constants.CAN;
+import frc.robot2026.command.pose.resetPoseWithVisionAllianceAware;
 import frc.robot2026.subsystems.Climber;
 import frc.robot2026.subsystems.LimelightV2;
 import frc.robot2026.subsystems.Photonvision;
@@ -243,6 +245,11 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
     if (drivetrain != null) {
       drivetrain.setDefaultCommand(new FieldCentricDrive());
     }
+  }
+
+  @Override
+  public void disabledInit(){
+    CommandScheduler.getInstance().schedule(new resetPoseWithVisionAllianceAware());
   }
 
 }
