@@ -54,26 +54,26 @@ public class Hopper extends SubsystemBase {
   // Used as a way to get and set new FF values
   final FeedForwardConfig ffObj;
 
-  double posCF = 1.0; // Temporary value
+  double posCF = 1.0; // [ROT]
   double velCF = 1.0; // change to 1.0 / 60.0 for RPS
 
-  // Dummy values, not being used currently
-  double posCruiseVel = 5.0;
-  double posMaxAccel = 5.0;
+  double posCruiseVel = 2000.0;
+  double posMaxAccel = 1000.0;
 
   double velCruiseVel = 5767.0; // Max RPM of the motor // [RPM]
-  double velMaxAccel = 10000.0; // Max accel of the motor // [RPM/s]
+  double velMaxAccel = 1000.0; // Max accel of the motor // [RPM/s]
 
   // These values are mostly dummy and will only work properly on a motor with no load
-  double P = 0.0002;
-  double I = 0.000000325; // Tune this extremely carefully
-  double D = 0.00125;
+  double P = 0.3;
+  double I = 0.006;
+  double D = 0.0;
 
-  double iMaxAccum = 0.0125;
-  double iZone = 12.5; // Needs tweaking
+  double iMaxAccum = 0.2;
+  double iZone = 20.0;
 
-  double kV = 12.0 / 5767.0; // Volts / max RPM
-  double kS = 0.053; // amount of power required to overcome any mechanical slop and to make it barely move
+  double kV = 0.0; // Volts / max RPM
+  double kS = 0.0; // amount of power required to overcome any mechanical slop and to make it barely move
+  double kA = 0.0;
 
   double rampRate = 0.0; // untuned, unknown if needed
 
@@ -110,7 +110,8 @@ public class Hopper extends SubsystemBase {
 
     indexerCfg.closedLoop.maxMotion
         .cruiseVelocity(posCruiseVel, PositionSlot)
-        .maxAcceleration(posMaxAccel, PositionSlot);
+        .maxAcceleration(posMaxAccel, PositionSlot)
+        .allowedProfileError(1);
 
     // *** SLOT 1 CONFIG - VELOCITY ***
     indexerCfg.closedLoop
@@ -127,7 +128,7 @@ public class Hopper extends SubsystemBase {
     // used to set kV & kS
     ffObj = indexerCfg.closedLoop.feedForward;
 
-    indexerCtrl.configure(indexerCfg, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    indexerCtrl.configure(indexerCfg, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
   }
 
   /**
@@ -143,11 +144,10 @@ public class Hopper extends SubsystemBase {
   private void update(SparkBase motorController, SparkBaseConfig motorConfig, ClosedLoopSlot slot) {
     // skip if no changes or no attached hw typical if use PIDF without calling
     // copyTo()
-    if (!m_changes || motorConfig == null || motorController == null)
-      return;
+    if (!m_changes || motorConfig == null || motorController == null) return;
 
     motorConfig.closedLoop.pid(P, I, D, slot);
-    motorConfig.closedLoop.feedForward.sv(kS, kV, slot);
+    motorConfig.closedLoop.feedForward.sva(kS, kV, kA, slot);
 
     motorConfig.closedLoop.iMaxAccum(iMaxAccum, slot);
     motorConfig.closedLoop.iZone(iZone);
@@ -165,12 +165,14 @@ public class Hopper extends SubsystemBase {
 
   @Override
   public void periodic() {
-    update(indexerCtrl, indexerCfg, VelocitySlot);
+    // update(indexerCtrl, indexerCfg, VelocitySlot);
+    update(indexerCtrl, indexerCfg, PositionSlot);
   }
 
   // *** POSITION GETTERS/SETTERS ***
   public void setPosSetpoint(double pos) {
     indexerCLCtrl.setSetpoint(pos, ControlType.kMAXMotionPositionControl, PositionSlot);
+    pos_setpoint = pos;
   }
 
   public double getPosSetpoint() {
@@ -179,6 +181,10 @@ public class Hopper extends SubsystemBase {
 
   public double getPosition() {
     return indexerEncoder.getPosition();
+  }
+
+  public double getPositionError() {
+    return Math.abs(indexerCLCtrl.getMAXMotionSetpointPosition() - pos_setpoint);
   }
 
   // *** VELOCITY GETTERS/SETTERS ***
@@ -206,6 +212,12 @@ public class Hopper extends SubsystemBase {
   public void setkV(double newkV) {
     ffObj.kV(newkV);
     kV = newkV;
+    m_changes = true;
+  }
+
+  public void setkA(double newkA) {
+    ffObj.kA(newkA);
+    kA = newkA;
     m_changes = true;
   }
 
@@ -273,7 +285,7 @@ public class Hopper extends SubsystemBase {
     });
   }
 
-  public Command setPosition(double pos) {
+  public Command cmdSetPosition(double pos) {
     return runOnce(() -> {
       setPosSetpoint(pos);
     });
@@ -307,18 +319,17 @@ public class Hopper extends SubsystemBase {
     // xbox.rightTrigger(0.5).onTrue(cmdPct(0.5)).onFalse(cmdPct(0.0));
 
     xbox.a()
-        .whileTrue(cmdSetVelocity(100.0)) // [RPM]
-        .onFalse(cmdSetVelocity(0.0));
+        .onTrue(cmdSetPosition(1.0)); // [ROT]
 
     xbox.x()
-        .whileTrue(cmdSetVelocity(500.0)) // [RPM]
-        .onFalse(cmdSetVelocity(0.0));
+        .onTrue(cmdSetPosition(10.0)); // [ROT]
 
     xbox.y()
-        .whileTrue(cmdSetVelocity(1000.0)) // [RPM]
-        .onFalse(cmdSetVelocity(0.0));
+        .onTrue(cmdSetPosition(25.0)); // [ROT]
 
-    xbox.b().onTrue(cmdSetVelocity(0.0)); // [RPM]
+    xbox.b().onTrue(cmdSetPosition(0.0)); // [ROT]
+
+    xbox.povDown().onTrue(cmdSetVelocity(0.0));
 
     xbox.rightBumper().onTrue(new InstantCommand(() -> {
       zeroPos();
@@ -339,12 +350,13 @@ public class Hopper extends SubsystemBase {
     builder.addDoubleProperty("pos", this::getPosition, null);
 
     // kS
-    builder.addDoubleProperty("kS", () -> { return this.kS; }, null);
-    builder.addDoubleProperty("setkS", null, this::setkS);
+    builder.addDoubleProperty("setkS", () -> { return this.kS; }, this::setkS);
 
     // kV
-    builder.addDoubleProperty("kV", () -> { return this.kV; }, null);
-    builder.addDoubleProperty("setkV", null, this::setkV);
+    builder.addDoubleProperty("setkV", () -> { return this.kV; }, this::setkV);
+
+    // kA
+    builder.addDoubleProperty("kA", () -> { return this.kA; }, this::setkA);
 
     // PID
     builder.addDoubleProperty("P", () -> { return P;}, (double v) -> {
@@ -364,11 +376,13 @@ public class Hopper extends SubsystemBase {
 
     // iZone, iAccum, iMaxAccum
     builder.addDoubleProperty("iAccum", this::getIAccum, null);
-    builder.addDoubleProperty("setIMaxAccum", null, this::setIMaxAccum);
-    builder.addDoubleProperty("iZone", null, this::setIZone);
+    builder.addDoubleProperty("setIMaxAccum", () -> { return this.iMaxAccum; }, this::setIMaxAccum);
+    builder.addDoubleProperty("iZone", () -> { return this.iZone; }, this::setIZone);
 
     // Miscellaneous
     builder.addDoubleProperty("rampRate", this::getRampRate, this::setRampRate);
     builder.addDoubleProperty("velocity acceleration", this::getMaxAccel, this::setMaxAccel);
+
+    builder.addDoubleProperty("posError", this::getPositionError, null);
   }
 }
