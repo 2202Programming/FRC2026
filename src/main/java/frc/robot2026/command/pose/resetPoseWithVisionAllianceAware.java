@@ -5,6 +5,7 @@
 package frc.robot2026.command.pose;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib2202.builder.RobotContainer;
 import frc.robot2026.subsystems.Photonvision;
@@ -19,18 +20,18 @@ public class resetPoseWithVisionAllianceAware extends Command {
 
   private boolean singleResetDone;
   private boolean multiResetDone;
-  private VisionPoseEstimator vpe;
-  private Photonvision pv;
+  private final VisionPoseEstimator vpe;
+  private final Photonvision pv;
 
   public resetPoseWithVisionAllianceAware() {
-    // Use addRequirements() here to declare subsystem dependencies.
+     pv = RobotContainer.getSubsystemOrNull("photonvision");
+    vpe = RobotContainer.getSubsystemOrNull("vision_odo");
+    //todo limelight could have an estimate for us too.
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    pv = RobotContainer.getSubsystem("photonvision");
-    vpe = RobotContainer.getSubsystem("vision_odo");
     multiResetDone = false;
     singleResetDone = false;
   }
@@ -38,29 +39,43 @@ public class resetPoseWithVisionAllianceAware extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    if (pv == null) {
+      multiResetDone = true;
+      return;
+    }
+
+    /* Check each PV camera for one with multiple-tags, if found use it and declare victory */
     if (pv.anyMultiTags()) { // someone has a multitag
       for (int i = 0; i < pv.howManyCameras(); i++) {
         if (pv.hasMultitarget(i)) { // camera has a multitag, should be most reliable
           System.out.println("***Vision pose gryo Pre multitag reset is: " + vpe.getPose().getRotation().getDegrees());
           Rotation2d tempRot = pv.getCameraPose(i).getRotation();
-          vpe.setAnglePose(tempRot);
+          publish(tempRot);
           multiResetDone = true;
           System.out
               .println("***Vision pose gryo multitag reset done, set to: " + vpe.getPose().getRotation().getDegrees());
+          return;
         }
       }
     }
 
+    // got to here, no carmera had 2 or more images.
+
     // there is no multitag yet, but one or more cameras have a single tag,
     // and we haven't done a single tag estimate yet
-    if (pv.totalTargetsAllCameras() > 0 && !multiResetDone && !singleResetDone) {
+    if (pv.totalTargetsAllCameras() > 0 && !singleResetDone) {
       System.out.println("***Vision pose gryo Pre single tag reset is: " + vpe.getPose().getRotation().getDegrees());
       Rotation2d tempRot = pv.getAverageRot(); //there may be more than one camera with single tag, take an average of their rotation estimates.
-      vpe.setAnglePose(tempRot);
+      publish(tempRot);
       singleResetDone = true;
       System.out
           .println("***Vision pose gryo single tag reset done, set to: " + vpe.getPose().getRotation().getDegrees());
     }
+  }
+
+  void publish(Rotation2d newRot){
+    if (vpe == null) return;
+    vpe.setAnglePose(newRot);
   }
 
   // Called once the command ends or is interrupted.
@@ -71,7 +86,8 @@ public class resetPoseWithVisionAllianceAware extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return multiResetDone;
+    // End when we have a multi, or we get enabled.
+    return multiResetDone || DriverStation.isAutonomousEnabled() || DriverStation.isTeleopEnabled();
   }
 
   @Override
