@@ -352,7 +352,6 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
         public VisionPoseEstimatorMonitorCmd() {
             addEntry("VPE Rotation", VisionPoseEstimator.this::getRotationDegrees);
             addEntry("Vision Gryo Correction Done", VisionPoseEstimator.this::hasGryoResetHappened);
-
             field = new Field2d();
             SmartDashboard.putData("PathWatcher", field);
             field.setRobotPose(llPose);
