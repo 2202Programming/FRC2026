@@ -36,7 +36,7 @@ public class setGyroOffsetWithVision extends Command {
   public void initialize() {
     multiResetDone = false;
     singleResetDone = false;
-    ll.setUse_MT1(true);
+    ll.setUse_MT1(true); //MT1 should be used if no gyro offset done yet.
     ll.setUse_MT2(false);
   }
 
@@ -55,7 +55,7 @@ public class setGyroOffsetWithVision extends Command {
     if (pv.anyMultiTags()) { // someone has a multitag
       for (int i = 0; i < pv.howManyCameras(); i++) {
         if (pv.hasMultitarget(i)) { // camera has a multitag, should be most reliable
-          System.out.println("***Vision pose gryo Pre multitag reset is: " + vpe.getPose().getRotation().getDegrees());
+          System.out.println("***Vision pose gryo Pre reset is: " + vpe.getPose().getRotation().getDegrees());
           Rotation2d tempRot = pv.getCameraPose(i).getRotation();
           publish(tempRot);
           multiResetDone = true;
@@ -68,7 +68,7 @@ public class setGyroOffsetWithVision extends Command {
     }
     if (ll.getMT1Valid()) {
       if (ll.getMt1().tagCount > 1) { // Limelight has multitag
-        System.out.println("***Vision pose gryo Pre multitag reset is: " + vpe.getPose().getRotation().getDegrees());
+        System.out.println("***Vision pose gryo Pre reset is: " + vpe.getPose().getRotation().getDegrees());
         Rotation2d tempRot = ll.getMt1().pose.getRotation();
         publish(tempRot);
         multiResetDone = true;
@@ -85,7 +85,7 @@ public class setGyroOffsetWithVision extends Command {
     // there is no multitag yet, but one or more cameras have a single tag,
     // and we haven't done a single tag estimate yet
     if (pv.totalTargetsAllCameras() > 0 && !singleResetDone) {
-      System.out.println("***Vision pose gryo Pre single tag reset is: " + vpe.getPose().getRotation().getDegrees());
+      System.out.println("***Vision pose gryo Pre reset is: " + vpe.getPose().getRotation().getDegrees());
       Rotation2d tempRot = pv.getAverageRot(); // there may be more than one camera with single tag, take an average of
                                                // their rotation estimates.
       publish(tempRot);
@@ -96,7 +96,7 @@ public class setGyroOffsetWithVision extends Command {
     }
     if (ll.getMT1Valid()) {
       if (ll.getMt1().tagCount > 0) { // Limelight has one target
-        System.out.println("***Vision pose gryo Pre multitag reset is: " + vpe.getPose().getRotation().getDegrees());
+        System.out.println("***Vision pose gryo Pre reset is: " + vpe.getPose().getRotation().getDegrees());
         Rotation2d tempRot = ll.getMt1().pose.getRotation();
         publish(tempRot);
         multiResetDone = true;
@@ -120,7 +120,7 @@ public class setGyroOffsetWithVision extends Command {
   @Override
   public void end(boolean interrupted) {
     ll.setUse_MT1(false);
-    ll.setUse_MT2(true);
+    ll.setUse_MT2(true); //back to MT2 for competition, presumably gyro offset has been set now.
   }
 
   // Returns true when the command should end.
@@ -130,6 +130,9 @@ public class setGyroOffsetWithVision extends Command {
     // OK to not be done in auto (it's using vision rot anyway).
     // Drivers should watch VPE gyro done flag to know if they need to hit Y to
     // manually do offset when tele starts.
+    // TODO: set pose (and gyro offset) to start of auto path (where field team set up robot) if we get here an no gyro update done yet
+    // probably means all vision is dorked up
+    // like setPoseToPathStart()
     return multiResetDone || DriverStation.isTeleopEnabled();
   }
 
