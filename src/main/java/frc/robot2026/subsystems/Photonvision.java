@@ -32,7 +32,7 @@ import frc.lib2202.command.WatcherCmd;
 import frc.lib2202.command.pathing.runPathResetStart;
 import frc.robot2026.command.pathing.goDistance;
 import frc.robot2026.command.pathing.runPath;
-import frc.robot2026.command.pose.resetPoseWithVisionAllianceAware;
+import frc.robot2026.command.pose.setGyroOffsetWithVision;
 import frc.robot2026.util.PoseUpdate;
 
 //individual photonvision USB cameras
@@ -298,12 +298,29 @@ public class Photonvision extends SubsystemBase {
     return camerasList.get(listPos).howManyTargets();
   }
 
+  public int howManyCameras() {
+    return config.CAMERA_NAMES.length;
+  }
+
+  public Pose2d getCameraPose(int position) {
+    return camerasList.get(position).getPose2d();
+  }
+
   public int totalTargetsAllCameras() {
     int totalTargets = 0;
     for (int i = 0; i < config.CAMERA_NAMES.length; i++) {
       totalTargets = totalTargets + howManyTargets(i);
     }
     return totalTargets;
+  }
+
+  public boolean anyMultiTags() {
+    boolean anyMultiTags = false;
+    for (int i = 0; i < config.CAMERA_NAMES.length; i++) {
+      if (camerasList.get(i).hasMultitarget())
+        anyMultiTags = true;
+    }
+    return anyMultiTags;
   }
 
   public Rotation2d getAverageRot() {
@@ -318,7 +335,7 @@ public class Photonvision extends SubsystemBase {
     return new Rotation2d(Math.toRadians(totalDegrees / numberOfGoodTargets));
   }
 
-  public double getAverageRotDegrees(){
+  public double getAverageRotDegrees() {
     Rotation2d tempRot = getAverageRot();
     return tempRot.getDegrees();
   }
@@ -338,7 +355,7 @@ public class Photonvision extends SubsystemBase {
   public void setDemoBindings(CommandXboxController xbox) {
 
     xbox.x().onTrue(new goDistance(1.0));
-    xbox.a().onTrue(new resetPoseWithVisionAllianceAware());
+    xbox.a().onTrue(new setGyroOffsetWithVision());
     xbox.b().onTrue(new runPath("Path1"));
   }
 

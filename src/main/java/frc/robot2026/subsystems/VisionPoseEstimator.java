@@ -19,6 +19,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.command.WatcherCmd;
@@ -67,6 +68,7 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
     private double yaw_diff; // [deg]
     private double bot_vel;
     private boolean llValid = false;
+    private boolean gyroOffsetDone = false;
 
     //vision systems limelight and photonvision(TBD)
     private Pose2d llPose;
@@ -250,6 +252,13 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
         AllianceAwareGyroReset.AddRotationCallback(this::setAnglePose);
     }
     
+    public void setGyroDone(){
+        gyroOffsetDone = true;
+    }
+
+    public boolean hasGryoResetHappened(){
+        return gyroOffsetDone;
+    }
 
     // see if we can get the LL stddevs for mt1[0..5] and mt2[6..11]
     double[] default_stddevs = new double[12];
@@ -319,6 +328,9 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
         return kinematics;
     }
    
+    public Command getWatcher(){
+        return this.new VisionPoseEstimatorMonitorCmd();
+    }
     /*
      * Watcher for SwervePoseEstimator and its vision data.
      *
@@ -339,6 +351,8 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
 
         public VisionPoseEstimatorMonitorCmd() {
             addEntry("VPE Rotation", VisionPoseEstimator.this::getRotationDegrees);
+            addEntry("Vision Gryo Correction Done", VisionPoseEstimator.this::hasGryoResetHappened);
+
             field = new Field2d();
             SmartDashboard.putData("PathWatcher", field);
             field.setRobotPose(llPose);

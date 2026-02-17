@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib2202.builder.IRobotSpec;
 import frc.lib2202.builder.RobotContainer;
@@ -40,6 +41,7 @@ import frc.lib2202.subsystem.swerve.config.ModuleConfig.CornerID;
 import frc.lib2202.util.PIDFController;
 
 import frc.robot2026.Constants.CAN;
+import frc.robot2026.command.pose.setGyroOffsetWithVision;
 import frc.robot2026.subsystems.Climber;
 import frc.robot2026.subsystems.LimelightV2;
 import frc.robot2026.subsystems.Photonvision;
@@ -118,10 +120,10 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
         return obj;
       })
       // VisonPoseEstimator needs LL and Odometry, adds simplename and alias to lookup
-      .addAlias(VisionPoseEstimator.class, "vision_odo")
-      .add(Climber.class, "climber", () -> {
-        return new Climber(true);
-      });
+      .addAlias(VisionPoseEstimator.class, "vision_odo");
+    //  .add(Climber.class, "climber", () -> {
+    //    return new Climber(true);}
+
 
 
 
@@ -202,8 +204,8 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
     VisionPoseEstimator vpe = RobotContainer.getSubsystemOrNull("vision_odo");
     DriveTrainInterface sdt = RobotContainer.getSubsystemOrNull("drivetrain");
     HID_Subsystem dc = RobotContainer.getSubsystem("DC");
-    Climber cl = RobotContainer.getSubsystem("climber");
-
+    //Climber cl = RobotContainer.getSubsystem("climber");
+    vpe.getWatcher();
     CommandXboxController operator = (CommandXboxController)dc.Operator();
 
     // Initialize PathPlanner, if we have needed Subsystems
@@ -260,6 +262,11 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
     if (drivetrain != null) {
       drivetrain.setDefaultCommand(new FieldCentricDrive());
     }
+  }
+
+  @Override
+  public void disabledInit(){
+    CommandScheduler.getInstance().schedule(new setGyroOffsetWithVision());
   }
 
 }
