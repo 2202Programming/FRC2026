@@ -2,8 +2,8 @@ package frc.robot2026;
 
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.FeetPerSecond;
-import static frc.lib2202.Constants.MperFT;
 import static frc.lib2202.Constants.DEGperRAD;
+import static frc.lib2202.Constants.MperFT;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathfindingCommand;
@@ -11,7 +11,6 @@ import com.revrobotics.spark.SparkFlex;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
-
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -41,6 +40,7 @@ import frc.robot2026.Constants.CAN;
 import frc.robot2026.subsystems.LimelightV2;
 import frc.robot2026.subsystems.RangeSensor;
 import frc.robot2026.subsystems.VisionPoseEstimator;
+import frc.robot2026.subsystems.Hopper.Hopper;
 import frc.robot2026.testBindings.DpltestBinding;
 
 
@@ -83,6 +83,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
       })
       // VisonPoseEstimator needs LL and Odometry, adds simplename and alias to lookup
       .addAlias(VisionPoseEstimator.class, "vision_odo") 
+      .add(Hopper.class, "hopper")
       ;
 
   // Robot Speed Limits
@@ -174,6 +175,10 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
     // comment out any conflicting bindings. Try not to push with your bindings
     // active. Just comment them out.   
     DpltestBinding.calbrate((CommandXboxController)dc.Operator());
+
+    CommandXboxController op = (CommandXboxController)dc.Operator();
+    Hopper h = RobotContainer.getSubsystemOrNull("hopper");
+    h.setTestBindings(op);
    
     // Anything else that needs to run after binding/commands are created 
     VisionPoseEstimator vpe = RobotContainer.getSubsystemOrNull("vision_odo");

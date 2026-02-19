@@ -12,11 +12,11 @@ import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.FeedForwardConfig;
 import com.revrobotics.spark.config.SparkBaseConfig;
-import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkFlexConfig;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -41,20 +41,20 @@ public class Hopper extends SubsystemBase {
   final ClosedLoopSlot VelocitySlot = ClosedLoopSlot.kSlot1;
 
   // Indexer SparkMAX requirements for MAXMotion
-  final SparkMax indexerCtrl;
+  final SparkFlex indexerCtrl;
+  final SparkFlexConfig indexerCfg;
   final RelativeEncoder indexerEncoder;
-  final SparkMaxConfig indexerCfg;
   final SparkClosedLoopController indexerCLCtrl;
 
   // Wide/Single belt controllers are being controlled by % power
   final DigitalInput indexGate; // TODO: Unused currently
-  // final SparkMax wideBeltCtrl;
+  // final SparkMax indexFeeder;
   // final SparkMax singleBeltCtrl;
 
   // Used as a way to get and set new FF values
   final FeedForwardConfig ffObj;
 
-  double posCF = 1.0; // [ROT]
+  double posCF = 1.0 / 9.0; // [ROT]
   double velCF = 1.0; // change to 1.0 / 60.0 for RPS
 
   double posCruiseVel = 2000.0;
@@ -64,12 +64,12 @@ public class Hopper extends SubsystemBase {
   double velMaxAccel = 1000.0; // Max accel of the motor // [RPM/s]
 
   // These values are mostly dummy and will only work properly on a motor with no load
-  double P = 0.3;
-  double I = 0.006;
+  double P = 0.0;
+  double I = 0.0;
   double D = 0.0;
 
-  double iMaxAccum = 0.2;
-  double iZone = 20.0;
+  double iMaxAccum = 0.0;
+  double iZone = 0.0;
 
   double kV = 0.0; // Volts / max RPM
   double kS = 0.0; // amount of power required to overcome any mechanical slop and to make it barely move
@@ -84,9 +84,9 @@ public class Hopper extends SubsystemBase {
 
   /** Creates a new Hopper object */
   public Hopper() {
-    setName("Hopper - " + CAN.IndexerID);
+    setName("Hopper - " + CAN.LIndexerID);
 
-    indexerCtrl = new SparkMax(CAN.IndexerID, MotorType.kBrushless);
+    indexerCtrl = new SparkFlex(CAN.LIndexerID, MotorType.kBrushless);
     // wideBeltCtrl = new SparkMax(CAN.WideBeltID, MotorType.kBrushless);
     // singleBeltCtrl = new SparkMax(CAN.SingleBeltID, MotorType.kBrushless);
 
@@ -95,7 +95,7 @@ public class Hopper extends SubsystemBase {
     // construction of required MAXMotion pieces
     indexerEncoder = indexerCtrl.getEncoder();
     indexerCLCtrl = indexerCtrl.getClosedLoopController();
-    indexerCfg = new SparkMaxConfig();
+    indexerCfg = new SparkFlexConfig();
     indexerCfg.encoder
         .positionConversionFactor(posCF) // {1.0}
         .velocityConversionFactor(velCF); // {1.0}
@@ -277,6 +277,10 @@ public class Hopper extends SubsystemBase {
   //   singleBeltCtrl.set(pct);
   // }
 
+  public void setIdxPct(double pct) {
+    indexerCtrl.set(pct);
+  }
+
   // *** COMMANDS ***
   // MaxMotion
   public Command cmdSetVelocity(double vel) {
@@ -288,6 +292,12 @@ public class Hopper extends SubsystemBase {
   public Command cmdSetPosition(double pos) {
     return runOnce(() -> {
       setPosSetpoint(pos);
+    });
+  }
+
+  public Command cmdSetIdxPct(double pct) {
+    return runOnce(() -> {
+      setIdxPct(pct);
     });
   }
 

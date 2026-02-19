@@ -54,19 +54,20 @@ public final class Constants {
     public static final int BR_CANCoder = 31;
 
     public static final int FR_Angle = 26;
-    public static final int FR_Drive = 999;
+    public static final int FR_Drive = 27;
     public static final int FR_CANCoder = 30;
 
-    public static final int r_arm = 53;
+    public static final int r_arm = 998; // TODO: CHANGE
     public static final int l_arm = 52;
    
     // Intake
     public static final int IntakeTopID = 40; // this canID is correct DONT CHANGE IT
-    public static final int IntakeBottomID = 41; 
+    public static final int IntakeBottomID = 41;
 
     //Hopper
     // AH: changed to support hooper on multishooter
-    public static final int IndexerID = 27;
+    public static final int RIndexerID = 999; // TODO: CHANGE
+    public static final int LIndexerID = 55;
     public static final int SingleBeltID = 50;
     public static final int WideBeltID = 52;
 
