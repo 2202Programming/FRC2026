@@ -14,7 +14,7 @@ import frc.lib2202.util.PIDFController;
 public class Shooter extends SubsystemBase {
     final IFlyWheel flywheel;
     final FlyWheelConfig cfg;
-    final boolean mirrored;
+    final boolean inverted;
 
     public Shooter() {
         this("rev", 0, true);
@@ -24,8 +24,8 @@ public class Shooter extends SubsystemBase {
         this(controllerType, ShooterID, true);
     }
 
-    public Shooter(String controllerType, int ShooterID, boolean mirrored) {
-        this.mirrored = mirrored;
+    public Shooter(String controllerType, int ShooterID, boolean inverted) {
+        this.inverted = inverted;
         setName("Shooter-" + ShooterID);
         // pick which controller we are using
         if (controllerType.equalsIgnoreCase("ctre")) {
@@ -54,7 +54,7 @@ public class Shooter extends SubsystemBase {
         double iZone = 1.0; // setting it to 0.0 seems to 'unlock' it
 
         FlyWheelConfig cfg = new FlyWheelConfig();
-        cfg.inverted = mirrored;
+        cfg.inverted = inverted;
         cfg.rampRate = 0.0; // try to soften the startup, zero disables
         cfg.gearRatio = 24.0 / 18.0; // this was measured -- DPL + BG 1/19/26
         cfg.stallAmp = 60; // [amp] Check motor specs for amps
@@ -78,7 +78,7 @@ public class Shooter extends SubsystemBase {
         double iZone = 1.0; // setting it to 0.0 seems to 'unlock' it
 
         FlyWheelConfig cfg = new FlyWheelConfig();
-        cfg.inverted = mirrored;
+        cfg.inverted = inverted;
         cfg.rampRate = 0.0; // try to soften the startup, zero disables
         cfg.gearRatio = 50.0 / 24.0; //
         cfg.stallAmp = 90; // [amp] Check motor specs for amps
@@ -101,7 +101,7 @@ public class Shooter extends SubsystemBase {
         double iZone = 1.0; // setting it to 0.0 seems to 'unlock' it
 
         FlyWheelConfig cfg = new FlyWheelConfig();
-        cfg.inverted = mirrored;
+        cfg.inverted = inverted;
         cfg.rampRate = 0.0; // try to soften the startup, zero disables
         cfg.gearRatio = 1.0;
         cfg.stallAmp = 80; // [amp] Check motor specs for amps TESTING 80 FOR MULTI DUE TO HIGH DROP
@@ -125,7 +125,7 @@ public class Shooter extends SubsystemBase {
         double iZone = 0.0; // unused in Talon CTRE controller
 
         FlyWheelConfig cfg = new FlyWheelConfig();
-        cfg.inverted = mirrored;
+        cfg.inverted = inverted;
         cfg.rampRate = 0.0; // not implemented in ctre, but could be
         cfg.gearRatio = 1.0 / 1.0; // new kraken pulleys
         cfg.stallAmp = 80; // [amp] Use as stator amps
