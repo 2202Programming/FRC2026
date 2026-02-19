@@ -76,7 +76,7 @@ public class Shooter extends SubsystemBase {
         // Tuned by XS and AN on production alpha bot shooter
         double kP = 0.019;
         double kI = 0.0003;
-        double kD = 7;
+        double kD = 7.0;
         double kF = 0.171;
         double iZone = 1.0;     // setting it to 0.0 seems to 'unlock' it
 
