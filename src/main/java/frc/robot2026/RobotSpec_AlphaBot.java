@@ -85,10 +85,10 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
       // VisonPoseEstimator needs LL and Odometry, adds simplename and alias to lookup
       .addAlias(VisionPoseEstimator.class, "vision_odo") 
       .add(Shooter.class, "left shooter", () ->{
-        return new Shooter("flex", Constants.CAN.ShooterIDLeft, true);
+        return new Shooter("flex", Constants.CAN.ShooterIDLeft, false);
       })
       .add(Shooter.class, "right shooter", () ->{
-        return new Shooter("flex", Constants.CAN.ShooterIDRight, false);
+        return new Shooter("flex", Constants.CAN.ShooterIDRight, true);
       })
       ;
 
@@ -166,7 +166,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
     OdometryInterface odo = RobotContainer.getSubsystemOrNull(odometryName);   
     DriveTrainInterface sdt = RobotContainer.getSubsystemOrNull("drivetrain");
     HID_Subsystem dc = RobotContainer.getSubsystem("DC");
-
+    CommandXboxController operator = (CommandXboxController)dc.Operator();
     // Initialize PathPlanner, if we have needed Subsystems
     if (odo != null && sdt != null) {
       AutoPPConfigure.configureAutoBuilder(sdt, odo);
@@ -176,11 +176,14 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
     
     // Competition bindings 
     BindingsCompetition.ConfigureCompetition(dc, false);
-
+  Shooter l = RobotContainer.getSubsystemOrNull("left shooter");
+  Shooter r = RobotContainer.getSubsystemOrNull("right shooter");
+  l.setTestBindings(operator);
+  r.setTestBindings(operator);
     // Place your test binding in ./testBinding/<yourFile>.java and call it here
     // comment out any conflicting bindings. Try not to push with your bindings
     // active. Just comment them out.   
-    DpltestBinding.calbrate((CommandXboxController)dc.Operator());
+    // DpltestBinding.calbrate((CommandXboxController)dc.Operator());
    
     // Anything else that needs to run after binding/commands are created 
     VisionPoseEstimator vpe = RobotContainer.getSubsystemOrNull("vision_odo");

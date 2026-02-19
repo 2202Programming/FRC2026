@@ -73,9 +73,10 @@ public class Shooter extends SubsystemBase {
 
 //Setup using Vortex
     private FlyWheelConfig initFlyWheelConfigREVFlex() {
-        double kP = 0.035;//0.005;       // tune next
-        double kI = 0.0003; //0.00005;    // finally stiffen speed with I/D
-        double kD = 0.015;//2.0;//10.0;       // Seems innsensitive until you add an extremely large value
+        // Tuned by XS and AN on production alpha bot shooter
+        double kP = 0.019;
+        double kI = 0.0003;
+        double kD = 7;
         double kF = 0.171;
         double iZone = 1.0;     // setting it to 0.0 seems to 'unlock' it
 
@@ -202,10 +203,10 @@ public class Shooter extends SubsystemBase {
                 .whileTrue(this.cmdVelocity(65.0)) // [m/s]
                 .onFalse(this.cmdVelocity(0.0));
         xbox.rightTrigger(0.5)
-                .whileTrue(this.cmdVelocity(20.0)) // [m/s]
+                .whileTrue(this.cmdVelocity(50.0)) // [m/s]
                 .onFalse(this.cmdVelocity(0.0));
         xbox.leftBumper()
-                .whileTrue(this.cmdVelocity(25.0)) // [m/s]
+                .whileTrue(this.cmdVelocity(45.0)) // [m/s]
                 .onFalse(this.cmdVelocity(0.0));
         xbox.rightBumper()
                 .whileTrue(this.cmdVelocity(30.0)) // [m/s]
