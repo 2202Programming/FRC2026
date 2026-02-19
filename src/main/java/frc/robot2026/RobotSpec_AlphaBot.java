@@ -38,6 +38,7 @@ import frc.lib2202.subsystem.swerve.config.ModuleConfig;
 import frc.lib2202.subsystem.swerve.config.ModuleConfig.CornerID;
 import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
+import frc.robot2026.subsystems.Intake;
 import frc.robot2026.subsystems.LimelightV2;
 import frc.robot2026.subsystems.RangeSensor;
 import frc.robot2026.subsystems.VisionPoseEstimator;
@@ -91,7 +92,9 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
       })
       .add(Shooter.class, "right shooter", () -> {
         return new Shooter("flex", Constants.CAN.ShooterIDRight, true);
-      });
+      })
+      .add(Intake.class)
+      ;
 
   // Robot Speed Limits
   RobotLimits robotLimits = new RobotLimits(FeetPerSecond.of(15.0), DegreesPerSecond.of(360.0));
@@ -167,6 +170,8 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
     DriveTrainInterface sdt = RobotContainer.getSubsystemOrNull("drivetrain");
     HID_Subsystem dc = RobotContainer.getSubsystem("DC");
     CommandXboxController operator = (CommandXboxController) dc.Operator();
+    Intake intake = RobotContainer.getSubsystemOrNull(Intake.class);
+
     // Initialize PathPlanner, if we have needed Subsystems
     if (odo != null && sdt != null) {
       AutoPPConfigure.configureAutoBuilder(sdt, odo);
@@ -182,10 +187,12 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
     r.setTestBindings(operator);
     // Place your test binding in ./testBinding/<yourFile>.java and call it here
     // comment out any conflicting bindings. Try not to push with your bindings
-    // active. Just comment them out.
-    // DpltestBinding.calbrate((CommandXboxController)dc.Operator());
-
-    // Anything else that needs to run after binding/commands are created
+    // active. Just comment them out.   
+    //DpltestBinding.calbrate((CommandXboxController)dc.Operator()); //lr bumps lr triggers
+    if (intake != null) {
+      intake.setTestBindings((CommandXboxController)dc.Operator()); // lr bumps
+    }
+    // Anything else that needs to run after binding/commands are created 
     VisionPoseEstimator vpe = RobotContainer.getSubsystemOrNull("vision_odo");
     if (vpe != null) {
       vpe.configureGyroCallback();
