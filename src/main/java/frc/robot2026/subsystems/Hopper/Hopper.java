@@ -246,6 +246,7 @@ public class Hopper extends SubsystemBase {
 
   // *** MISC SETTERS / GETTERS ***
   public double getRampRate() {
+    
     return rampRate;
   }
 
@@ -329,7 +330,7 @@ public class Hopper extends SubsystemBase {
     // xbox.rightTrigger(0.5).onTrue(cmdPct(0.5)).onFalse(cmdPct(0.0));
 
     xbox.a()
-        .onTrue(cmdSetPosition(1.0)); // [ROT]
+        .onTrue(cmdSetIdxPct(1.0)); // [ROT]
 
     xbox.x()
         .onTrue(cmdSetPosition(10.0)); // [ROT]
@@ -339,7 +340,7 @@ public class Hopper extends SubsystemBase {
 
     xbox.b().onTrue(cmdSetPosition(0.0)); // [ROT]
 
-    xbox.povDown().onTrue(cmdSetVelocity(0.0));
+    xbox.povDown().whileTrue(cmdSetVelocity(0.0)).onFalse(cmdSetVelocity(0.0));
 
     xbox.rightBumper().onTrue(new InstantCommand(() -> {
       zeroPos();
