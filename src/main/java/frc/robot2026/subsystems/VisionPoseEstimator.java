@@ -348,7 +348,7 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
         NetworkTableEntry est_ll_pose_h;
 
         private final Field2d field;
-
+// TODO: MR.L fix this- we need both the old and new form working
         public VisionPoseEstimatorMonitorCmd() {
             addEntry("VPE Rotation", VisionPoseEstimator.this::getRotationDegrees);
             addEntry("Vision Gryo Correction Done", VisionPoseEstimator.this::hasGryoResetHappened);
