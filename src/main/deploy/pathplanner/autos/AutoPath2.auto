@@ -13,7 +13,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Path3"
+            "pathName": null
           }
         },
         {
@@ -25,7 +25,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Path2r"
+            "pathName": "Depot-To-Climb"
           }
         }
       ]

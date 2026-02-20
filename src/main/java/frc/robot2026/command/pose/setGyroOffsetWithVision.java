@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib2202.builder.RobotContainer;
 import frc.robot2026.subsystems.LimelightV2;
 import frc.robot2026.subsystems.Photonvision;
+import frc.robot2026.subsystems.Photonvision.RobotCamera;
 import frc.robot2026.subsystems.VisionPoseEstimator;
 
 //This command should do a one-time gyro reset based on apriltags to align gyro with field heading.  
@@ -53,14 +54,13 @@ public class setGyroOffsetWithVision extends Command {
      * victory
      */
     if (pv.anyMultiTags()) { // someone has a multitag
-      for (int i = 0; i < pv.howManyCameras(); i++) {
-        if (pv.hasMultitarget(i)) { // camera has a multitag, should be most reliable
+      for (RobotCamera cam : pv.getCameras()) { 
+        if (cam.hasMultitarget()) { // camera has a multitag, should be most reliable
           System.out.println("***Vision pose gryo Pre reset is: " + vpe.getPose().getRotation().getDegrees());
-          Rotation2d tempRot = pv.getCameraPose(i).getRotation();
+          Rotation2d tempRot = cam.getPose2d().getRotation();
           publish(tempRot);
           multiResetDone = true;
-          System.out
-              .println("***Vision pose gryo multitag reset done via PV, set to: "
+          System.out.println("***Vision pose gryo multitag reset done via PV, set to: "
                   + vpe.getPose().getRotation().getDegrees());
           return;
         }
@@ -68,14 +68,13 @@ public class setGyroOffsetWithVision extends Command {
     }
     if (ll.getMT1Valid()) {
       if (ll.getMt1().tagCount > 1) { // Limelight has multitag
-        System.out.println("***Vision pose gryo Pre reset is: " + vpe.getPose().getRotation().getDegrees());
+        System.out.println("***Vision pose gryo Pre reset is: " 
+                          + vpe.getPose().getRotation().getDegrees());
         Rotation2d tempRot = ll.getMt1().pose.getRotation();
         publish(tempRot);
         multiResetDone = true;
-        System.out
-            .println(
-                "***Vision pose gryo multitag reset done via LL, set to: "
-                    + vpe.getPose().getRotation().getDegrees());
+        System.out.println("***Vision pose gryo multitag reset done via LL, set to: "
+                          + vpe.getPose().getRotation().getDegrees());
         return;
       }
     }
