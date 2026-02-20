@@ -349,14 +349,8 @@ public class Photonvision extends SubsystemBase {
         sumCos += y; 
       }
     }
-    double avgRadians = Math.atan2(sumSin, sumCos) / 2.0; //direction of single resultant vector, divide by two to get back to module 180 space.
+    double avgRadians = Math.atan2(sumSin, sumCos) / 2.0; //direction of single resultant vector, divide by two to get back to modulo 180 space.
     double avgDegrees = Math.toDegrees(avgRadians);
-
-    // Normalize to [0, 180)
-    avgDegrees = avgDegrees % 180;
-    if (avgDegrees < 0) {
-      avgDegrees += 180;
-    }
 
     return new Rotation2d(Math.toRadians(avgDegrees));
   }
