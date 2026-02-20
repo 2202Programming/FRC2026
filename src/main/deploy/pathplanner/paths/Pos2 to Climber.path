@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.030911211070905,
-        "y": 3.8812639469794856
+        "x": 3.2239229671897287,
+        "y": 3.782696148359487
       },
       "isLocked": false,
       "linkedName": null
@@ -17,11 +17,11 @@
     {
       "anchor": {
         "x": 1.5807132667617685,
-        "y": 2.86
+        "y": 2.7087874465049935
       },
       "prevControl": {
         "x": 1.3160004913059604,
-        "y": 2.8092865972407703
+        "y": 2.658074043745764
       },
       "nextControl": null,
       "isLocked": false,
@@ -33,8 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "shoot",
-      "waypointRelativePos": 1.0,
+      "name": "",
+      "waypointRelativePos": 0,
       "endWaypointRelativePos": null,
       "command": null
     }
@@ -55,7 +55,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 0.9877603996398112
   },
   "useDefaultConstraints": false
 }
