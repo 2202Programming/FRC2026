@@ -74,7 +74,8 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
       .add(TrimTables.class)
       .add(LimelightV2.class, "limelight", () -> {
         // Limelight position in robot coords - this has LL in the front of bot
-        Pose3d LimelightPosition = new Pose3d(0.24, -.38, .22865,
+        // WARNING: LL has +Y to the right, normal wpi robot coords are +Y to left
+        Pose3d LimelightPosition = new Pose3d(0.24, 0.38, .22865, 
             new Rotation3d(0.0, 11.0 / DEGperRAD, -90.0/DEGperRAD));
         return new LimelightV2("limelight", LimelightPosition);
 
