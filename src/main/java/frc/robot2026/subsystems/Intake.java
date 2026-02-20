@@ -134,7 +134,7 @@ public class Intake extends SubsystemBase {
     }
 
 
-  class IntakeWatcher extends WatcherCmd {  
+  class IntakeWatcher extends WatcherCmd {
     IntakeWatcher() {
        addEntry("vel_top", Intake.this.topRoller::getVelocity, 2);
        addEntry("vel_bottom", Intake.this.bottomRoller::getVelocity, 2);

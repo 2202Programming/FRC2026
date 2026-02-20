@@ -54,11 +54,11 @@ public class Hopper extends SubsystemBase {
   // Used as a way to get and set new FF values
   final FeedForwardConfig ffObj;
 
-  double posCF = 1.0 / 9.0; // [ROT]
+  double posCF = 1.0; // [ROT]
   double velCF = 1.0; // change to 1.0 / 60.0 for RPS
 
-  double posCruiseVel = 2000.0;
-  double posMaxAccel = 1000.0;
+  double posCruiseVel = 5767.0;
+  double posMaxAccel = 10000.0;
 
   double velCruiseVel = 5767.0; // Max RPM of the motor // [RPM]
   double velMaxAccel = 1000.0; // Max accel of the motor // [RPM/s]
@@ -68,8 +68,8 @@ public class Hopper extends SubsystemBase {
   double I = 0.0;
   double D = 0.0;
 
-  double iMaxAccum = 0.0;
-  double iZone = 0.0;
+  double iMaxAccum = 0.015;
+  double iZone = 20.0;
 
   double kV = 0.0; // Volts / max RPM
   double kS = 0.0; // amount of power required to overcome any mechanical slop and to make it barely move
@@ -111,7 +111,7 @@ public class Hopper extends SubsystemBase {
     indexerCfg.closedLoop.maxMotion
         .cruiseVelocity(posCruiseVel, PositionSlot)
         .maxAcceleration(posMaxAccel, PositionSlot)
-        .allowedProfileError(1);
+        .allowedProfileError(2);
 
     // *** SLOT 1 CONFIG - VELOCITY ***
     indexerCfg.closedLoop
@@ -150,7 +150,7 @@ public class Hopper extends SubsystemBase {
     motorConfig.closedLoop.feedForward.sva(kS, kV, kA, slot);
 
     motorConfig.closedLoop.iMaxAccum(iMaxAccum, slot);
-    motorConfig.closedLoop.iZone(iZone);
+    motorConfig.closedLoop.iZone(iZone, slot);
 
     motorConfig.closedLoopRampRate(rampRate);
 
@@ -264,6 +264,10 @@ public class Hopper extends SubsystemBase {
     m_changes = true;
   }
 
+  public double getAmps() {
+    return indexerCtrl.getOutputCurrent();
+  }
+
   // *** PERCENT POWER CONTROL ***
   // public void setWideBeltPercent(double pct) {
   //   wideBeltCtrl.set(pct);
@@ -349,6 +353,7 @@ public class Hopper extends SubsystemBase {
 
   @Override
   public void initSendable(SendableBuilder builder) {
+    
     super.initSendable(builder);
 
     // builder.addDoubleProperty("pct_pwr_wideBelt", this.wideBeltCtrl::get, this.wideBeltCtrl::set);
@@ -395,5 +400,7 @@ public class Hopper extends SubsystemBase {
     builder.addDoubleProperty("velocity acceleration", this::getMaxAccel, this::setMaxAccel);
 
     builder.addDoubleProperty("posError", this::getPositionError, null);
+
+    builder.addDoubleProperty("amps", this::getAmps, null);
   }
 }
