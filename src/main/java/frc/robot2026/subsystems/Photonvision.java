@@ -138,9 +138,9 @@ public class Photonvision extends SubsystemBase {
       return currentPose;
     }
 
-
     // not sure if we should return -1 or 0 if currentPose is null, thoughts @JR
-    // this sort of feels wrong to me, maybe use an defaulted Pose2d (zeros) and skip the null test??
+    // this sort of feels wrong to me, maybe use an defaulted Pose2d (zeros) and
+    // skip the null test??
 
     public double getCurrentPoseX() {
       if (currentPose == null)
@@ -334,22 +334,31 @@ public class Photonvision extends SubsystemBase {
     return anyMultiTags;
   }
 
-  // @JR - this won't work. Heading is a modulo variable on (-180, 180] so you
-  // can't just
-  // do a simple average. Example (-178 + 178) / 2 = 0 but really when done on
-  // modulo 180
-  // ((-178 - 180) + (178 -180) )/2 = (-358 + -2) /2 = -180
+  // average rotation in mod180 math, vector/double-angle method
   public Rotation2d getAverageRot() {
-    double totalDegrees = 0;
-    int numberOfGoodTargets = 0;
+    double sumSin = 0.0;
+    double sumCos = 0.0;
+
     for (RobotCamera cam : camerasList) {
       if (cam.howManyTargets() > 0) {
-        numberOfGoodTargets++;
-        // TODO Sum the distance from 180 to fix mod-math
-        totalDegrees = totalDegrees + cam.getPose2d().getRotation().getDegrees();
+        double radians = cam.getPose2d().getRotation().getRadians();
+        double doubled = 2 * radians; // multiply each angle by 2 due to 180deg periodicity, makes opposite directions align
+        double x = Math.sin(doubled); // every angle becomes a point on unit circle
+        double y = Math.cos(doubled);
+        sumSin += x; // Add all vectors.
+        sumCos += y; 
       }
     }
-    return new Rotation2d(Math.toRadians(totalDegrees / numberOfGoodTargets));
+    double avgRadians = Math.atan2(sumSin, sumCos) / 2.0; //direction of single resultant vector, divide by two to get back to module 180 space.
+    double avgDegrees = Math.toDegrees(avgRadians);
+
+    // Normalize to [0, 180)
+    avgDegrees = avgDegrees % 180;
+    if (avgDegrees < 0) {
+      avgDegrees += 180;
+    }
+
+    return new Rotation2d(Math.toRadians(avgDegrees));
   }
 
   public double getAverageRotDegrees() {
