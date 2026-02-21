@@ -82,7 +82,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
       })
       // VisonPoseEstimator needs LL and Odometry, adds simplename and alias to lookup
       .addAlias(VisionPoseEstimator.class, "vision_odo") 
-      .add(Hopper.class, "hopper")
+      .add(Indexer.class, "hopper")
       ;
 
   // Robot Speed Limits
@@ -176,7 +176,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
     // DpltestBinding.calbrate((CommandXboxController)dc.Operator());
 
     CommandXboxController op = (CommandXboxController)dc.Operator();
-    Hopper h = RobotContainer.getSubsystemOrNull("hopper");
+    Indexer h = RobotContainer.getSubsystemOrNull("hopper");
     h.setTestBindings(op);
    
     // Anything else that needs to run after binding/commands are created 

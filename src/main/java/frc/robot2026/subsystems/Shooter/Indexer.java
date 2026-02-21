@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot2026.subsystems.Hopper;
+package frc.robot2026.subsystems.Shooter;
 
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
@@ -27,7 +27,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot2026.Constants.CAN;
 import frc.robot2026.Constants.DigitalIO;
 
-public class Hopper extends SubsystemBase {
+public class Indexer extends SubsystemBase {
 
   /*
    * Slot 0 is position control
@@ -80,10 +80,11 @@ public class Hopper extends SubsystemBase {
   // Operational Variables
   double vel_setpoint;
   double pos_setpoint;
+  double increment_position = 30.0; // placeholder
   boolean m_changes = false;
 
   /** Creates a new Hopper object */
-  public Hopper() {
+  public Indexer() {
     setName("Hopper - " + CAN.LIndexerID);
 
     indexerCtrl = new SparkFlex(CAN.LIndexerID, MotorType.kBrushless);
@@ -297,6 +298,12 @@ public class Hopper extends SubsystemBase {
   public Command cmdSetPosition(double pos) {
     return runOnce(() -> {
       setPosSetpoint(pos);
+    });
+  }
+
+  public Command incrementPosition() {
+    return runOnce(() -> {
+      setPosSetpoint(pos_setpoint + increment_position);
     });
   }
 
