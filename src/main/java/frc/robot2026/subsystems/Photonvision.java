@@ -116,6 +116,10 @@ public class Photonvision extends SubsystemBase {
       return timeStamp;
     }
 
+    public boolean hasATarget(){
+      return hasTargets;
+    }
+
     public int howManyTargets() {
       if (targets == null)
         return -1; // targets seems like it can be null, protect - dpl
@@ -394,6 +398,7 @@ public class Photonvision extends SubsystemBase {
         addEntry(cam.camera.getName() + "/Y", cam::getCurrentPoseY, 2);
         addEntry(cam.camera.getName() + "/H", cam::getCurrentPoseHeading, 2);
         addEntry(cam.camera.getName() + "/Multi_Target", cam::hasMultitarget);
+        addEntry(cam.camera.getName() + "/HasATarget", cam::hasATarget);
         addEntry(cam.camera.getName() + "/timestamp", cam::getTimeStamp);
       }
     }
