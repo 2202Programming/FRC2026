@@ -4,6 +4,8 @@
 
 package frc.robot2026.subsystems.Shooter;
 
+import java.time.format.ResolverStyle;
+
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
@@ -18,6 +20,7 @@ import com.revrobotics.spark.config.FeedForwardConfig;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkFlexConfig;
 
+import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -29,38 +32,15 @@ import frc.robot2026.Constants.DigitalIO;
 
 public class Indexer extends SubsystemBase {
 
-  /*
-   * Slot 0 is position control
-   * Slot 1 is velocity control
-   * 
-   * The default slot is slot zero - you must define either
-   * PositionSlot or VelocitySlot otherwise it will default
-   * to slot 0 (PositionSlot).
-   */
-  final ClosedLoopSlot PositionSlot = ClosedLoopSlot.kSlot0;
-  final ClosedLoopSlot VelocitySlot = ClosedLoopSlot.kSlot1;
-
-  // Indexer SparkMAX requirements for MAXMotion
-  final SparkFlex indexerCtrl;
-  final SparkFlexConfig indexerCfg;
-  final RelativeEncoder indexerEncoder;
-  final SparkClosedLoopController indexerCLCtrl;
-
-  final DigitalInput indexGate; // TODO: Unused currently
-
-  // Used as a way to get and set new FF values
-  final FeedForwardConfig ffObj;
+  final Roller leftRoller;
+  final Roller rightRoller;
 
   double posCF = 1.0 / 9.0; // [ROT]
   double velCF = 1.0 / (9.0 * 60.0); // [RPS] of the INDEXER, not the MOTOR
 
-  double posCruiseVel = 5767.0 * 540.0;
-  double posMaxAccel = 10000.0 * 540.0;
+  double cruiseVel = 5767.0;
+  double maxAccel = 10000.0;
 
-  double velCruiseVel = 5767.0; // Max RPM of the motor // [RPM]
-  double velMaxAccel = 1000.0; // Max accel of the motor // [RPM/s]
-
-  // These values are mostly dummy and will only work properly on a motor with no load
   double P = 0.3;
   double I = 0.0;
   double D = 0.0;
@@ -70,61 +50,77 @@ public class Indexer extends SubsystemBase {
 
   double kV = 1.12; // Volts / max RPM
   double kS = 0.0; // amount of power required to overcome any mechanical slop and to make it barely move
-  double kA = 0.0;
+  double kA = 0.0; // constant of acceleration - seems to increase acceleration
 
-  double rampRate = 0.0; // untuned, unknown if needed
+  public class Roller implements Sendable {
+    final SparkFlex controller;
+    final SparkFlexConfig controllerCfg;
+    final RelativeEncoder encoder;
+    final SparkClosedLoopController closedLoopController;
+    final FeedForwardConfig ffObj;
+
+    Roller(int CanID, boolean inverted, ClosedLoopSlot slot) {
+      controller = new SparkFlex(CanID, MotorType.kBrushless);
+      controllerCfg = new SparkFlexConfig();
+      encoder = controller.getEncoder();
+      closedLoopController = controller.getClosedLoopController();
+      ffObj = controllerCfg.closedLoop.feedForward;
+      configure(slot);
+      configureTuning(slot);
+    }
+
+    private void configure(ClosedLoopSlot slot) {
+      controllerCfg.encoder
+        .positionConversionFactor(posCF)
+        .velocityConversionFactor(velCF);
+
+      controllerCfg.closedLoop
+        .feedbackSensor(FeedbackSensor.kPrimaryEncoder);
+    
+      controllerCfg.closedLoop.maxMotion
+        .cruiseVelocity(cruiseVel, slot)
+        .maxAcceleration(maxAccel, slot)
+        .allowedProfileError(1);
+
+      controller.configure(controllerCfg, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+    }
+
+    private void configureTuning(ClosedLoopSlot slot) {
+      controllerCfg.closedLoop
+        .p(P, slot).i(I, slot).d(D, slot) // PID
+        .feedForward
+        .kS(kS, slot).kV(kV, slot).kA(kA, slot); // SVA
+    }
+
+    public void setPosSetpoint()
+
+    public void getPosSetPoint()
+
+    
+
+    public void initSendable(SendableBuilder builder) {
+      builder.addDoubleProperty("", null, null);
+    }
+  }
+
+  final DigitalInput indexGate; // TODO: Unused currently
+
+  // Used as a way to get and set new FF values
+  final FeedForwardConfig ffObj;
 
   // Operational Variables
   double vel_setpoint;
   double pos_setpoint;
-  double increment_position = 30.0; // placeholder
+  double increment_position = 6.0; // rough estimate as of 2/20/2026
   boolean m_changes = false;
 
-  /** Creates a new Hopper object */
+  /** Creates a new Indexer object */
   public Indexer() {
     setName("Hopper - " + CAN.LIndexerID);
-
-    indexerCtrl = new SparkFlex(CAN.LIndexerID, MotorType.kBrushless);
-
     indexGate = new DigitalInput(DigitalIO.HopperIndexerID); // not being used as of 2/5/2026
 
-    // construction of required MAXMotion pieces
-    indexerEncoder = indexerCtrl.getEncoder();
-    indexerCLCtrl = indexerCtrl.getClosedLoopController();
-    indexerCfg = new SparkFlexConfig();
-    indexerCfg.encoder
-        .positionConversionFactor(posCF) // {1.0}
-        .velocityConversionFactor(velCF); // {1.0}
-
-    // *** SLOT 0 CONFIG - POSITION ***
-    indexerCfg.closedLoop
-        .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-        .p(P, PositionSlot).i(I, PositionSlot).d(D, PositionSlot)
-        .feedForward
-          .kV(kV, PositionSlot)
-          .kS(kS, PositionSlot);
-
-    indexerCfg.closedLoop.maxMotion
-        .cruiseVelocity(posCruiseVel, PositionSlot)
-        .maxAcceleration(posMaxAccel, PositionSlot)
-        .allowedProfileError(2);
-
-    // *** SLOT 1 CONFIG - VELOCITY ***
-    indexerCfg.closedLoop
-        .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-        .p(P, VelocitySlot).i(I, VelocitySlot).d(D, VelocitySlot)
-        .feedForward
-          .kV(kV, VelocitySlot)
-          .kS(kS, VelocitySlot);
-
-    indexerCfg.closedLoop.maxMotion
-        .cruiseVelocity(velCruiseVel, VelocitySlot)
-        .maxAcceleration(velMaxAccel, VelocitySlot);
-
-    // used to set kV & kS
-    ffObj = indexerCfg.closedLoop.feedForward;
-
-    indexerCtrl.configure(indexerCfg, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+    leftRoller = new Roller(CAN.LIndexerID, false, ClosedLoopSlot.kSlot0);
+    rightRoller = new Roller(CAN.RIndexerID, false, ClosedLoopSlot.kSlot0);
   }
 
   /**
@@ -147,10 +143,6 @@ public class Indexer extends SubsystemBase {
 
     motorConfig.closedLoop.iMaxAccum(iMaxAccum, slot);
     motorConfig.closedLoop.iZone(iZone, slot);
-
-    motorConfig.closedLoopRampRate(rampRate);
-
-    motorConfig.closedLoop.maxMotion.maxAcceleration(velMaxAccel);
 
     // send to HW if we have a pid change, use async so robot loop isn't delayed
     var status = motorController.configureAsync(motorConfig, ResetMode.kNoResetSafeParameters,

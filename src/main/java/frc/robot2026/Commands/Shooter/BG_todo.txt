@@ -1,4 +1,5 @@
-1. Make indexer modular & get both spinning independently -- use Gavin's climber as a reference.
+1. Make indexer modular & get both spinning independently -- use Gavin's climber as a reference. -- Started 2/20 evening
+            -- think about what funtions need to be abstracted
 2. Continue the ShootSequence command & make it repeatable on an interval;
     -- try to make a function pointer that takes a DoubleConsumer/Supplier -- use the new NT framework as the framework
 3. Git merge all of my branches into main
