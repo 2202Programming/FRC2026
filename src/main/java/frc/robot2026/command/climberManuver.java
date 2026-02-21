@@ -54,7 +54,7 @@ public class climberManuver extends Command {
       endRot = sensor.getHeading();
     } catch (Exception e) {
       System.out.println("Current bot does not have a sensor. THE HELL ARE YOU DOING HOW DID YOU GET HERE");
-      endRot = Rotation2d.fromDegrees(0.0); //THIS IS SO BAD
+      endRot = Rotation2d.fromDegrees((leftSide?0.0:180.0)); //THIS IS SO BAD
     }
   }
 
@@ -78,8 +78,7 @@ public class climberManuver extends Command {
         null, // The ideal starting state, this is only relevant for pre-planned paths, so can
               // be null for on-the-fly paths.
         new GoalEndState(0.0, endRot) // Goal end state. You can set a holonomic rotation here. If
-                                                           // using a differential drivetrain, the rotation will have no
-                                                           // effect.
+
     );
 
     // Prevent the path from being flipped if the coordinates are already correct
