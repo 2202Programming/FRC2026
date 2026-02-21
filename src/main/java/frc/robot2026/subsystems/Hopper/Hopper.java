@@ -54,24 +54,24 @@ public class Hopper extends SubsystemBase {
   // Used as a way to get and set new FF values
   final FeedForwardConfig ffObj;
 
-  double posCF = 1.0; // [ROT]
-  double velCF = 1.0; // change to 1.0 / 60.0 for RPS
+  double posCF = 1.0 / 9.0; // [ROT]
+  double velCF = 1.0 / (9.0 * 60.0); // [RPS] of the INDEXER, not the MOTOR
 
-  double posCruiseVel = 5767.0;
-  double posMaxAccel = 10000.0;
+  double posCruiseVel = 5767.0 * 540.0;
+  double posMaxAccel = 10000.0 * 540.0;
 
   double velCruiseVel = 5767.0; // Max RPM of the motor // [RPM]
   double velMaxAccel = 1000.0; // Max accel of the motor // [RPM/s]
 
   // These values are mostly dummy and will only work properly on a motor with no load
-  double P = 0.0;
+  double P = 0.3;
   double I = 0.0;
   double D = 0.0;
 
-  double iMaxAccum = 0.015;
-  double iZone = 20.0;
+  double iMaxAccum = 0.0;
+  double iZone = 0.0;
 
-  double kV = 0.0; // Volts / max RPM
+  double kV = 1.12; // Volts / max RPM
   double kS = 0.0; // amount of power required to overcome any mechanical slop and to make it barely move
   double kA = 0.0;
 

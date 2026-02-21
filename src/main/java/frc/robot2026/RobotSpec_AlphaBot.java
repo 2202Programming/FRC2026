@@ -41,7 +41,6 @@ import frc.robot2026.subsystems.LimelightV2;
 import frc.robot2026.subsystems.RangeSensor;
 import frc.robot2026.subsystems.VisionPoseEstimator;
 import frc.robot2026.subsystems.Hopper.Hopper;
-import frc.robot2026.testBindings.DpltestBinding;
 
 
 public class RobotSpec_AlphaBot implements IRobotSpec {
@@ -174,7 +173,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
     // Place your test binding in ./testBinding/<yourFile>.java and call it here
     // comment out any conflicting bindings. Try not to push with your bindings
     // active. Just comment them out.   
-    DpltestBinding.calbrate((CommandXboxController)dc.Operator());
+    // DpltestBinding.calbrate((CommandXboxController)dc.Operator());
 
     CommandXboxController op = (CommandXboxController)dc.Operator();
     Hopper h = RobotContainer.getSubsystemOrNull("hopper");
