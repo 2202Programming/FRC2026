@@ -32,7 +32,9 @@ public class Targeter extends SubsystemBase {
 
     final double HIGH_SPEED = 55.0;
     final double LOW_SPEED = 25.0;
-    final double Shooter_Angle = 70.0; //Degrees
+    
+    // Provided by vince as angle between the center of the motor and the trailing edge of the ball exit ramp
+    final double Shooter_Angle = 65.0; //Degrees
 
     Translation2d blueTarget;
     Translation2d redTarget;
