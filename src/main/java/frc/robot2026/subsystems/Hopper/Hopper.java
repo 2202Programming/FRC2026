@@ -68,8 +68,8 @@ public class Hopper extends SubsystemBase {
   double I = 0.0;
   double D = 0.0;
 
-  double iMaxAccum = 0.0;
-  double iZone = 0.0;
+  double iMaxAccum = 0.015;
+  double iZone = 20.0;
 
   double kV = 1.12; // Volts / max RPM
   double kS = 0.0; // amount of power required to overcome any mechanical slop and to make it barely move
