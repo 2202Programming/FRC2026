@@ -65,16 +65,13 @@ public final class Constants {
     //public static final int IntakeBottomID = 41; 
 
     //Hopper
-    // AH: changed to support hooper on multishooter  
-    public static final int IndexerID = 42;
-    public static final int SingleBeltID = 50;   // DPL - These can't be correct for AlphaBot if Shooter is correct
-    public static final int WideBeltID = 52;
+    public static final int BeltID = 41;
 
-    //Shooter - LEFT and Right Side
+    //Shooter & Indexer - LEFT and Right Side
     public static final int ShooterIDRight = 50;
-    public static final int ShooterIndexerRight = 51;
-    public static final int ShooterIDLeft = 52;  
-    public static final int ShooterIndexerLeft = 53;
+    public static final int RIndexerID = 51;
+    public static final int ShooterIDLeft = 52; 
+    public static final int LIndexerID = 53; 
 
     // IMU
     public static final int PIGEON_IMU_CAN = 60;
