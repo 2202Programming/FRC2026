@@ -100,7 +100,7 @@ public final class Constants {
 
   public final class DigitalIO {
 
-    public static final int HopperIndexerID = 0;   //unused - to be removed
+    public static final int IndexGate = 0;   //unused - to be removed
 
     //public static final int EndEffector_Lightgate = 2;
     //public static final int SignalLight1 = 7;
