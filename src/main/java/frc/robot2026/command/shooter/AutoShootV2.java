@@ -43,7 +43,7 @@ public class AutoShootV2 extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    shooter.cmdVelocity(0.0);
+    shooter.flywheel.setSetpoint(0.0);
     indexer.setPct(0.0);
   }
 

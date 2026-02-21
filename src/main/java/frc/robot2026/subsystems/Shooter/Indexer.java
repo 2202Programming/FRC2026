@@ -16,6 +16,7 @@ import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.FeedForwardConfig;
 import com.revrobotics.spark.config.SparkBaseConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -65,11 +66,16 @@ public class Indexer extends SubsystemBase {
     encoder = controller.getEncoder();
     closedLoopController = controller.getClosedLoopController();
     ffObj = controllerCfg.closedLoop.feedForward;
-    configure(slot);
+    configure(slot, inverted);
     configureTuning(slot);
   }
 
-  private void configure(ClosedLoopSlot slot) {
+  private void configure(ClosedLoopSlot slot, boolean inverted) {
+
+    controllerCfg
+        .inverted(inverted)
+        .idleMode(IdleMode.kBrake);
+
     controllerCfg.encoder
         .positionConversionFactor(posCF)
         .velocityConversionFactor(velCF);

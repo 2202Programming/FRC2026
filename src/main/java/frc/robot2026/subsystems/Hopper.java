@@ -12,24 +12,21 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot2026.Constants.CAN;
 
 /** Add your docs here. */
-public class Hopper {
+public class Hopper extends SubsystemBase {
     final SparkFlex belts;
     final SparkFlexConfig beltsCfg;
 
     final RelativeEncoder encoder;
 
-    boolean inverted = false;
+    boolean inverted = true;
 
     int stallAmp = 60; // [AMP]
     int freeAmp = 10; // [AMP]
-
-    double gearRatio = 1.0 / 1.0;
-
-    double posCF = 2.0 * Math.PI * 999.0 * gearRatio;
-    double velCF = posCF / 60.0;
 
     public Hopper() {
         belts = new SparkFlex(CAN.BeltID, MotorType.kBrushless);
@@ -50,5 +47,11 @@ public class Hopper {
 
     public double getBeltPct() {
         return belts.get();
+    }
+
+    public Command cmdBeltPct(double pct) {
+        return runOnce(() -> {
+            setBeltPct(pct);
+        });
     }
 }

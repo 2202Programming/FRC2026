@@ -92,7 +92,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
         return new Indexer(CAN.LIndexerID, true, ClosedLoopSlot.kSlot0);
       })
       .add(Indexer.class, "rIndexer", () -> {
-        return new Indexer(CAN.RIndexerID, true, ClosedLoopSlot.kSlot0);
+        return new Indexer(CAN.RIndexerID, false, ClosedLoopSlot.kSlot0);
       })
       .addAlias(VisionPoseEstimator.class, "vision_odo")
       .add(Shooter.class, "shooter_left", () -> {
@@ -103,7 +103,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
       })
       .add(Intake.class)
       // .add(Climber.class)
-      .add(Hopper.class, "hopper")
+      .add(Hopper.class)
       ;
 
   // Robot Speed Limits
@@ -191,17 +191,15 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
     }
 
     // Competition bindings
-    BindingsCompetition.ConfigureCompetition(dc, false);
+    // BindingsCompetition.ConfigureCompetition(dc, false);
 
     // Place your test binding in ./testBinding/<yourFile>.java and call it here
     // comment out any conflicting bindings. Try not to push with your bindings
     // active. Just comment them out.   
     // DpltestBinding.calbrate((CommandXboxController)dc.Operator());
-    BGTestBindings.calbrate(operator);
+    BGTestBindings.calbrate(operator); // steals operator (A, B, X, Y)
 
     // CommandXboxController op = (CommandXboxController)dc.Operator();
-    // Indexer h = RobotContainer.getSubsystemOrNull("hopper");
-    // h.setTestBindings(op);
    
     // Anything else that needs to run after binding/commands are created 
     if (vpe != null) {
