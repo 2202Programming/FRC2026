@@ -73,8 +73,8 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
       //.add(TrimTables.class)
       .add(LimelightV2.class, "limelight", () -> {
         // Limelight position in robot coords - this has LL in the front of bot
-        Pose3d LimelightPosition = new Pose3d((0.7112 / 2.0) - .07, -0.28, .225,
-            new Rotation3d(0.0, 10.0 / DEGperRAD, 0.0));
+        Pose3d LimelightPosition = new Pose3d(-0.03, 0.01, 0.465,
+            new Rotation3d(0.0, 11.0 / DEGperRAD, 0.0));
         return new LimelightV2("limelight", LimelightPosition);
       })
 
@@ -88,10 +88,10 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
         return obj;
       })
       // VisonPoseEstimator needs LL and Odometry, adds simplename and alias to lookup
-      .add(Indexer.class, "lIndexer", () -> {
+      .add(Indexer.class, "indexer_left", () -> {
         return new Indexer(CAN.LIndexerID, true, ClosedLoopSlot.kSlot0);
       })
-      .add(Indexer.class, "rIndexer", () -> {
+      .add(Indexer.class, "indexer_right", () -> {
         return new Indexer(CAN.RIndexerID, false, ClosedLoopSlot.kSlot0);
       })
       .addAlias(VisionPoseEstimator.class, "vision_odo")
@@ -113,14 +113,14 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
   RobotLimits robotLimits = new RobotLimits(FeetPerSecond.of(15.0), DegreesPerSecond.of(360.0));
 
   // Chassis
-  double kWheelCorrectionFactor = 1.02;
+  double kWheelCorrectionFactor = 1.0;
   double kSteeringGR = 12.8;
   double kDriveGR = 5.36;
   double kWheelDiameter = MperFT * 4.0 / 12.0; // [m]
 
   final ChassisConfig chassisConfig = new ChassisConfig(
-      0.53 / 2.0, // x,
-      0.575 / 2.0, // y,
+      0.66 / 2.0, // x, as measured, 2/21/2026
+      0.715 / 2.0, // y, as measured, 2/21/2026
       kWheelCorrectionFactor, // scale [] <= 1.0
       kWheelDiameter,
       kSteeringGR,
