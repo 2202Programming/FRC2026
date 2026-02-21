@@ -27,7 +27,7 @@ import frc.lib2202.command.swerve.FieldCentricDrive;
 import frc.lib2202.subsystem.Odometry;
 import frc.lib2202.subsystem.OdometryInterface;
 import frc.lib2202.subsystem.Sensors;
-import frc.lib2202.subsystem.UX.TrimTables;
+//import frc.lib2202.subsystem.UX.TrimTables;   
 import frc.lib2202.subsystem.hid.HID_Subsystem;
 import frc.lib2202.subsystem.swerve.AutoPPConfigure;
 import frc.lib2202.subsystem.swerve.DriveTrainInterface;
@@ -38,6 +38,7 @@ import frc.lib2202.subsystem.swerve.config.ModuleConfig;
 import frc.lib2202.subsystem.swerve.config.ModuleConfig.CornerID;
 import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
+import frc.robot2026.subsystems.Climber;
 import frc.robot2026.subsystems.Intake;
 import frc.robot2026.subsystems.LimelightV2;
 import frc.robot2026.subsystems.RangeSensor;
@@ -46,7 +47,7 @@ import frc.robot2026.subsystems.Shooter.Shooter;
 
 public class RobotSpec_AlphaBot implements IRobotSpec {
 
-  // 2026 Robot rev Alpha(most of code coped from Alpha2025)
+  // 2026 Robot rev Alpha
   // io sheet
   // https://docs.google.com/spreadsheets/d/1eZ89R4oWHoCDpM9nOMC420o4i6Zx-Fgi8y4tpiL58a4/edit?gid=2120414614#gid=2120414614
   // This should be the chassis bot.
@@ -67,7 +68,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
       .add(Sensors.class, "sensors", () -> {
         return new Sensors(CAN.PIGEON_IMU_CAN);
       })
-      .add(TrimTables.class)
+      //.add(TrimTables.class)
       .add(LimelightV2.class, "limelight", () -> {
         // Limelight position in robot coords - this has LL in the front of bot
         Pose3d LimelightPosition = new Pose3d((0.7112 / 2.0) - .07, -0.28, .225,
@@ -93,6 +94,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
         return new Shooter("flex", Constants.CAN.ShooterIDRight, true);
       })
       .add(Intake.class)
+      .add(Climber.class)
       ;
 
   // Robot Speed Limits
