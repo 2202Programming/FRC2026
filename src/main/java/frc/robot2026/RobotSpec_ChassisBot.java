@@ -2,8 +2,8 @@ package frc.robot2026;
 
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.FeetPerSecond;
-import static frc.lib2202.Constants.MperFT;
 import static frc.lib2202.Constants.DEGperRAD;
+import static frc.lib2202.Constants.MperFT;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathfindingCommand;
@@ -19,7 +19,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib2202.builder.IRobotSpec;
 import frc.lib2202.builder.RobotContainer;
@@ -39,14 +38,11 @@ import frc.lib2202.subsystem.swerve.config.ChassisConfig;
 import frc.lib2202.subsystem.swerve.config.ModuleConfig;
 import frc.lib2202.subsystem.swerve.config.ModuleConfig.CornerID;
 import frc.lib2202.util.PIDFController;
-
 import frc.robot2026.Constants.CAN;
 import frc.robot2026.command.pose.setGyroOffsetWithVision;
-import frc.robot2026.subsystems.Climber;
 import frc.robot2026.subsystems.LimelightV2;
 import frc.robot2026.subsystems.Photonvision;
 import frc.robot2026.subsystems.VisionPoseEstimator;
-import frc.robot2026.testBindings.DpltestBinding;
 
 public class RobotSpec_ChassisBot implements IRobotSpec {
   // Subsystems and other hardware on 2025 Robot rev Alpha
@@ -76,7 +72,7 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
         // Limelight position in robot coords - this has LL in the front of bot
         // WARNING: LL has +Y to the right, normal wpi robot coords are +Y to left
         Pose3d LimelightPosition = new Pose3d(0.24, 0.38, .22865, 
-            new Rotation3d(0.0, 11.0 / DEGperRAD, -90.0/DEGperRAD));
+            new Rotation3d(0.0, 11.0 / DEGperRAD, -90.0 / DEGperRAD));
         return new LimelightV2("limelight", LimelightPosition);
 
       })
@@ -105,12 +101,14 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
             // Angled 11deg up from horizon 
             new String[] { "Back_Left", "back_right", "Front" },
             new Transform3d[] {
-                new Transform3d(new Translation3d(13/100, - 13/100, 9.4/100),
-                    new Rotation3d(- (2/3) * (Math.PI / 180), (4/3) * (Math.PI / 180), 120 * (Math.PI / 180))),
-                new Transform3d(new Translation3d(14/100, - 25 /100, 9.4/100),
-                    new Rotation3d(-(11/3) * (Math.PI / 180), - (22/3) * (Math.PI / 180), 240 * (Math.PI / 180))),
-                new Transform3d(new Translation3d(23/100, - 19/100, 9.4/100),
-                    new Rotation3d(0, - 7 * (Math.PI / 180), 0))
+              //dpl - these are what I got on 2/19/26
+              //    - the post kind of moves so pitch could be different if bumped.
+                new Transform3d(new Translation3d(0.13, -0.17, 0.29),
+                    new Rotation3d( 0.0, 7.0 /DEGperRAD, 120.0 / DEGperRAD )),
+                new Transform3d(new Translation3d(.13, -.21, .29),
+                   new Rotation3d( 0.0, 7.0 /DEGperRAD, -120.0 / DEGperRAD )),
+                new Transform3d(new Translation3d(.16, -.19, .29),
+                    new Rotation3d(0., 7.0/DEGperRAD, 0.0))
             });
         // now setup our PV subsystem
         pv = new Photonvision(pvConfig);
