@@ -17,7 +17,7 @@ import frc.lib2202.subsystem.swerve.config.ChassisConfig;
 import frc.lib2202.subsystem.swerve.config.ModuleConfig;
 import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
-import frc.robot2026.subsystems.Hopper;
+import frc.robot2026.subsystems.Shooter.Indexer;
 import frc.robot2026.subsystems.Shooter.Shooter;
 
 public class RobotSpec_BotOnBoard_Zeta implements IRobotSpec {
@@ -41,7 +41,7 @@ public class RobotSpec_BotOnBoard_Zeta implements IRobotSpec {
       .add(Shooter.class, "ShooterLeft", () -> {
         return new Shooter("ctre", CAN.ShooterIDLeft);
       })
-      .add(Hopper.class)
+      .add(Indexer.class)
       ;
       // below are optional watchers for shuffeleboard data - disable if need too.
 
@@ -110,7 +110,7 @@ public class RobotSpec_BotOnBoard_Zeta implements IRobotSpec {
         shooter.setTestBindings(driver);
       } 
 
-      Hopper hopper = RobotContainer.getSubsystemOrNull(Hopper.class);
+      Indexer hopper = RobotContainer.getSubsystemOrNull(Indexer.class);
       if (hopper !=null) {
         hopper.setTestBindings(operator);  // uses triggers
       }

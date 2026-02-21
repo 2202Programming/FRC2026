@@ -2,16 +2,16 @@ package frc.robot2026;
 
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.FeetPerSecond;
-import static frc.lib2202.Constants.MperFT;
 import static frc.lib2202.Constants.DEGperRAD;
+import static frc.lib2202.Constants.MperFT;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathfindingCommand;
+import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkFlex;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
-
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -38,12 +38,14 @@ import frc.lib2202.subsystem.swerve.config.ModuleConfig;
 import frc.lib2202.subsystem.swerve.config.ModuleConfig.CornerID;
 import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
-import frc.robot2026.subsystems.Climber;
+import frc.robot2026.subsystems.Hopper;
 import frc.robot2026.subsystems.Intake;
 import frc.robot2026.subsystems.LimelightV2;
 import frc.robot2026.subsystems.RangeSensor;
 import frc.robot2026.subsystems.VisionPoseEstimator;
+import frc.robot2026.subsystems.Shooter.Indexer;
 import frc.robot2026.subsystems.Shooter.Shooter;
+import frc.robot2026.testBindings.BGTestBindings;
 
 public class RobotSpec_AlphaBot implements IRobotSpec {
 
@@ -86,6 +88,12 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
         return obj;
       })
       // VisonPoseEstimator needs LL and Odometry, adds simplename and alias to lookup
+      .add(Indexer.class, "lIndexer", () -> {
+        return new Indexer(CAN.LIndexerID, true, ClosedLoopSlot.kSlot0);
+      })
+      .add(Indexer.class, "rIndexer", () -> {
+        return new Indexer(CAN.RIndexerID, false, ClosedLoopSlot.kSlot0);
+      })
       .addAlias(VisionPoseEstimator.class, "vision_odo")
       .add(Shooter.class, "shooter_left", () -> {
         return new Shooter("flex", Constants.CAN.ShooterIDLeft, false);
@@ -94,7 +102,8 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
         return new Shooter("flex", Constants.CAN.ShooterIDRight, true);
       })
       .add(Intake.class)
-      .add(Climber.class)
+      // .add(Climber.class)
+      .add(Hopper.class)
       ;
 
   // Robot Speed Limits
@@ -173,7 +182,6 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
     HID_Subsystem dc = RobotContainer.getSubsystem("DC");
     
     CommandXboxController operator = (CommandXboxController) dc.Operator();
-    Intake intake = RobotContainer.getSubsystemOrNull(Intake.class);
 
     // Initialize PathPlanner, if we have needed Subsystems
     if (odo != null && sdt != null) {
@@ -183,22 +191,16 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
     }
 
     // Competition bindings
-    BindingsCompetition.ConfigureCompetition(dc, false);
-
-    // These are test bindings on Operator and need to be removed
-    Shooter l = RobotContainer.getSubsystemOrNull("shooter_left");
-    Shooter r = RobotContainer.getSubsystemOrNull("shooter_right");
-    if (l != null) l.setTestBindings(operator);
-    if (r != null) r.setTestBindings(operator);
+    // BindingsCompetition.ConfigureCompetition(dc, false);
 
     // Place your test binding in ./testBinding/<yourFile>.java and call it here
     // comment out any conflicting bindings. Try not to push with your bindings
     // active. Just comment them out.   
-    //DpltestBinding.calbrate((operator); //lr bumps lr triggers
-    if (intake != null) {
-      intake.setTestBindings(operator); // lr bumps
-    }
+    // DpltestBinding.calbrate((CommandXboxController)dc.Operator());
+    BGTestBindings.calbrate(operator); // steals operator (A, B, X, Y)
 
+    // CommandXboxController op = (CommandXboxController)dc.Operator();
+   
     // Anything else that needs to run after binding/commands are created 
     if (vpe != null) {
       vpe.configureGyroCallback();
