@@ -75,7 +75,6 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
     private Pose2d llPose;
     private Pose2d prev_llPose;
     private Pose2d rawLLPose;
-    private boolean llHasATarget;
     private boolean llHasMultitarget;
 
     // field estimate based on vision estimate llPose
@@ -359,7 +358,7 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
         NetworkTableEntry est_ll_pose_h;
         NetworkTableEntry ll_has_target;
         NetworkTableEntry ll_has_multitarget;
-
+        NetworkTableEntry gyroResetDone;
         NetworkTableEntry est_VPE_pose_x;
         NetworkTableEntry est_VPE_pose_y;
         NetworkTableEntry est_VPE_pose_h;
@@ -411,7 +410,7 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
             est_VPE_pose_x = MonitorTable.getEntry("VPE/X");
             est_VPE_pose_y = MonitorTable.getEntry("VPE/Y");
             est_VPE_pose_h = MonitorTable.getEntry("VPE/Heading");
-
+            gyroResetDone = MonitorTable.getEntry("VPE/GyroResetDone");
             // Network Table setup
             nt_x_diff = MonitorTable.getEntry("compareLLOdo/diffX");
             nt_y_diff = MonitorTable.getEntry("compareLLOdo/diffY");
@@ -440,6 +439,8 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
             est_VPE_pose_x.setDouble(llPose.getX());
             est_VPE_pose_y.setDouble(llPose.getY());
             est_VPE_pose_h.setDouble(llPose.getRotation().getDegrees());
+            gyroResetDone.setBoolean(hasGryoResetHappened());
+            
             // vision pose updating NTs
             nt_x_diff.setDouble(x_diff);
             nt_y_diff.setDouble(y_diff);

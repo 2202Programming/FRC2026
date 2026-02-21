@@ -88,7 +88,7 @@ public class Photonvision extends SubsystemBase {
         if (visionEst.isEmpty()) { // less than 2 tages, no multitag available
           multiTag = false;
           if (result.hasTargets()) {
-            if (result.getBestTarget().getPoseAmbiguity() < 0.2) { // reject single target estimates with high ambiguity
+            if (result.getBestTarget().getPoseAmbiguity() < 0.1) { // reject single target estimates with high ambiguity
               visionEst = photonEstimator.estimateLowestAmbiguityPose(result); // use single tag estimator
             }
           }
