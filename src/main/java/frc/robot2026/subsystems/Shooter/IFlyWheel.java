@@ -4,7 +4,7 @@ public interface IFlyWheel {
     // all sets use flywheel edge linear speed.
     boolean atSetpoint();
 
-    IFlyWheel setSetpoint(double vel);
+    public IFlyWheel setSetpoint(double vel);
     
     double getSetpoint();
 
