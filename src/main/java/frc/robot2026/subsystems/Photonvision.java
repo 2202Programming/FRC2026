@@ -87,11 +87,12 @@ public class Photonvision extends SubsystemBase {
         visionEst = photonEstimator.estimateCoprocMultiTagPose(result); // multag if available
         if (visionEst.isEmpty()) { // less than 2 tages, no multitag available
           multiTag = false;
-          if (result.hasTargets()) {
-            if (result.getBestTarget().getPoseAmbiguity() < 0.1) { // reject single target estimates with high ambiguity
-              visionEst = photonEstimator.estimateLowestAmbiguityPose(result); // use single tag estimator
-            }
-          }
+          // Single tag gives a bad pose est. 
+          // if (result.hasTargets()) {
+          //   if (result.getBestTarget().getPoseAmbiguity() < 0.1) { // reject single target estimates with high ambiguity
+          //     visionEst = photonEstimator.estimateLowestAmbiguityPose(result); // use single tag estimator
+          //   }
+          // }
         }
 
         // this section for updating std dev of results - probably not useful without
