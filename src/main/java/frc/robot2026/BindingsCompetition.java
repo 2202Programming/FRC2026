@@ -94,10 +94,10 @@ public final class BindingsCompetition {
             CommandXboxController operator = (CommandXboxController) generic_opr;
          
             //Calibration Commands
-            Cal.and(sideboard.sw21()).whileTrue(climber.setVelocityCmd(10.0))
-                                     .onFalse(climber.setVelocityCmd(0.0));
-            Cal.and(sideboard.sw22()).whileTrue(climber.setVelocityCmd(-10.0))
-                                     .onFalse(climber.setVelocityCmd(0.0));
+            Cal.and(sideboard.sw21()).whileTrue(climber.setVelocityCmd(10.0, climber.l_arm))
+                                     .onFalse(climber.setVelocityCmd(0.0,climber.l_arm));
+            Cal.and(sideboard.sw22()).whileTrue(climber.setVelocityCmd(-10.0,climber.l_arm))
+                                     .onFalse(climber.setVelocityCmd(0.0,climber.l_arm));
 
         }
         else {
