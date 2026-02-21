@@ -72,7 +72,12 @@ public final class Constants {
 
     //Shooter
     public static final int ShooterFLEXID = 20; 
-    public static final int ShooterID = 51; //Currently used for Multi on faux chassis 
+
+    public static final int ShooterIDLeft = 52;  
+    public static final int ShooterIndexerLeft = 53;
+
+    public static final int ShooterIDRight = 50;
+    public static final int ShooterIndexerRight = 51;
 
     // IMU
     public static final int PIGEON_IMU_CAN = 60;

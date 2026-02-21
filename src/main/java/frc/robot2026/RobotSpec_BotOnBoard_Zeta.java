@@ -35,8 +35,11 @@ public class RobotSpec_BotOnBoard_Zeta implements IRobotSpec {
 
       })
       // .add(Intake.class)
-      .add(Shooter.class, "Shooter", () ->{
-        return new Shooter("ctre"); //opts: rev,ctre,multi
+      .add(Shooter.class, "ShooterRight", () ->{
+        return new Shooter("ctre", CAN.ShooterIDRight, false); //opts: rev,ctre,multi
+      })
+      .add(Shooter.class, "ShooterLeft", () -> {
+        return new Shooter("ctre", CAN.ShooterIDLeft);
       })
       .add(Hopper.class)
       ;
