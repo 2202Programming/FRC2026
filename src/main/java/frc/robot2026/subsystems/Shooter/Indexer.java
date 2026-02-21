@@ -48,8 +48,8 @@ public class Indexer extends SubsystemBase {
 
   // Wide/Single belt controllers are being controlled by % power
   final DigitalInput indexGate; // TODO: Unused currently
-  // final SparkMax indexFeeder;
-  // final SparkMax singleBeltCtrl;
+
+  final SparkFlex belt;
 
   // Used as a way to get and set new FF values
   final FeedForwardConfig ffObj;
@@ -88,8 +88,7 @@ public class Indexer extends SubsystemBase {
     setName("Hopper - " + CAN.LIndexerID);
 
     indexerCtrl = new SparkFlex(CAN.LIndexerID, MotorType.kBrushless);
-    // wideBeltCtrl = new SparkMax(CAN.WideBeltID, MotorType.kBrushless);
-    // singleBeltCtrl = new SparkMax(CAN.SingleBeltID, MotorType.kBrushless);
+    belt = new SparkFlex(CAN.WideBeltID, MotorType.kBrushless);
 
     indexGate = new DigitalInput(DigitalIO.HopperIndexerID); // not being used as of 2/5/2026
 
@@ -269,19 +268,13 @@ public class Indexer extends SubsystemBase {
     return indexerCtrl.getOutputCurrent();
   }
 
-  // *** PERCENT POWER CONTROL ***
-  // public void setWideBeltPercent(double pct) {
-  //   wideBeltCtrl.set(pct);
-  // }
+  public void setBeltPercent(double pct) {
+    belt.set(pct);
+  }
 
-  // public void setSingleBeltPercent(double pct) {
-  //   singleBeltCtrl.set(pct);
-  // }
-
-  // public void setBeltsPercent(double pct) {
-  //   wideBeltCtrl.set(-pct);
-  //   singleBeltCtrl.set(pct);
-  // }
+  public double getBeltPct() {
+    return belt.get();
+  }
 
   public void setIdxPct(double pct) {
     indexerCtrl.set(pct);
@@ -317,28 +310,20 @@ public class Indexer extends SubsystemBase {
     indexerEncoder.setPosition(0.0);
   }
 
-  // Percent Power
-  // public Command cmdPct(double pct) {
-  //   return runOnce(() -> {
-  //     setBeltsPercent(pct);
-  //   });
-  // }
-
-  // public Command setSingleBeltPct(double pct) {
-  //   return runOnce(() -> {
-  //     setSingleBeltPct(pct);
-  //   });
-  // }
-
-  // public Command setWideBeltPct(double pct) {
-  //   return runOnce(() -> {
-  //     setWideBeltPercent(pct);
-  //   });
-  // }
+  public Command cmdBeltPct(double pct) {
+    return runOnce(() -> {
+      setBeltPercent(pct);
+    });
+  }
 
   public void setTestBindings(CommandXboxController xbox) {
-    // xbox.leftTrigger(0.5).onTrue(cmdPct(0.3)).onFalse(cmdPct(0.0));
-    // xbox.rightTrigger(0.5).onTrue(cmdPct(0.5)).onFalse(cmdPct(0.0));
+    xbox.povLeft()
+        .whileTrue(cmdBeltPct(0.5))
+        .onFalse(cmdBeltPct(0.0));
+
+    xbox.povUp()
+        .whileTrue(cmdBeltPct(1.0))
+        .onFalse(cmdBeltPct(0.0));
 
     xbox.a()
         .onTrue(cmdSetIdxPct(1.0)); // [ROT]
@@ -363,8 +348,7 @@ public class Indexer extends SubsystemBase {
     
     super.initSendable(builder);
 
-    // builder.addDoubleProperty("pct_pwr_wideBelt", this.wideBeltCtrl::get, this.wideBeltCtrl::set);
-    // builder.addDoubleProperty("pct_pwr_singleBelt", this.singleBeltCtrl::get, this.singleBeltCtrl::set);
+    builder.addDoubleProperty("setBeltPct", this::getBeltPct, this::setBeltPercent);
 
     builder.addDoubleProperty("pos_cmd", this::getPosSetpoint, this::setPosSetpoint);
     builder.addDoubleProperty("vel_cmd", this::getVelSetpoint, this::setVelSetpoint);

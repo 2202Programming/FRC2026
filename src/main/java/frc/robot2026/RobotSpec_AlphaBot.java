@@ -40,7 +40,8 @@ import frc.robot2026.Constants.CAN;
 import frc.robot2026.subsystems.LimelightV2;
 import frc.robot2026.subsystems.RangeSensor;
 import frc.robot2026.subsystems.VisionPoseEstimator;
-import frc.robot2026.subsystems.Hopper.Hopper;
+import frc.robot2026.subsystems.Shooter.Indexer;
+import frc.robot2026.subsystems.Shooter.Shooter;
 
 
 public class RobotSpec_AlphaBot implements IRobotSpec {
@@ -82,7 +83,8 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
       })
       // VisonPoseEstimator needs LL and Odometry, adds simplename and alias to lookup
       .addAlias(VisionPoseEstimator.class, "vision_odo") 
-      .add(Indexer.class, "hopper")
+      .add(Indexer.class, "indexer")
+      .add(Shooter.class, "shooter")
       ;
 
   // Robot Speed Limits
@@ -176,8 +178,10 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
     // DpltestBinding.calbrate((CommandXboxController)dc.Operator());
 
     CommandXboxController op = (CommandXboxController)dc.Operator();
-    Indexer h = RobotContainer.getSubsystemOrNull("hopper");
-    h.setTestBindings(op);
+    Indexer i = RobotContainer.getSubsystemOrNull("indexer");
+    Shooter s = RobotContainer.getSubsystemOrNull("shooter");
+    s.setTestBindings(op);
+    i.setTestBindings(op);
    
     // Anything else that needs to run after binding/commands are created 
     VisionPoseEstimator vpe = RobotContainer.getSubsystemOrNull("vision_odo");
