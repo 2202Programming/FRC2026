@@ -16,7 +16,7 @@ public class Targeter extends SubsystemBase {
     final double HIGH_SPEED = 55.0;
     final double LOW_SPEED = 25.0;
 
-    double distToTarget;// function of VPE pose and Hub center + math
+    double distToTarget; // function of VPE pose and Hub center + math
     double manual_speed; // flywheel speed manually controlled by driver
 
     public Targeter() {
