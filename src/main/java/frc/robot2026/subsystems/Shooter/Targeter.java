@@ -57,11 +57,11 @@ public class Targeter extends SubsystemBase {
 
         rpm_table = new InterpolatingTreeMap<>(distance, rpm);
 
-        rpm_table.put(null, null); //TODO These values will need to be tested for.
-        rpm_table.put(null, null);
-        rpm_table.put(null, null);
-        rpm_table.put(null, null);
-        rpm_table.put(null, null);
+        rpm_table.put(0.5, 30.0); //TODO These values will need to be tested for.
+        rpm_table.put(1.0, 35.0);
+        rpm_table.put(3.0, 50.0);
+        rpm_table.put(4.5, 75.0);
+        rpm_table.put(6.0, 100.0);
     }
 
     // === INTERPOL GETTERS / SETTERS ===
