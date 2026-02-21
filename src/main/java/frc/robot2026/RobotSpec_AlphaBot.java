@@ -18,7 +18,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib2202.builder.IRobotSpec;
 import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.builder.RobotLimits;
@@ -38,6 +37,7 @@ import frc.lib2202.subsystem.swerve.config.ModuleConfig;
 import frc.lib2202.subsystem.swerve.config.ModuleConfig.CornerID;
 import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
+import frc.robot2026.subsystems.Climber;
 import frc.robot2026.subsystems.Hopper;
 import frc.robot2026.subsystems.Intake;
 import frc.robot2026.subsystems.LimelightV2;
@@ -45,7 +45,7 @@ import frc.robot2026.subsystems.RangeSensor;
 import frc.robot2026.subsystems.VisionPoseEstimator;
 import frc.robot2026.subsystems.Shooter.Indexer;
 import frc.robot2026.subsystems.Shooter.Shooter;
-import frc.robot2026.testBindings.BGTestBindings;
+import frc.robot2026.subsystems.Shooter.Targeter;
 
 public class RobotSpec_AlphaBot implements IRobotSpec {
 
@@ -102,8 +102,11 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
         return new Shooter("flex", Constants.CAN.ShooterIDRight, true);
       })
       .add(Intake.class)
-      // .add(Climber.class)
+      .add(Climber.class, "climber", () -> {
+        return new Climber(true);
+      })
       .add(Hopper.class)
+      .add(Targeter.class)
       ;
 
   // Robot Speed Limits
@@ -181,7 +184,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
     DriveTrainInterface sdt = RobotContainer.getSubsystemOrNull("drivetrain");
     HID_Subsystem dc = RobotContainer.getSubsystem("DC");
     
-    CommandXboxController operator = (CommandXboxController) dc.Operator();
+    // CommandXboxController operator = (CommandXboxController) dc.Operator();
 
     // Initialize PathPlanner, if we have needed Subsystems
     if (odo != null && sdt != null) {
@@ -191,13 +194,13 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
     }
 
     // Competition bindings
-    // BindingsCompetition.ConfigureCompetition(dc, false);
+    BindingsCompetition.ConfigureCompetition(dc, true);
 
     // Place your test binding in ./testBinding/<yourFile>.java and call it here
     // comment out any conflicting bindings. Try not to push with your bindings
     // active. Just comment them out.   
     // DpltestBinding.calbrate((CommandXboxController)dc.Operator());
-    BGTestBindings.calbrate(operator); // steals operator (A, B, X, Y)
+    // BGTestBindings.calbrate(operator); // steals operator (A, B, X, Y)
 
     // CommandXboxController op = (CommandXboxController)dc.Operator();
    

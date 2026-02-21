@@ -64,7 +64,6 @@ public class Intake extends SubsystemBase {
   // velocity control only used for testing, normal cmds will use position
   public void setPercent(double pct) {
     cmdPct = pct;
-    //btmRlrMtr.set(pct);
     Rlrmtr.set(pct);
   }
 

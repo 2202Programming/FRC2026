@@ -43,7 +43,7 @@ public final class BindingsCompetition {
     
     private static void get_references() {
         // Subsystems must exist in RobotSpec, if they don't an NPE is thrown.
-        climber = RobotContainer.getSubsystem(Climber.class);
+        climber = RobotContainer.getSubsystem("climber");
         shooter_left = RobotContainer.getSubsystem("shooter_left");
         shooter_right = RobotContainer.getSubsystem("shooter_right");
         drivetrain = RobotContainer.getSubsystem("drivetrain");
@@ -92,10 +92,10 @@ public final class BindingsCompetition {
             driver.leftTrigger().whileTrue(new PrintCommand("TODO LIMELIGHT FIRE"));
             
             //Driver wants to manually fire/pass
-            driver.rightTrigger().whileTrue(new AutoShoot(shooter_left, indexer_left, targeter.getManualSpeed(), 1));
-            driver.rightTrigger().whileTrue(new AutoShoot(shooter_right, indexer_right, targeter.getManualSpeed(), 1));
-            driver.rightTrigger().whileTrue(hopper.cmdBeltPct(1))
-                                 .onFalse(hopper.cmdBeltPct(0));
+            driver.rightTrigger(0.7).whileTrue(new AutoShoot(shooter_left, indexer_left, targeter.getManualSpeed(), 1));
+            driver.rightTrigger(0.7).whileTrue(new AutoShoot(shooter_right, indexer_right, targeter.getManualSpeed(), 1));
+            driver.rightTrigger(0.2).whileTrue(hopper.cmdBeltPct(1))
+                                              .onFalse(hopper.cmdBeltPct(0));
             
         } else {
             DriverStation.reportError("Comp Bindings: No driver bindings set, check controllers.", false);
@@ -117,10 +117,10 @@ public final class BindingsCompetition {
             // intake bindings
             
             //intake in
-            operator.leftBumper().whileTrue(intake.cmdPctPwr(0.5))
+            operator.leftBumper().whileTrue(intake.cmdPctPwr(0.40))
                                  .onFalse(intake.cmdPctPwr(0.0));
             // intake out
-            operator.a().whileTrue(intake.cmdPctPwr(-0.5))
+            operator.a().whileTrue(intake.cmdPctPwr(-0.40))
                                  .onFalse(intake.cmdPctPwr(0.0));
 
             //Calibration Commands
@@ -132,7 +132,7 @@ public final class BindingsCompetition {
             //manual climber
 
             //climber up
-            operator.povUp().whileTrue(climber.setVelocityCmd(10.0)) 
+            operator.povUp().whileTrue(climber.setVelocityCmd(-10.0)) 
                             .onFalse(climber.setVelocityCmd(0.0));
             
             //climber to 0

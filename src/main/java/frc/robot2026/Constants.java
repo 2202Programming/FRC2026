@@ -58,7 +58,7 @@ public final class Constants {
     public static final int FR_CANCoder = 30;
 
     public static final int r_arm = 998; // TODO: CHANGE
-    public static final int l_arm = 52;
+    public static final int l_arm = 45;
    
     // Intake
     public static final int IntakeID = 40; // this canID is correct DONT CHANGE IT
