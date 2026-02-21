@@ -42,7 +42,6 @@ import frc.robot2026.subsystems.Intake;
 import frc.robot2026.subsystems.LimelightV2;
 import frc.robot2026.subsystems.RangeSensor;
 import frc.robot2026.subsystems.VisionPoseEstimator;
-import frc.robot2026.testBindings.DpltestBinding;
 import frc.robot2026.subsystems.Shooter.Shooter;
 
 public class RobotSpec_AlphaBot implements IRobotSpec {
@@ -87,10 +86,10 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
       })
       // VisonPoseEstimator needs LL and Odometry, adds simplename and alias to lookup
       .addAlias(VisionPoseEstimator.class, "vision_odo")
-      .add(Shooter.class, "left shooter", () -> {
+      .add(Shooter.class, "shooter_left", () -> {
         return new Shooter("flex", Constants.CAN.ShooterIDLeft, false);
       })
-      .add(Shooter.class, "right shooter", () -> {
+      .add(Shooter.class, "shooter_right", () -> {
         return new Shooter("flex", Constants.CAN.ShooterIDRight, true);
       })
       .add(Intake.class)
@@ -167,8 +166,10 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
   public void setBindings() {
     String odometryName = "vision_odo"; // or novision "odometry"
     OdometryInterface odo = RobotContainer.getSubsystemOrNull(odometryName);
+    VisionPoseEstimator vpe = RobotContainer.getSubsystemOrNull("vision_odo");
     DriveTrainInterface sdt = RobotContainer.getSubsystemOrNull("drivetrain");
     HID_Subsystem dc = RobotContainer.getSubsystem("DC");
+    
     CommandXboxController operator = (CommandXboxController) dc.Operator();
     Intake intake = RobotContainer.getSubsystemOrNull(Intake.class);
 
@@ -181,19 +182,22 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
 
     // Competition bindings
     BindingsCompetition.ConfigureCompetition(dc, false);
-    Shooter l = RobotContainer.getSubsystemOrNull("left shooter");
-    Shooter r = RobotContainer.getSubsystemOrNull("right shooter");
-    l.setTestBindings(operator);
-    r.setTestBindings(operator);
+
+    // These are test bindings on Operator and need to be removed
+    Shooter l = RobotContainer.getSubsystemOrNull("shooter_left");
+    Shooter r = RobotContainer.getSubsystemOrNull("shooter_right");
+    if (l != null) l.setTestBindings(operator);
+    if (r != null) r.setTestBindings(operator);
+
     // Place your test binding in ./testBinding/<yourFile>.java and call it here
     // comment out any conflicting bindings. Try not to push with your bindings
     // active. Just comment them out.   
-    //DpltestBinding.calbrate((CommandXboxController)dc.Operator()); //lr bumps lr triggers
+    //DpltestBinding.calbrate((operator); //lr bumps lr triggers
     if (intake != null) {
-      intake.setTestBindings((CommandXboxController)dc.Operator()); // lr bumps
+      intake.setTestBindings(operator); // lr bumps
     }
+
     // Anything else that needs to run after binding/commands are created 
-    VisionPoseEstimator vpe = RobotContainer.getSubsystemOrNull("vision_odo");
     if (vpe != null) {
       vpe.configureGyroCallback();
     }

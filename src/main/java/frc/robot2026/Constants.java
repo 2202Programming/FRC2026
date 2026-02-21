@@ -65,19 +65,16 @@ public final class Constants {
     //public static final int IntakeBottomID = 41; 
 
     //Hopper
-    // AH: changed to support hooper on multishooter
+    // AH: changed to support hooper on multishooter  
     public static final int IndexerID = 42;
-    public static final int SingleBeltID = 50;
+    public static final int SingleBeltID = 50;   // DPL - These can't be correct for AlphaBot if Shooter is correct
     public static final int WideBeltID = 52;
 
-    //Shooter
-    public static final int ShooterFLEXID = 20; 
-
-    public static final int ShooterIDLeft = 52;  
-    public static final int ShooterIndexerLeft = 53;
-
+    //Shooter - LEFT and Right Side
     public static final int ShooterIDRight = 50;
     public static final int ShooterIndexerRight = 51;
+    public static final int ShooterIDLeft = 52;  
+    public static final int ShooterIndexerLeft = 53;
 
     // IMU
     public static final int PIGEON_IMU_CAN = 60;
@@ -106,7 +103,7 @@ public final class Constants {
 
   public final class DigitalIO {
 
-    public static final int HopperIndexerID = 0;
+    public static final int HopperIndexerID = 0;   //unused - to be removed
 
     //public static final int EndEffector_Lightgate = 2;
     //public static final int SignalLight1 = 7;
@@ -116,16 +113,14 @@ public final class Constants {
 
   //The Field info use WPILIB data
   public class TheField {
-    public static AprilTagFields fieldChoice = AprilTagFields.k2026RebuiltAndymark;
+    public static AprilTagFields fieldChoice = AprilTagFields.k2026RebuiltAndymark;  // or k2026RebuiltWelded  
     public static AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(fieldChoice);
   }  
 
     public static class Vision {
-
       // The layout of the AprilTags on the field
-      public static final AprilTagFieldLayout kTagLayout =
-              AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark);   // or k2026RebuiltWelded  
-
+      public static final AprilTagFieldLayout kTagLayout = TheField.fieldLayout;
+            
         // The standard deviations of our vision estimated poses, which affect correction rate
         // (Fake values. Experiment and determine estimation noise on an actual robot.)
         public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(4, 4, 8);
