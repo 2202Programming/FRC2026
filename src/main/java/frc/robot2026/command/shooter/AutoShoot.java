@@ -19,7 +19,7 @@ public class AutoShoot extends Command {
   DoubleSupplier speedProvider;
   double idxPct;
 
-  public AutoShoot(Shooter shooter, Indexer indexer, DoubleSupplier speed, double idxPct) {
+  public AutoShoot(Shooter shooter, Indexer indexer, DoubleSupplier speedProvider, double idxPct) {
     this.shooter = shooter;
     this.indexer = indexer;
     this.speedProvider = speedProvider;

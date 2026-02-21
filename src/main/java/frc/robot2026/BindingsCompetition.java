@@ -92,8 +92,8 @@ public final class BindingsCompetition {
             driver.leftTrigger().whileTrue(new PrintCommand("TODO LIMELIGHT FIRE"));
             
             //Driver wants to manually fire/pass
-            driver.rightTrigger(0.7).whileTrue(new AutoShoot(shooter_left, indexer_left, targeter.getManualSpeed(), 1));
-            driver.rightTrigger(0.7).whileTrue(new AutoShoot(shooter_right, indexer_right, targeter.getManualSpeed(), 1));
+            driver.rightTrigger(0.7).whileTrue(new AutoShoot(shooter_left, indexer_left, targeter::getManualSpeed, 1));
+            driver.rightTrigger(0.7).whileTrue(new AutoShoot(shooter_right, indexer_right, targeter::getManualSpeed, 1));
             driver.rightTrigger(0.2).whileTrue(hopper.cmdBeltPct(1))
                                               .onFalse(hopper.cmdBeltPct(0));
             
