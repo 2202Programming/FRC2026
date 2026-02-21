@@ -56,8 +56,11 @@ public class Targeter extends SubsystemBase {
         Interpolator<Double> rpm = Interpolator.forDouble();
 
         rpm_table = new InterpolatingTreeMap<>(distance, rpm);
-
-        rpm_table.put(null, null); //TODO These values will need to be tested for.
+        
+        // TODO These values will need to be tested for.
+        // physics based pre-calculations:
+        // https://docs.google.com/spreadsheets/d/1Cv1TSaGrY6Wx_dROy699KGdKHrFOiZqe/
+        rpm_table.put(null, null); 
         rpm_table.put(null, null);
         rpm_table.put(null, null);
         rpm_table.put(null, null);
