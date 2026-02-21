@@ -19,11 +19,11 @@ public class BGTestBindings {
 
         Hopper h = RobotContainer.getSubsystemOrNull(Hopper.class);
 
-        c.a().whileTrue(new AutoShoot(shooterL, indexerL, 25.0, 1.0));
-        c.a().whileTrue(new AutoShoot(shooterR, indexerR, 25.0, 1.0));
+        // c.a().whileTrue(new AutoShoot(shooterL, indexerL, 25.0, 1.0));
+        // c.a().whileTrue(new AutoShoot(shooterR, indexerR, 25.0, 1.0));
 
-        c.y().whileTrue(new AutoShoot(shooterL, indexerL, 0.0, 0.0));
-        c.y().whileTrue(new AutoShoot(shooterR, indexerR, 0.0, 0.0));
+        // c.y().whileTrue(new AutoShoot(shooterL, indexerL, 0.0, 0.0));
+        // c.y().whileTrue(new AutoShoot(shooterR, indexerR, 0.0, 0.0));
 
         c.x().whileTrue(h.cmdBeltPct(1.0)).onFalse(h.cmdBeltPct(0.0));
     }
