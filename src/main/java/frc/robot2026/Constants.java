@@ -68,8 +68,7 @@ public final class Constants {
     // AH: changed to support hooper on multishooter
     public static final int RIndexerID = 999; // TODO: CHANGE
     public static final int LIndexerID = 53;
-    public static final int SingleBeltID = 50;
-    public static final int WideBeltID = 52;
+    public static final int BeltID = 997; // TODO: CHANGE
 
     //Shooter
     public static final int ShooterFLEXID = 20; 

@@ -46,10 +46,7 @@ public class Indexer extends SubsystemBase {
   final RelativeEncoder indexerEncoder;
   final SparkClosedLoopController indexerCLCtrl;
 
-  // Wide/Single belt controllers are being controlled by % power
   final DigitalInput indexGate; // TODO: Unused currently
-
-  final SparkFlex belt;
 
   // Used as a way to get and set new FF values
   final FeedForwardConfig ffObj;
@@ -88,7 +85,6 @@ public class Indexer extends SubsystemBase {
     setName("Hopper - " + CAN.LIndexerID);
 
     indexerCtrl = new SparkFlex(CAN.LIndexerID, MotorType.kBrushless);
-    belt = new SparkFlex(CAN.WideBeltID, MotorType.kBrushless);
 
     indexGate = new DigitalInput(DigitalIO.HopperIndexerID); // not being used as of 2/5/2026
 
@@ -268,14 +264,6 @@ public class Indexer extends SubsystemBase {
     return indexerCtrl.getOutputCurrent();
   }
 
-  public void setBeltPercent(double pct) {
-    belt.set(pct);
-  }
-
-  public double getBeltPct() {
-    return belt.get();
-  }
-
   public void setIdxPct(double pct) {
     indexerCtrl.set(pct);
   }
@@ -310,21 +298,7 @@ public class Indexer extends SubsystemBase {
     indexerEncoder.setPosition(0.0);
   }
 
-  public Command cmdBeltPct(double pct) {
-    return runOnce(() -> {
-      setBeltPercent(pct);
-    });
-  }
-
   public void setTestBindings(CommandXboxController xbox) {
-    xbox.povLeft()
-        .whileTrue(cmdBeltPct(0.5))
-        .onFalse(cmdBeltPct(0.0));
-
-    xbox.povUp()
-        .whileTrue(cmdBeltPct(1.0))
-        .onFalse(cmdBeltPct(0.0));
-
     xbox.a()
         .onTrue(cmdSetIdxPct(1.0)); // [ROT]
 
@@ -347,8 +321,6 @@ public class Indexer extends SubsystemBase {
   public void initSendable(SendableBuilder builder) {
     
     super.initSendable(builder);
-
-    builder.addDoubleProperty("setBeltPct", this::getBeltPct, this::setBeltPercent);
 
     builder.addDoubleProperty("pos_cmd", this::getPosSetpoint, this::setPosSetpoint);
     builder.addDoubleProperty("vel_cmd", this::getVelSetpoint, this::setVelSetpoint);
