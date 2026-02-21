@@ -2,8 +2,8 @@ package frc.robot2026;
 
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.FeetPerSecond;
-import static frc.lib2202.Constants.MperFT;
 import static frc.lib2202.Constants.DEGperRAD;
+import static frc.lib2202.Constants.MperFT;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathfindingCommand;
@@ -38,13 +38,11 @@ import frc.lib2202.subsystem.swerve.config.ChassisConfig;
 import frc.lib2202.subsystem.swerve.config.ModuleConfig;
 import frc.lib2202.subsystem.swerve.config.ModuleConfig.CornerID;
 import frc.lib2202.util.PIDFController;
-
 import frc.robot2026.Constants.CAN;
-import frc.robot2026.subsystems.Climber;
+import frc.robot2026.command.pose.setGyroOffsetWithVision;
 import frc.robot2026.subsystems.LimelightV2;
 import frc.robot2026.subsystems.Photonvision;
 import frc.robot2026.subsystems.VisionPoseEstimator;
-import frc.robot2026.testBindings.DpltestBinding;
 
 public class RobotSpec_ChassisBot implements IRobotSpec {
   // Subsystems and other hardware on 2025 Robot rev Alpha
@@ -72,9 +70,11 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
       .add(TrimTables.class)
       .add(LimelightV2.class, "limelight", () -> {
         // Limelight position in robot coords - this has LL in the front of bot
-        Pose3d LimelightPosition = new Pose3d((0.7112 / 2.0) - .07, -0.28, .225,
-            new Rotation3d(0.0, 10.0 / DEGperRAD, 0.0));
+        // WARNING: LL has +Y to the right, normal wpi robot coords are +Y to left
+        Pose3d LimelightPosition = new Pose3d(0.24, 0.38, .22865, 
+            new Rotation3d(0.0, 11.0 / DEGperRAD, -90.0 / DEGperRAD));
         return new LimelightV2("limelight", LimelightPosition);
+
       })
       .add(SwerveDrivetrain.class, "drivetrain", () -> {
         return new SwerveDrivetrain(SparkFlex.class);
@@ -82,14 +82,33 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
       .add(Photonvision.class, "photonvision", () -> {
         // create config object with our cameras and their positions
         Photonvision.Config pvConfig = new Photonvision.Config(
+            // Fairly confident about x/y/z/yaw, not sure about pitch/roll for back cameras
+            // Measurements:
+            // All cameras 9.4 cm off ground
+            // Front Camera:
+            // 23 cm in front of robot center
+            // 19 cm to the right (negative) of robot center
+            // Angled 2deg up from horizon
+            //
+            // Back Right
+            // 14 cm in front of robot center
+            // 25 cm to the right of robot center
+            // Angled 11deg up from horizon
+            //
+            // Back Left
+            // 13 cm in front of robot center
+            // 13 cm right of robot center
+            // Angled 11deg up from horizon 
             new String[] { "Back_Left", "back_right", "Front" },
             new Transform3d[] {
-                new Transform3d(new Translation3d(6 / 39.37, -8 / 39.37, 16 / 39.37),
-                    new Rotation3d(0, 7 * (Math.PI / 180), 120 * (Math.PI / 180))),
-                new Transform3d(new Translation3d(6 / 39.37, -8 / 39.37, 16 / 39.37),
-                    new Rotation3d(0, 7 * (Math.PI / 180), 240 * (Math.PI / 180))),
-                new Transform3d(new Translation3d(6 / 39.37, -8 / 39.37, 16 / 39.37),
-                    new Rotation3d(0, 7 * (Math.PI / 180), 0))
+              //dpl - these are what I got on 2/19/26
+              //    - the post kind of moves so pitch could be different if bumped.
+                new Transform3d(new Translation3d(0.13, -0.17, 0.29),
+                    new Rotation3d( 0.0, 7.0 /DEGperRAD, 120.0 / DEGperRAD )),
+                new Transform3d(new Translation3d(.13, -.21, .29),
+                   new Rotation3d( 0.0, 7.0 /DEGperRAD, -120.0 / DEGperRAD )),
+                new Transform3d(new Translation3d(.16, -.19, .29),
+                    new Rotation3d(0., 7.0/DEGperRAD, 0.0))
             });
         // now setup our PV subsystem
         pv = new Photonvision(pvConfig);
@@ -101,10 +120,10 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
         return obj;
       })
       // VisonPoseEstimator needs LL and Odometry, adds simplename and alias to lookup
-      .addAlias(VisionPoseEstimator.class, "vision_odo")
-      .add(Climber.class, "climber", () -> {
-        return new Climber(true);
-      });
+      .addAlias(VisionPoseEstimator.class, "vision_odo");
+    //  .add(Climber.class, "climber", () -> {
+    //    return new Climber(true);}
+
 
 
 
@@ -185,13 +204,13 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
     VisionPoseEstimator vpe = RobotContainer.getSubsystemOrNull("vision_odo");
     DriveTrainInterface sdt = RobotContainer.getSubsystemOrNull("drivetrain");
     HID_Subsystem dc = RobotContainer.getSubsystem("DC");
-    Climber cl = RobotContainer.getSubsystem("climber");
-
+    //Climber cl = RobotContainer.getSubsystem("climber");
+    vpe.getWatcher();
     CommandXboxController operator = (CommandXboxController)dc.Operator();
 
     // Initialize PathPlanner, if we have needed Subsystems
     if (odo != null && sdt != null) {
-      AutoPPConfigure.configureAutoBuilder(sdt, odo);
+      AutoPPConfigure.configureAutoBuilder(sdt, vpe);
       var cmd = PathfindingCommand.warmupCommand();
       CommandScheduler.getInstance().schedule(cmd);
     }
@@ -243,6 +262,11 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
     if (drivetrain != null) {
       drivetrain.setDefaultCommand(new FieldCentricDrive());
     }
+  }
+
+  @Override
+  public void disabledInit(){
+    CommandScheduler.getInstance().schedule(new setGyroOffsetWithVision());
   }
 
 }
