@@ -32,7 +32,9 @@ public class Targeter extends SubsystemBase {
 
     final double HIGH_SPEED = 55.0;
     final double LOW_SPEED = 25.0;
-    final double Shooter_Angle = 70.0; //Degrees
+    
+    // Provided by vince as angle between the center of the motor and the trailing edge of the ball exit ramp
+    final double Shooter_Angle = 65.0; //Degrees
 
     Translation2d blueTarget;
     Translation2d redTarget;
@@ -56,7 +58,8 @@ public class Targeter extends SubsystemBase {
         Interpolator<Double> rpm = Interpolator.forDouble();
 
         rpm_table = new InterpolatingTreeMap<>(distance, rpm);
-
+        // https://docs.google.com/spreadsheets/d/1Cv1TSaGrY6Wx_dROy699KGdKHrFOiZqe/
+        // physics based pre-calculations:
         rpm_table.put(0.5, 30.0); //TODO These values will need to be tested for.
         rpm_table.put(1.0, 35.0);
         rpm_table.put(3.0, 50.0);
