@@ -7,6 +7,7 @@ import static frc.lib2202.Constants.MperFT;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathfindingCommand;
+import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkFlex;
 
 import edu.wpi.first.math.geometry.Pose3d;
@@ -41,7 +42,6 @@ import frc.robot2026.subsystems.LimelightV2;
 import frc.robot2026.subsystems.RangeSensor;
 import frc.robot2026.subsystems.VisionPoseEstimator;
 import frc.robot2026.subsystems.Shooter.Indexer;
-import frc.robot2026.subsystems.Shooter.Shooter;
 
 
 public class RobotSpec_AlphaBot implements IRobotSpec {
@@ -83,7 +83,13 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
       })
       // VisonPoseEstimator needs LL and Odometry, adds simplename and alias to lookup
       .addAlias(VisionPoseEstimator.class, "vision_odo") 
-      .add(Indexer.class, "hopper")
+
+      .add(Indexer.class, "lIndexer", () -> {
+        return new Indexer(CAN.LIndexerID, false, ClosedLoopSlot.kSlot0);
+      })
+      .add(Indexer.class, "rIndexer", () -> {
+        return new Indexer(CAN.RIndexerID, false, ClosedLoopSlot.kSlot0);
+      })
       ;
 
   // Robot Speed Limits
