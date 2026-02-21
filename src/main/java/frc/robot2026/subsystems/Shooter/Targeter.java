@@ -21,7 +21,7 @@ public class Targeter extends SubsystemBase {
 
     
     public Targeter() {
-
+        manual_speed = LOW_SPEED; // default to low speed
     }
     public double getManualSpeed(){
         return manual_speed;
