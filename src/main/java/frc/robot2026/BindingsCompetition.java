@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -19,6 +20,7 @@ import frc.lib2202.subsystem.swerve.DriveTrainInterface;
 import frc.robot2026.subsystems.Climber;
 import frc.robot2026.subsystems.Intake;
 import frc.robot2026.subsystems.Shooter.Shooter;
+import frc.robot2026.subsystems.Shooter.Targeter;
 
 /*
  * Please don't edit this without leads/mentor/driveteam review
@@ -32,6 +34,7 @@ public final class BindingsCompetition {
     static Shooter shooter_left;
     static Shooter shooter_right;
     static Intake intake;
+    static Targeter targeter;
     
     private static void get_references() {
         // Subsystems must exist in RobotSpec, if they don't an NPE is thrown.
@@ -40,6 +43,7 @@ public final class BindingsCompetition {
         shooter_right = RobotContainer.getSubsystem("shooter_right");
         drivetrain = RobotContainer.getSubsystem("drivetrain");
         intake = RobotContainer.getSubsystem(Intake.class);
+        targeter = RobotContainer.getSubsystem(Targeter.class);
     }
 
 
@@ -75,7 +79,13 @@ public final class BindingsCompetition {
             driver.leftBumper().whileTrue(new ParallelCommandGroup(
                     new ScaleDriver(0.3), 
                     new RobotCentricDrive(drivetrain, dc)));
-                    
+
+
+            driver.leftTrigger().whileTrue(new PrintCommand("TODO LIMELIGHT FIRE"));
+            
+            //Driver wants to manually fire/pass
+            driver.rightTrigger().whileTrue(new PrintCommand("TODO MANUAL FIRE/PASSING"));
+            
         } else {
             DriverStation.reportError("Comp Bindings: No driver bindings set, check controllers.", false);
         }
@@ -93,12 +103,35 @@ public final class BindingsCompetition {
         if (generic_opr instanceof CommandXboxController) {
             CommandXboxController operator = (CommandXboxController) generic_opr;
          
+            // intake bindings
+            
+            //intake in
+            operator.leftBumper().whileTrue(intake.cmdPctPwr(0.5))
+                                 .onFalse(intake.cmdPctPwr(0.0));
+            // intake out
+            operator.a().whileTrue(intake.cmdPctPwr(-0.5))
+                                 .onFalse(intake.cmdPctPwr(0.0));
+
             //Calibration Commands
-            Cal.and(sideboard.sw21()).whileTrue(climber.setVelocityCmd(10.0))
+            Cal.and(sideboard.sw12()).whileTrue(climber.setVelocityCmd(10.0))
                                      .onFalse(climber.setVelocityCmd(0.0));
-            Cal.and(sideboard.sw22()).whileTrue(climber.setVelocityCmd(-10.0))
+            Cal.and(sideboard.sw13()).whileTrue(climber.setVelocityCmd(-10.0))
                                      .onFalse(climber.setVelocityCmd(0.0));
 
+            //manual climber
+
+            //climber up
+            operator.povUp().whileTrue(climber.setVelocityCmd(10.0)) 
+                            .onFalse(climber.setVelocityCmd(0.0));
+            
+            //climber to 0
+            operator.povDown().onTrue(climber.armsToPoint(0));
+            
+            // manual flywheel speed adjustment
+            operator.povLeft().onTrue(targeter.manualLow());
+            operator.povRight().onTrue(targeter.manualHigh());
+
+            
         }
         else {
             DriverStation.reportWarning("Comp Bindings: No operator bindings set, check controllers.", false);
