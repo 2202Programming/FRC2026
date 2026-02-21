@@ -4,6 +4,8 @@
 
 package frc.robot2026.command.shooter;
 
+import java.util.function.DoubleSupplier;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot2026.subsystems.Shooter.Indexer;
 import frc.robot2026.subsystems.Shooter.Shooter;
@@ -14,13 +16,13 @@ public class AutoShoot extends Command {
   final Shooter shooter;
   final Indexer indexer;
 
-  double speed;
+  DoubleSupplier speedProvider;
   double idxPct;
 
-  public AutoShoot(Shooter shooter, Indexer indexer, double speed, double idxPct) {
+  public AutoShoot(Shooter shooter, Indexer indexer, DoubleSupplier speed, double idxPct) {
     this.shooter = shooter;
     this.indexer = indexer;
-    this.speed = speed;
+    this.speedProvider = speedProvider;
     this.idxPct = idxPct;
   }
 
@@ -31,7 +33,7 @@ public class AutoShoot extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    shooter.flywheel.setSetpoint(speed);
+    shooter.flywheel.setSetpoint(speedProvider.getAsDouble());
 
     if(shooter.atSetpoint()) {
       indexer.setPct(idxPct);
