@@ -74,13 +74,7 @@ public class Indexer extends SubsystemBase {
         .positionConversionFactor(posCF)
         .velocityConversionFactor(velCF);
 
-      controllerCfg.closedLoop
-        .feedbackSensor(FeedbackSensor.kPrimaryEncoder);
-    
-      controllerCfg.closedLoop.maxMotion
-        .cruiseVelocity(cruiseVel, slot)
-        .maxAcceleration(maxAccel, slot)
-        .allowedProfileError(1);
+    indexerCtrl = new SparkFlex(CAN.LIndexerID, MotorType.kBrushless);
 
       controller.configure(controllerCfg, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
     }
