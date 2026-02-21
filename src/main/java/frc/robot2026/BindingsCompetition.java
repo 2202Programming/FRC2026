@@ -16,9 +16,11 @@ import frc.lib2202.command.swerve.RobotCentricDrive;
 import frc.lib2202.subsystem.hid.HID_Subsystem;
 import frc.lib2202.subsystem.hid.TMJoystickController;
 import frc.lib2202.subsystem.swerve.DriveTrainInterface;
-
+import frc.robot2026.command.shooter.AutoShoot;
 import frc.robot2026.subsystems.Climber;
+import frc.robot2026.subsystems.Hopper;
 import frc.robot2026.subsystems.Intake;
+import frc.robot2026.subsystems.Shooter.Indexer;
 import frc.robot2026.subsystems.Shooter.Shooter;
 import frc.robot2026.subsystems.Shooter.Targeter;
 
@@ -33,6 +35,9 @@ public final class BindingsCompetition {
     static Climber climber;
     static Shooter shooter_left;
     static Shooter shooter_right;
+    static Indexer indexer_left;
+    static Indexer indexer_right;
+    static Hopper hopper;
     static Intake intake;
     static Targeter targeter;
     
@@ -44,6 +49,9 @@ public final class BindingsCompetition {
         drivetrain = RobotContainer.getSubsystem("drivetrain");
         intake = RobotContainer.getSubsystem(Intake.class);
         targeter = RobotContainer.getSubsystem(Targeter.class);
+        indexer_left = RobotContainer.getSubsystem("lIndexer");
+        indexer_right = RobotContainer.getSubsystem("rIndexer");
+        hopper = RobotContainer.getSubsystem(Hopper.class);
     }
 
 
@@ -84,7 +92,10 @@ public final class BindingsCompetition {
             driver.leftTrigger().whileTrue(new PrintCommand("TODO LIMELIGHT FIRE"));
             
             //Driver wants to manually fire/pass
-            driver.rightTrigger().whileTrue(new PrintCommand("TODO MANUAL FIRE/PASSING"));
+            driver.rightTrigger().whileTrue(new AutoShoot(shooter_left, indexer_left, targeter.getManualSpeed(), 1));
+            driver.rightTrigger().whileTrue(new AutoShoot(shooter_right, indexer_right, targeter.getManualSpeed(), 1));
+            driver.rightTrigger().whileTrue(hopper.cmdBeltPct(1))
+                                 .onFalse(hopper.cmdBeltPct(0));
             
         } else {
             DriverStation.reportError("Comp Bindings: No driver bindings set, check controllers.", false);

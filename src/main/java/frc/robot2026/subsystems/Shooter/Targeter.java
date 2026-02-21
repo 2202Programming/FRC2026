@@ -19,8 +19,12 @@ public class Targeter extends SubsystemBase {
     double distToTarget; // function of VPE pose and Hub center + math
     double manual_speed; // flywheel speed manually controlled by driver
 
+    
     public Targeter() {
 
+    }
+    public double getManualSpeed(){
+        return manual_speed;
     }
 
     @Override
