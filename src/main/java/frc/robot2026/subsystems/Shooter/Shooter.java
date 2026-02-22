@@ -12,7 +12,7 @@ import frc.lib2202.command.WatcherCmd;
 import frc.lib2202.util.PIDFController;
 
 public class Shooter extends SubsystemBase {
-    final IFlyWheel flywheel;
+    final public IFlyWheel flywheel;
     final FlyWheelConfig cfg;
     final boolean inverted;
 

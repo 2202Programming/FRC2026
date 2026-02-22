@@ -64,7 +64,6 @@ public class Intake extends SubsystemBase {
   // velocity control only used for testing, normal cmds will use position
   public void setPercent(double pct) {
     cmdPct = pct;
-    //btmRlrMtr.set(pct);
     Rlrmtr.set(pct);
   }
 
@@ -115,7 +114,7 @@ public class Intake extends SubsystemBase {
     }
 
 
-  class IntakeWatcher extends WatcherCmd {  
+  class IntakeWatcher extends WatcherCmd {
     IntakeWatcher() {
        addEntry("vel", Intake.this.Roller::getVelocity, 2);
     }

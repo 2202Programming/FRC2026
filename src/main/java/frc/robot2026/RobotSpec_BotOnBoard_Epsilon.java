@@ -16,7 +16,7 @@ import frc.lib2202.builder.RobotLimits;
 import frc.lib2202.builder.SubsystemConfig;
 import frc.lib2202.subsystem.hid.HID_Subsystem;
 import frc.robot2026.Constants.CAN;
-import frc.robot2026.subsystems.Hopper;
+import frc.robot2026.subsystems.Shooter.Indexer;
 
 public class RobotSpec_BotOnBoard_Epsilon implements IRobotSpec {
 
@@ -29,13 +29,12 @@ public class RobotSpec_BotOnBoard_Epsilon implements IRobotSpec {
         return new HID_Subsystem(0.3, 0.9, 0.05);
       })
       .add(PowerDistribution.class, "PDP", () -> {
-        var pdp = new PowerDistribution(CAN.PDP, ModuleType.kRev);
+        var pdp = new PowerDistribution(CAN.PDP, ModuleType.kCTRE);
         pdp.clearStickyFaults();
         return pdp;
       })
-       // .add(Intake.class)
-      .add(Hopper.class)      
-  ;
+      .add(Indexer.class)
+      ;
       
 
   // Robot Speed Limits
@@ -61,7 +60,7 @@ public class RobotSpec_BotOnBoard_Epsilon implements IRobotSpec {
     CommandXboxController operator = (CommandXboxController)dc.Operator();
 
     // TEST BINDING FOR NOW 
-    Hopper hopper = RobotContainer.getSubsystem(Hopper.class);
+    Indexer hopper = RobotContainer.getSubsystem(Indexer.class);
     hopper.setTestBindings(operator);  // uses triggers
     // operator.a().whileTrue(new IntakePwrSpin(0.2));
 

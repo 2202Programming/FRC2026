@@ -2,23 +2,22 @@ package frc.robot2026;
 
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.FeetPerSecond;
-import static frc.lib2202.Constants.MperFT;
 import static frc.lib2202.Constants.DEGperRAD;
+import static frc.lib2202.Constants.MperFT;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathfindingCommand;
+import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkFlex;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
-
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib2202.builder.IRobotSpec;
 import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.builder.RobotLimits;
@@ -39,11 +38,14 @@ import frc.lib2202.subsystem.swerve.config.ModuleConfig.CornerID;
 import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
 import frc.robot2026.subsystems.Climber;
+import frc.robot2026.subsystems.Hopper;
 import frc.robot2026.subsystems.Intake;
 import frc.robot2026.subsystems.LimelightV2;
 import frc.robot2026.subsystems.RangeSensor;
 import frc.robot2026.subsystems.VisionPoseEstimator;
+import frc.robot2026.subsystems.Shooter.Indexer;
 import frc.robot2026.subsystems.Shooter.Shooter;
+import frc.robot2026.subsystems.Shooter.Targeter;
 
 public class RobotSpec_AlphaBot implements IRobotSpec {
 
@@ -71,8 +73,8 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
       //.add(TrimTables.class)
       .add(LimelightV2.class, "limelight", () -> {
         // Limelight position in robot coords - this has LL in the front of bot
-        Pose3d LimelightPosition = new Pose3d((0.7112 / 2.0) - .07, -0.28, .225,
-            new Rotation3d(0.0, 10.0 / DEGperRAD, 0.0));
+        Pose3d LimelightPosition = new Pose3d(-0.03, 0.01, 0.465,
+            new Rotation3d(0.0, 11.0 / DEGperRAD, 0.0));
         return new LimelightV2("limelight", LimelightPosition);
       })
 
@@ -86,6 +88,12 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
         return obj;
       })
       // VisonPoseEstimator needs LL and Odometry, adds simplename and alias to lookup
+      .add(Indexer.class, "indexer_left", () -> {
+        return new Indexer(CAN.LIndexerID, true, ClosedLoopSlot.kSlot0);
+      })
+      .add(Indexer.class, "indexer_right", () -> {
+        return new Indexer(CAN.RIndexerID, false, ClosedLoopSlot.kSlot0);
+      })
       .addAlias(VisionPoseEstimator.class, "vision_odo")
       .add(Shooter.class, "shooter_left", () -> {
         return new Shooter("flex", Constants.CAN.ShooterIDLeft, false);
@@ -94,21 +102,25 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
         return new Shooter("flex", Constants.CAN.ShooterIDRight, true);
       })
       .add(Intake.class)
-      .add(Climber.class)
+      .add(Climber.class, "climber", () -> {
+        return new Climber(true);
+      })
+      .add(Hopper.class)
+      .add(Targeter.class)
       ;
 
   // Robot Speed Limits
   RobotLimits robotLimits = new RobotLimits(FeetPerSecond.of(15.0), DegreesPerSecond.of(360.0));
 
   // Chassis
-  double kWheelCorrectionFactor = 1.02;
+  double kWheelCorrectionFactor = 1.0;
   double kSteeringGR = 12.8;
   double kDriveGR = 5.36;
   double kWheelDiameter = MperFT * 4.0 / 12.0; // [m]
 
   final ChassisConfig chassisConfig = new ChassisConfig(
-      0.53 / 2.0, // x,
-      0.575 / 2.0, // y,
+      0.66 / 2.0, // x, as measured, 2/21/2026
+      0.715 / 2.0, // y, as measured, 2/21/2026
       kWheelCorrectionFactor, // scale [] <= 1.0
       kWheelDiameter,
       kSteeringGR,
@@ -146,7 +158,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
   public ModuleConfig[] getModuleConfigs() {
     ModuleConfig[] modules = new ModuleConfig[4];
     modules[CornerID.FrontLeft.getIdx()] = new ModuleConfig(CornerID.FrontLeft,
-        CAN.FL_CANCoder, CAN.FL_Drive, CAN.FL_Angle, 72.201)
+        CAN.FL_CANCoder, CAN.FL_Drive, CAN.FL_Angle, 71.9374)
         .setInversions(false, true, true);
 
     modules[CornerID.FrontRight.getIdx()] = new ModuleConfig(CornerID.FrontRight,
@@ -154,11 +166,11 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
         .setInversions(true, true, true);
 
     modules[CornerID.BackLeft.getIdx()] = new ModuleConfig(CornerID.BackLeft,
-        CAN.BL_CANCoder, CAN.BL_Drive, CAN.BL_Angle, -124.365)
+        CAN.BL_CANCoder, CAN.BL_Drive, CAN.BL_Angle, -127.7048)
         .setInversions(false, true, true);
 
     modules[CornerID.BackRight.getIdx()] = new ModuleConfig(CornerID.BackRight,
-        CAN.BR_CANCoder, CAN.BR_Drive, CAN.BR_Angle, 102.92)
+        CAN.BR_CANCoder, CAN.BR_Drive, CAN.BR_Angle, 100.4591)
         .setInversions(true, true, true);
 
     return modules;
@@ -172,8 +184,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
     DriveTrainInterface sdt = RobotContainer.getSubsystemOrNull("drivetrain");
     HID_Subsystem dc = RobotContainer.getSubsystem("DC");
     
-    CommandXboxController operator = (CommandXboxController) dc.Operator();
-    Intake intake = RobotContainer.getSubsystemOrNull(Intake.class);
+    // CommandXboxController operator = (CommandXboxController) dc.Operator();
 
     // Initialize PathPlanner, if we have needed Subsystems
     if (odo != null && sdt != null) {
@@ -183,22 +194,16 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
     }
 
     // Competition bindings
-    BindingsCompetition.ConfigureCompetition(dc, false);
-
-    // These are test bindings on Operator and need to be removed
-    Shooter l = RobotContainer.getSubsystemOrNull("shooter_left");
-    Shooter r = RobotContainer.getSubsystemOrNull("shooter_right");
-    if (l != null) l.setTestBindings(operator);
-    if (r != null) r.setTestBindings(operator);
+    BindingsCompetition.ConfigureCompetition(dc, true);
 
     // Place your test binding in ./testBinding/<yourFile>.java and call it here
     // comment out any conflicting bindings. Try not to push with your bindings
     // active. Just comment them out.   
-    //DpltestBinding.calbrate((operator); //lr bumps lr triggers
-    if (intake != null) {
-      intake.setTestBindings(operator); // lr bumps
-    }
+    // DpltestBinding.calbrate((CommandXboxController)dc.Operator());
+    // BGTestBindings.calbrate(operator); // steals operator (A, B, X, Y)
 
+    // CommandXboxController op = (CommandXboxController)dc.Operator();
+   
     // Anything else that needs to run after binding/commands are created 
     if (vpe != null) {
       vpe.configureGyroCallback();
