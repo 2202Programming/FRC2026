@@ -7,6 +7,7 @@ package frc.robot2026.command.shooter;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot2026.subsystems.Shooter.Indexer;
 import frc.robot2026.subsystems.Shooter.Shooter;
 
@@ -45,8 +46,14 @@ public class AutoShoot extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    shooter.flywheel.setSetpoint(0.0);
+    //shooter.flywheel.setSetpoint(0.0);
     indexer.setPct(0.0);
+    // leave shooter running for 300ms after indexer is off
+    // to make sure it is cleared
+    double spd = speedProvider.getAsDouble();
+    //create cmd and schedule it before we leave, 0.0 set at end
+    var cmd = shooter.cmdVelocityDuration(spd, 0.300);
+    CommandScheduler.getInstance().schedule(cmd);    
   }
 
   // Returns true when the command should end.

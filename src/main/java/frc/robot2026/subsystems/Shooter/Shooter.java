@@ -4,6 +4,7 @@ import static frc.lib2202.Constants.MperFT;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -173,7 +174,8 @@ public class Shooter extends SubsystemBase {
 
     // Shooter API
     public boolean atSetpoint() {
-        return flywheel.atSetpoint();
+        boolean off = flywheel.getSetpoint() == 0.0;
+        return flywheel.atSetpoint() && !off;
     }
 
     // Basic Commands
@@ -189,6 +191,15 @@ public class Shooter extends SubsystemBase {
                 Commands.waitUntil(this::atSetpoint),
                 Commands.print(getName() + " is atSetpoint " + cmd_vel))
                 .withName(getName() + ":cmdVelocityWait=" + cmd_vel);
+    }
+
+    //use this to run the shooter for a short period of time to wind
+    //down
+    public Command cmdVelocityDuration(double cmd_vel, double seconds){
+        return Commands.sequence(
+                cmdVelocity(cmd_vel),
+                new WaitCommand(seconds),
+                cmdVelocity(0.0));
     }
 
     // Testing Bindings

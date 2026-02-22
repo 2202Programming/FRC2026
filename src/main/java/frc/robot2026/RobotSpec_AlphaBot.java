@@ -48,6 +48,8 @@ import frc.robot2026.subsystems.Shooter.Shooter;
 import frc.robot2026.subsystems.Shooter.Targeter;
 
 public class RobotSpec_AlphaBot implements IRobotSpec {
+  // Subsystem objects for use at other cut points
+  Targeter targeter;   // auto/tele init
 
   // 2026 Robot rev Alpha
   // io sheet
@@ -183,6 +185,9 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
     VisionPoseEstimator vpe = RobotContainer.getSubsystemOrNull("vision_odo");
     DriveTrainInterface sdt = RobotContainer.getSubsystemOrNull("drivetrain");
     HID_Subsystem dc = RobotContainer.getSubsystem("DC");
+
+    //save for use in tele or auto init
+    targeter = RobotContainer.getSubsystem(Targeter.class);
     
     // CommandXboxController operator = (CommandXboxController) dc.Operator();
 
@@ -245,4 +250,17 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
     }
   }
 
+  //Handle things on tele or auto init
+
+  @Override
+  public void teleopInit() {   
+    IRobotSpec.super.teleopInit();
+    targeter.setTarget(); // set blue/red alliance
+  }
+
+  @Override
+  public void autonomousInit(){
+    IRobotSpec.super.autonomousInit();
+    targeter.setTarget(); // set blue/red alliance    
+  }
 }
