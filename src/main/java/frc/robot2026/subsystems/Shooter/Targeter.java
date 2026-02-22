@@ -1,7 +1,5 @@
 package frc.robot2026.subsystems.Shooter;
 
-import java.util.Optional;
-
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
@@ -10,7 +8,6 @@ import edu.wpi.first.math.interpolation.InverseInterpolator;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
-
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.subsystem.OdometryInterface;
@@ -47,11 +44,11 @@ public class Targeter extends SubsystemBase {
 
         Pose3d blue1 = TheField.fieldLayout.getTagPose(20).get();
         Pose3d blue2 = TheField.fieldLayout.getTagPose(26).get();
-        blueTarget = new Translation2d(Math.abs(blue1.getX()-blue2.getX()) / 2.0, blue1.getY());
+        blueTarget = new Translation2d(Math.abs(blue1.getX()+blue2.getX()) / 2.0, blue1.getY());
 
         Pose3d red1 = TheField.fieldLayout.getTagPose(4).get();
         Pose3d red2 = TheField.fieldLayout.getTagPose(10).get();
-        redTarget = new Translation2d(Math.abs(red1.getX()-red2.getX()) / 2.0, red1.getY()); 
+        redTarget = new Translation2d(Math.abs(red1.getX()+red2.getX()) / 2.0, red1.getY()); 
 
         odo = RobotContainer.getSubsystem("odometry");
 
@@ -116,6 +113,6 @@ public class Targeter extends SubsystemBase {
 
     @Override
     public void initSendable(SendableBuilder builder) {
-
+        builder.addDoubleProperty("target_dist", this::getTargetDistance, null);
     }
 }

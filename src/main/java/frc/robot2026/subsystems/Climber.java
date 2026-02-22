@@ -131,6 +131,12 @@ public class Climber extends SubsystemBase {
         });
     }
 
+    public Command setVelocityCmd(double vel) {
+        return runOnce(() -> {
+            l_arm.setVelocity(vel);  //switches Neo to vel mode
+        });
+    }
+
     @Override
     public void periodic() {
         // This method will be called once per scheduler run

@@ -227,4 +227,6 @@ public class Shooter extends SubsystemBase {
             addEntry("mtr_Temperature", Shooter.this.flywheel::getMotorTemperature, 2);
         }
     }
+
+    
 }
