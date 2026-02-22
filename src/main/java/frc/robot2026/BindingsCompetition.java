@@ -88,13 +88,16 @@ public final class BindingsCompetition {
                     new ScaleDriver(0.3), 
                     new RobotCentricDrive(drivetrain, dc)));
 
-
-            driver.leftTrigger().whileTrue(new PrintCommand("TODO LIMELIGHT FIRE"));
+            //Shoot with targetSpeed based on distance to hub
+            driver.leftTrigger(0.7).whileTrue(new AutoShoot(shooter_left, indexer_left, targeter::getTargetSpeed, 1));
+            driver.leftTrigger(0.7).whileTrue(new AutoShoot(shooter_right, indexer_right, targeter::getTargetSpeed, 1));
+            driver.leftTrigger(0.1).whileTrue(hopper.cmdBeltPct(1))
+                                             .onFalse(hopper.cmdBeltPct(0));
             
             //Driver wants to manually fire/pass
             driver.rightTrigger(0.7).whileTrue(new AutoShoot(shooter_left, indexer_left, targeter::getManualSpeed, 1));
             driver.rightTrigger(0.7).whileTrue(new AutoShoot(shooter_right, indexer_right, targeter::getManualSpeed, 1));
-            driver.rightTrigger(0.2).whileTrue(hopper.cmdBeltPct(1))
+            driver.rightTrigger(0.1).whileTrue(hopper.cmdBeltPct(1))
                                               .onFalse(hopper.cmdBeltPct(0));
             
         } else {
