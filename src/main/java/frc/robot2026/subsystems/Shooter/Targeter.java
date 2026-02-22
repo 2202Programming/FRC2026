@@ -43,6 +43,7 @@ public class Targeter extends SubsystemBase {
     double target_dist; // function of VPE pose and Hub center + math
     double target_speed = LOW_SPEED;
     double manual_speed = LOW_SPEED; // flywheel speed manually controlled by driver
+    double override_dist = 0.0;     // non-zero will skip LL distance calcs
 
     public Targeter() {
         this("vision_odo");
@@ -75,7 +76,8 @@ public class Targeter extends SubsystemBase {
 
     @Override
     public void periodic() {        
-        target_dist = odo.getDistanceToTranslation(targetTranslation2d);
+        target_dist = (override_dist == 0.0) ? 
+            odo.getDistanceToTranslation(targetTranslation2d) : override_dist;
         target_speed = vel_table.get(target_dist);
     }
 
@@ -108,6 +110,15 @@ public class Targeter extends SubsystemBase {
     public Command manualLow() {
         return runOnce(() -> {
             manual_speed = LOW_SPEED;
+        });
+    }
+
+    /*
+     * use this cmd to manually override the LL target speed, if 0.0 uses Vision's Distance.
+     */
+    public Command OverrideTargetDistanceFT(double distance_ft) {
+        return runOnce(() -> {
+            override_dist = distance_ft * MperFT;
         });
     }
 

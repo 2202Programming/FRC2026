@@ -126,6 +126,9 @@ public final class BindingsCompetition {
             operator.a().whileTrue(intake.cmdPctPwr(-0.60))
                                  .onFalse(intake.cmdPctPwr(0.0));
 
+            sideboard.sw14().onTrue(targeter.OverrideTargetDistanceFT(9.99))   // fixed distance
+                            .onFalse(targeter.OverrideTargetDistanceFT(0.0));  //use vision distance
+
             //Calibration Commands
             Cal.and(sideboard.sw12()).whileTrue(climber.setVelocityCmd(10.0))
                                      .onFalse(climber.setVelocityCmd(0.0));
