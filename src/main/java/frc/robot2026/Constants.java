@@ -117,7 +117,7 @@ public final class Constants {
     public static class Vision {
       // The layout of the AprilTags on the field
       public static final AprilTagFieldLayout kTagLayout = TheField.fieldLayout;
-            
+
         // The standard deviations of our vision estimated poses, which affect correction rate
         // (Fake values. Experiment and determine estimation noise on an actual robot.)
         public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(4, 4, 8);

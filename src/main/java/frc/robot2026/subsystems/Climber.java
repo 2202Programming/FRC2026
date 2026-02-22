@@ -131,17 +131,6 @@ public class Climber extends SubsystemBase {
         });
     }
 
-    // simple version for single arm  PITT calibration
-    public Command setVelocityCmd(double vel) {
-        return runOnce(() -> {
-            if (l_arm != null) l_arm.setVelocity(vel);  //switches Neo to vel mode
-            if (r_arm != null) r_arm.setVelocity(vel);  //switches Neo to vel mode
-        });
-    }
-
-
-
-
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
@@ -231,6 +220,10 @@ public class Climber extends SubsystemBase {
             return l_arm.atSetpoint();
         }
         return l_arm.atSetpoint() && r_arm.atSetpoint(); 
+    }
+
+    public double climbposition() {
+        return ExtendPosition;
     }
 
     public Command getWatcher(){
