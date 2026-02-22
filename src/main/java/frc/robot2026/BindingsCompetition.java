@@ -49,8 +49,8 @@ public final class BindingsCompetition {
         drivetrain = RobotContainer.getSubsystem("drivetrain");
         intake = RobotContainer.getSubsystem(Intake.class);
         targeter = RobotContainer.getSubsystem(Targeter.class);
-        indexer_left = RobotContainer.getSubsystem("lIndexer");
-        indexer_right = RobotContainer.getSubsystem("rIndexer");
+        indexer_left = RobotContainer.getSubsystem("indexer_left");
+        indexer_right = RobotContainer.getSubsystem("indexer_right");
         hopper = RobotContainer.getSubsystem(Hopper.class);
     }
 

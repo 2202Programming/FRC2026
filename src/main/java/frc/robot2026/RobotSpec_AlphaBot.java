@@ -158,7 +158,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
   public ModuleConfig[] getModuleConfigs() {
     ModuleConfig[] modules = new ModuleConfig[4];
     modules[CornerID.FrontLeft.getIdx()] = new ModuleConfig(CornerID.FrontLeft,
-        CAN.FL_CANCoder, CAN.FL_Drive, CAN.FL_Angle, 72.201)
+        CAN.FL_CANCoder, CAN.FL_Drive, CAN.FL_Angle, 71.9374)
         .setInversions(false, true, true);
 
     modules[CornerID.FrontRight.getIdx()] = new ModuleConfig(CornerID.FrontRight,
@@ -166,11 +166,11 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
         .setInversions(true, true, true);
 
     modules[CornerID.BackLeft.getIdx()] = new ModuleConfig(CornerID.BackLeft,
-        CAN.BL_CANCoder, CAN.BL_Drive, CAN.BL_Angle, -124.365)
+        CAN.BL_CANCoder, CAN.BL_Drive, CAN.BL_Angle, -127.7048)
         .setInversions(false, true, true);
 
     modules[CornerID.BackRight.getIdx()] = new ModuleConfig(CornerID.BackRight,
-        CAN.BR_CANCoder, CAN.BR_Drive, CAN.BR_Angle, 102.92)
+        CAN.BR_CANCoder, CAN.BR_Drive, CAN.BR_Angle, 100.4591)
         .setInversions(true, true, true);
 
     return modules;
