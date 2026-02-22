@@ -85,7 +85,7 @@ public class Photonvision extends SubsystemBase {
       for (var result : results) {
         multiTag = true;
         visionEst = photonEstimator.estimateCoprocMultiTagPose(result); // multag if available
-        if (visionEst.isEmpty()) { // less than 2 tages, no multitag available
+        if (visionEst.isEmpty()) { // less than 2 tags, no multitag available
           multiTag = false;
           // Single tag gives a bad pose est. 
           // if (result.hasTargets()) {
@@ -94,7 +94,7 @@ public class Photonvision extends SubsystemBase {
           //   }
           // }
         }
-
+        
         // this section for updating std dev of results - probably not useful without
         // experimental confirmation of error matrix in constants.
         updateEstimationStdDevs(visionEst, result.getTargets());
@@ -104,7 +104,8 @@ public class Photonvision extends SubsystemBase {
         visionEst.ifPresent(
             est -> {
               currentPose = est.estimatedPose.toPose2d();
-              timeStamp = est.timestampSeconds;
+              var meta = result.metadata.getLatencyMillis();
+              timeStamp = est.timestampSeconds-meta/1000.0;
               poseUpdateList.add(new PoseUpdate(currentPose, timeStamp));
 
               @SuppressWarnings("unused")
@@ -214,7 +215,7 @@ public class Photonvision extends SubsystemBase {
               .getTranslation()
               .getDistance(estimatedPose.get().estimatedPose.toPose2d().getTranslation());
         }
-
+        //TODO if we use the stdev from here, they should get passed along with its PoseUpdate
         if (numTags == 0) {
           // No tags visible. Default to single-tag std devs
           curStdDevs = kSingleTagStdDevs;
@@ -253,13 +254,6 @@ public class Photonvision extends SubsystemBase {
 
   /** Creates a new Photonvision. */
   final List<RobotCamera> camerasList = new ArrayList<RobotCamera>();
-  /*
-   * removed index copy, should be able to just use the cam object directly
-   * List<Integer> Photon_How_Many_Targets = new ArrayList<Integer>();
-   * List<Boolean> Photon_Has_Multi_Target = new ArrayList<Boolean>();
-   * List<Double> PoseX = new ArrayList<Double>();
-   * List<Double> PoseY = new ArrayList<Double>();
-   */
   final Photonvision.Config config;
 
   List<PoseUpdate> latest_updates; // keep pointer to last collected updates
@@ -270,12 +264,6 @@ public class Photonvision extends SubsystemBase {
 
     for (int i = 0; i < config.CAMERA_NAMES.length; i++) {
       camerasList.add(new RobotCamera(config.CAMERA_NAMES[i], config.kRobotToCam[i]));
-      /**
-       * Photon_Has_Multi_Target.add(false);
-       * Photon_How_Many_Targets.add(-1);
-       * PoseX.add(-1.0);
-       * PoseY.add(-1.0);
-       */
     }
     getWatcherCmd();
   }
@@ -284,14 +272,6 @@ public class Photonvision extends SubsystemBase {
   public void periodic() {
     for (RobotCamera currentCamera : camerasList) {
       currentCamera.update(); // run each camera's periodic
-
-      /*
-       * use camera object directly
-       * Photon_How_Many_Targets.set(i, currentCamera.howManyTargets());
-       * Photon_Has_Multi_Target.set(i, currentCamera.hasMultitarget());
-       * PoseX.set(i, currentCamera.getCurrentPoseX());
-       * PoseY.set(i, currentCamera.getCurrentPoseY());
-       */
     }
   }
 
@@ -345,8 +325,10 @@ public class Photonvision extends SubsystemBase {
     double sumCos = 0.0;
 
     for (RobotCamera cam : camerasList) {
+      Pose2d pose = cam.getPose2d();
+      if (pose == null) continue;
       if (cam.howManyTargets() > 0) {
-        double radians = cam.getPose2d().getRotation().getRadians();
+        double radians = pose.getRotation().getRadians();
         double doubled = 2 * radians; // multiply each angle by 2 due to 180deg periodicity, makes opposite directions align
         double x = Math.sin(doubled); // every angle becomes a point on unit circle
         double y = Math.cos(doubled);

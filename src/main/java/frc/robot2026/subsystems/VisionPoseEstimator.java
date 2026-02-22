@@ -61,6 +61,7 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
     // Units.degreesToRadians(5.0));
     // final Matrix<N3, N1> farStdDevs =VecBuilder.fill(0.5, 0.5,
     // Units.degreesToRadians(15.0));
+     final Matrix<N3, N1> PVStdDevs =VecBuilder.fill(.5, .5, Units.degreesToRadians(10));
 
     final SwerveDrivePoseEstimator m_estimator;
     // monitor diffs in ll and odometry poses
@@ -201,8 +202,8 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
                 gyro.getRotation2d(),
                 this.meas_pos,
                 this.m_odoPose,
-                VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(2)), // std x,y, heading from odmetry [m,deg] 5
-                VecBuilder.fill(0.5, 0.5, Units.degreesToRadians(10))); // std x, y heading from vision [m, deg] 30
+                VecBuilder.fill(0.1, 0.1, Units.degreesToRadians(2)), // std x,y, heading from odmetry [m,deg] 5
+                VecBuilder.fill(0.35, 0.35, Units.degreesToRadians(10))); // std x, y heading from vision [m, deg] 30
         return estimator;
     }
 
@@ -252,9 +253,8 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
 
         var updates = photon.getAllUpdates();
         for (PoseUpdate update : updates) {
-            m_estimator.addVisionMeasurement(update.pose, update.timestamp);
+            m_estimator.addVisionMeasurement(update.pose, update.timestamp, PVStdDevs);
         }
-        ;
     }
 
     public void configureGyroCallback() {
