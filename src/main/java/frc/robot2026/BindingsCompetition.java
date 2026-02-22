@@ -123,11 +123,6 @@ public final class BindingsCompetition {
             operator.a().whileTrue(intake.cmdPctPwr(-0.40))
                                  .onFalse(intake.cmdPctPwr(0.0));
 
-            //TODO: REMOVE THIS
-            operator.x().whileTrue(indexer_left.cmdSetPct(0.5)).onFalse(indexer_left.cmdSetPct(0.0));
-            operator.b().whileTrue(indexer_right.cmdSetPct(0.5)).onFalse(indexer_right.cmdSetPct(0.0));
-            operator.y().whileTrue(hopper.cmdBeltPct(0.5)).onFalse(hopper.cmdBeltPct(0.0));
-
             //Calibration Commands
             Cal.and(sideboard.sw12()).whileTrue(climber.setVelocityCmd(10.0))
                                      .onFalse(climber.setVelocityCmd(0.0));
