@@ -29,8 +29,8 @@ public class Targeter extends SubsystemBase {
     InterpolatingTreeMap<Double, Double> vel_table; // [M/S]
     double meas_dist;
 
-    final double HIGH_SPEED = 26.8; // [M/S]
-    final double LOW_SPEED = 26.8; // [M/S]
+    final double HIGH_SPEED = 32.5; // [M/S]
+    final double LOW_SPEED = 26.3; // [M/S]
     
     // Provided by vince as angle between the center of the motor and the trailing edge of the ball exit ramp
     final double Shooter_Angle = 65.0; // [deg]
