@@ -117,10 +117,10 @@ public final class BindingsCompetition {
             // intake bindings
             
             //intake in
-            operator.leftBumper().whileTrue(intake.cmdPctPwr(0.40))
+            operator.leftBumper().whileTrue(intake.cmdPctPwr(0.60))
                                  .onFalse(intake.cmdPctPwr(0.0));
             // intake out
-            operator.a().whileTrue(intake.cmdPctPwr(-0.40))
+            operator.a().whileTrue(intake.cmdPctPwr(-0.60))
                                  .onFalse(intake.cmdPctPwr(0.0));
 
             //Calibration Commands
