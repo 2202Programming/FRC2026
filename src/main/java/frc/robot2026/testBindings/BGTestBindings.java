@@ -2,13 +2,14 @@ package frc.robot2026.testBindings;
 
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib2202.builder.RobotContainer;
-import frc.robot2026.command.shooter.AutoShoot;
+//import frc.robot2026.command.shooter.AutoShoot;
 import frc.robot2026.subsystems.Hopper;
 import frc.robot2026.subsystems.Shooter.Indexer;
 import frc.robot2026.subsystems.Shooter.Shooter;
 
 public class BGTestBindings {
 
+    @SuppressWarnings("unused")
     public static void calbrate(CommandXboxController c) {
 
         final Shooter shooterL = RobotContainer.getSubsystem("shooter_left");

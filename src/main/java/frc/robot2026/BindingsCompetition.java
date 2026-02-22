@@ -30,16 +30,16 @@ import frc.robot2026.subsystems.Shooter.Targeter;
 @SuppressWarnings("unused")
 public final class BindingsCompetition {
     //subsystem references for use in command bindings
-    static DriveTrainInterface drivetrain; 
-    static HID_Subsystem dc;
-    static Climber climber;
-    static Shooter shooter_left;
-    static Shooter shooter_right;
-    static Indexer indexer_left;
-    static Indexer indexer_right;
-    static Hopper hopper;
-    static Intake intake;
-    static Targeter targeter;
+    public static DriveTrainInterface drivetrain; 
+    public static HID_Subsystem dc;
+    public static Climber climber;
+    public static Shooter shooter_left;
+    public static Shooter shooter_right;
+    public static Indexer indexer_left;
+    public static Indexer indexer_right;
+    public static Hopper hopper;
+    public static Intake intake;
+    public static Targeter targeter;
     
     private static void get_references() {
         // Subsystems must exist in RobotSpec, if they don't an NPE is thrown.
@@ -120,29 +120,26 @@ public final class BindingsCompetition {
             // intake bindings
             
             //intake in
-            operator.leftBumper().whileTrue(intake.cmdPctPwr(0.60))
+            operator.leftBumper().whileTrue(intake.cmdPctPwr(0.80))
                                  .onFalse(intake.cmdPctPwr(0.0));
             // intake out
-            operator.a().whileTrue(intake.cmdPctPwr(-0.60))
+            operator.a().whileTrue(intake.cmdPctPwr(-0.80))
                                  .onFalse(intake.cmdPctPwr(0.0));
 
             sideboard.sw14().onTrue(targeter.OverrideTargetDistanceFT(9.99))   // fixed distance
                             .onFalse(targeter.OverrideTargetDistanceFT(0.0));  //use vision distance
 
             //Calibration Commands
-            Cal.and(sideboard.sw12()).whileTrue(climber.setVelocityCmd(10.0))
+            Cal.and(sideboard.sw12()).whileTrue(climber.setVelocityCmd(Climber.ClimbCalibrateVel))
                                      .onFalse(climber.setVelocityCmd(0.0));
-            Cal.and(sideboard.sw13()).whileTrue(climber.setVelocityCmd(-10.0))
+            Cal.and(sideboard.sw13()).whileTrue(climber.setVelocityCmd(-Climber.ClimbCalibrateVel))
                                      .onFalse(climber.setVelocityCmd(0.0));
 
-            //manual climber
-
-            //climber up
-            operator.povUp().whileTrue(climber.setVelocityCmd(-10.0)) 
-                            .onFalse(climber.setVelocityCmd(0.0));
-            
-            //climber to 0
-            operator.povDown().onTrue(climber.armsToPoint(0));
+            //climber arm extend to max
+            operator.povUp().onTrue(climber.armsToPoint(Climber.ExtendPosition));
+                           
+            //climber arm to 0
+            operator.povDown().onTrue(climber.armsToPoint(Climber.PowerUpPosition));
             
             // manual flywheel speed adjustment
             operator.povLeft().onTrue(targeter.manualLow());
