@@ -13,6 +13,7 @@ import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.FeedForwardConfig;
 import com.revrobotics.spark.config.SparkBaseConfig;
@@ -27,8 +28,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 public class Indexer extends SubsystemBase {
 
-  final SparkFlex controller;
-  final SparkFlexConfig controllerCfg;
+  final SparkBase controller;
+  final SparkBaseConfig controllerCfg;
   final RelativeEncoder encoder;
   final SparkClosedLoopController closedLoopController;
   final FeedForwardConfig ffObj;
@@ -61,8 +62,9 @@ public class Indexer extends SubsystemBase {
   double increment_position = 6.0; // rough estimate as of 2/20/2026
   boolean m_changes = false;
 
-  public Indexer(int CanID, boolean inverted, ClosedLoopSlot slot) {
-    controller = new SparkFlex(CanID, MotorType.kBrushless);
+ 
+  public Indexer(int CanID, boolean inverted, ClosedLoopSlot slot, Class sparkType) {  
+    controller = (sparkType == SparkFlex.class ) ? new SparkFlex(CanID, MotorType.kBrushless) : new SparkMax(CanID, MotorType.kBrushless);
     controllerCfg = new SparkFlexConfig();
     encoder = controller.getEncoder();
     closedLoopController = controller.getClosedLoopController();
@@ -70,6 +72,9 @@ public class Indexer extends SubsystemBase {
     configure(slot, inverted);
     configureTuning(slot);
     encoder.setPosition(0.0); // tells the motor it's at pos. 0
+  }
+  public Indexer(int CanID, boolean inverted, ClosedLoopSlot slot) {
+    this(CanID, inverted, slot, SparkFlex.class);
   }
 
   private void configure(ClosedLoopSlot slot, boolean inverted) {

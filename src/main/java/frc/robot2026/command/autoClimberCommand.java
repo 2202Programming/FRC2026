@@ -38,11 +38,11 @@ public class autoClimberCommand extends SequentialCommandGroup {
     addRequirements(climber, dt,sensor);
     // Use addRequirements() here to declare subsystem dependencies
 
-    addCommands(new MoveToPose("sensors",
-                            constraints,
-                            new Pose2d((leftSide ? 5.0 : 3.0), 
-                                      (leftSide ? 0.5 : 1.0), 
-                                      Rotation2d.fromDegrees(leftSide ? 0.0 : 180.0))),
+    addCommands( //new MoveToPose("sensors",
+                           // constraints,
+                           // new Pose2d((leftSide ? 5.0 : 3.0), 
+                           //           (leftSide ? 0.5 : 1.0), 
+                           //           Rotation2d.fromDegrees(leftSide ? 0.0 : 180.0))),
                 climber.armsToPoint(climber.climbposition()), 
                 new climberManuver(leftSide), climber.armsToPoint(0))
                 ;

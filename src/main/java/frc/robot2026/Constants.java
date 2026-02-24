@@ -80,6 +80,14 @@ public final class Constants {
     public static final int CANRANGE_R_CAN = 62;
     public static final int CANRANGE_L_CAN = 61;
   
+
+    // Multi Shooter
+    public static final int FIntakeID = 55;
+    public static final int BIntakeID = 52;
+    public static final int BIndexID = 40;
+    public static final int TIndexID = 51;
+    public static final int MShooterID = 51;
+     
   }
 
   public static final class PWM{
