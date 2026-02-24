@@ -75,7 +75,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
       //.add(TrimTables.class)
       .add(LimelightV2.class, "limelight", () -> {
         // Limelight position in robot coords - this has LL in the front of bot
-        Pose3d LimelightPosition = new Pose3d(-0.03, 0.01, 0.465,
+        Pose3d LimelightPosition = new Pose3d(-0.03, 0.01, 0.49,
             new Rotation3d(0.0, 11.0 / DEGperRAD, 0.0));
         return new LimelightV2("limelight", LimelightPosition);
       })
