@@ -108,6 +108,7 @@ public class LimelightV2 extends SubsystemBase implements ILimelight {
             if (cfg.equals("pipe_color") && m_retro_pipe < 0) {
                 m_retro_pipe_default = m_retro_pipe = idx;
             }
+            // use first configured april tag pipeline ad default and active.
             if (cfg.equals("pipe_fiducial") && m_apriltag_pipe < 0) {
                 m_apriltag_pipe_default = m_apriltag_pipe = idx;
             }
@@ -123,8 +124,7 @@ public class LimelightV2 extends SubsystemBase implements ILimelight {
             msg = String.format("!!!!!! WARNING NO APRILTAG PIPE CONFIGURED for '%s'!!!!", m_name);
             DriverStation.reportWarning(msg, false);
         } else {
-            setPipeline(m_apriltag_pipe);
-            return;
+            setPipeline(m_apriltag_pipe);        
         }
     }
 
