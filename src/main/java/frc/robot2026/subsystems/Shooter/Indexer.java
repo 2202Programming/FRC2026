@@ -19,6 +19,7 @@ import com.revrobotics.spark.config.FeedForwardConfig;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
+import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -63,9 +64,14 @@ public class Indexer extends SubsystemBase {
   boolean m_changes = false;
 
  
-  public Indexer(int CanID, boolean inverted, ClosedLoopSlot slot, Class sparkType) {  
-    controller = (sparkType == SparkFlex.class ) ? new SparkFlex(CanID, MotorType.kBrushless) : new SparkMax(CanID, MotorType.kBrushless);
-    controllerCfg = new SparkFlexConfig();
+  public Indexer(int CanID, boolean inverted, ClosedLoopSlot slot, Class motorType) {  
+    if (motorType == SparkFlex.class) {
+      controller = new SparkFlex(CanID, MotorType.kBrushless);
+      controllerCfg = new SparkFlexConfig();
+    } else {
+      controller = new SparkMax(CanID, MotorType.kBrushless);
+      controllerCfg = new SparkMaxConfig();
+    }
     encoder = controller.getEncoder();
     closedLoopController = controller.getClosedLoopController();
     ffObj = controllerCfg.closedLoop.feedForward;

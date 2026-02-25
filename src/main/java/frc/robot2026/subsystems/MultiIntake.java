@@ -19,10 +19,10 @@ import frc.robot2026.Constants.CAN;
 public class MultiIntake extends SubsystemBase {
 
   final NeoServo Roller;
-  final NeoServo RollerB;
+  final NeoServo RollerUpper;
 
   final SparkBase Rlrmtr;  // filled from Servo object
-  final SparkBase RlrmtrB;
+  final SparkBase RlrmtrU;
 
   boolean disable_servo = true;
 
@@ -55,27 +55,34 @@ public class MultiIntake extends SubsystemBase {
 
     //Setup servos, for velocity or position control.
     Roller = new NeoServo(CAN.FIntakeID, Position_PID, HWVelocity_PID, !motor_inverted);
-    RollerB = new NeoServo(CAN.BIntakeID, Position_PID, HWVelocity_PID, motor_inverted );
+    RollerUpper = new NeoServo(CAN.BIntakeID, Position_PID, HWVelocity_PID, motor_inverted );
     
     //Mr.L Feedback - can't recreate contRollers with CANID, it was used by NeoServo, so pull from it
     Rlrmtr = Roller.getController();  
-    RlrmtrB = RollerB.getController();
+    RlrmtrU = RollerUpper.getController();
 
         Roller.setSmartCurrentLimit(STALL_CURRENT, FREE_CURRENT);
-        RollerB.setSmartCurrentLimit(STALL_CURRENT, FREE_CURRENT);
+        RollerUpper.setSmartCurrentLimit(STALL_CURRENT, FREE_CURRENT);
 
   }
 
   // velocity control only used for testing, normal cmds will use position
-  public void setPercent(double pct) {
-    cmdPct = pct;
-    Rlrmtr.set(pct);
-    RlrmtrB.set(pct);
+  public void setPercent(double pct) { 
+    setPercent(pct,pct); 
+  
   }
 
-  public double getVelocity() {
-    return Roller.getVelocity();
+  public void setPercent(double pct, double pct2) {
+    cmdPct = pct;
+    Rlrmtr.set(pct);
+    RlrmtrU.set(pct2);
+  }  
+
+  public double getVelocity(NeoServo roller) {
+    return roller.getVelocity();
   }
+
+  public double getVelocity() {return getVelocity(Roller);}
  
   @Override
   public void periodic() {
@@ -83,13 +90,16 @@ public class MultiIntake extends SubsystemBase {
     // power mode testing, disable servo if testing with duty-cycle
     if (!disable_servo) {
       Roller.periodic();
-      RollerB.periodic();
+      RollerUpper.periodic();
     }
   }
 
   public Command cmdPctPwr(double cmd_pct) {
+    return cmdPctPwr(cmd_pct,cmd_pct);}
+
+  public Command cmdPctPwr(double cmd_pct, double pct_pwr_upper) {
     return runOnce(() -> {
-      this.setPercent(cmd_pct);
+      this.setPercent(cmd_pct,pct_pwr_upper);
     });
   }
 
