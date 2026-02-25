@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib2202.builder.IRobotSpec;
 import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.builder.RobotLimits;
@@ -46,6 +47,7 @@ import frc.robot2026.subsystems.VisionPoseEstimator;
 import frc.robot2026.subsystems.Shooter.Indexer;
 import frc.robot2026.subsystems.Shooter.Shooter;
 import frc.robot2026.subsystems.Shooter.Targeter;
+import frc.robot2026.testBindings.DpltestBinding;
 
 public class RobotSpec_AlphaBot implements IRobotSpec {
   // Subsystem objects for use at other cut points
@@ -115,7 +117,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
   RobotLimits robotLimits = new RobotLimits(FeetPerSecond.of(15.0), DegreesPerSecond.of(360.0));
 
   // Chassis
-  double kWheelCorrectionFactor = 1.0;
+  double kWheelCorrectionFactor = 1.008;
   double kSteeringGR = 12.8;
   double kDriveGR = 5.36;
   double kWheelDiameter = MperFT * 4.0 / 12.0; // [m]
@@ -199,12 +201,12 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
     }
 
     // Competition bindings
-    BindingsCompetition.ConfigureCompetition(dc, true);
+    BindingsCompetition.ConfigureCompetition(dc, false);
 
     // Place your test binding in ./testBinding/<yourFile>.java and call it here
     // comment out any conflicting bindings. Try not to push with your bindings
     // active. Just comment them out.   
-    // DpltestBinding.calbrate((CommandXboxController)dc.Operator());
+    DpltestBinding.calbrate((CommandXboxController)dc.Operator());
     // BGTestBindings.calbrate(operator); // steals operator (A, B, X, Y)
 
     // CommandXboxController op = (CommandXboxController)dc.Operator();

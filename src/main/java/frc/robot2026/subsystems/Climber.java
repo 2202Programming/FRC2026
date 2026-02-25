@@ -1,6 +1,8 @@
 package frc.robot2026.subsystems;
 // Copyright (c) FIRST and other WPILib contributors.
 
+import com.revrobotics.spark.SparkFlex;
+
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
@@ -53,7 +55,7 @@ public class Climber extends SubsystemBase {
             this.name = name;
             hwVelPID.setIZone(10.0); // TODO record typical climb, set to just over typical error
             hwVelPID.setIntegratorRange(0.0, 10.0); // TODO record typical climb, set to just over typical error accum
-            servo = new NeoServo(CANID, posPID, hwVelPID, inverted);
+            servo = new NeoServo(CANID, posPID, hwVelPID, inverted, SparkFlex.class);
             setParams(CANID, side);            
         }
 

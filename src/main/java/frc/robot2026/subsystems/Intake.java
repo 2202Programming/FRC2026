@@ -5,6 +5,7 @@
 package frc.robot2026.subsystems;
 
 import com.revrobotics.spark.SparkBase;
+import com.revrobotics.spark.SparkFlex;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -52,7 +53,7 @@ public class Intake extends SubsystemBase {
     HWVelocity_PID.setIZone(200.0); //[deg/s]  outside this region ignore integral
 
     //Setup servos, for velocity or position control.
-    Roller = new NeoServo(CAN.IntakeID, Position_PID, HWVelocity_PID, motor_inverted);
+    Roller = new NeoServo(CAN.IntakeID, Position_PID, HWVelocity_PID, motor_inverted, SparkFlex.class);
     
     //Mr.L Feedback - can't recreate contRollers with CANID, it was used by NeoServo, so pull from it
     Rlrmtr = Roller.getController();  
