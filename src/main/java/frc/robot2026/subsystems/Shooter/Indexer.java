@@ -75,7 +75,7 @@ public class Indexer extends SubsystemBase {
     ffObj = controllerCfg.closedLoop.feedForward;
     configure(slot, inverted);
     configureTuning(slot);
-    encoder.setPosition(0.0); // tells the motor it's at pos. 0
+    encoder.setPosition(0.0); // tells the motor it's at pos 0
   }
 
   private void configure(ClosedLoopSlot slot, boolean inverted) {
