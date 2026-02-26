@@ -3,6 +3,7 @@ package frc.robot2026.testBindings;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib2202.command.swerve.calibrate.TestConstantVelocity;
 import frc.lib2202.command.swerve.calibrate.TestRotateVelocity;
+import frc.robot2026.RegisteredCommands;
 
 public class DpltestBinding {
 
@@ -12,5 +13,8 @@ public class DpltestBinding {
         c.leftBumper().onTrue(new TestRotateVelocity (30.0,6.0));  //180 deg
         c.leftTrigger().onTrue(new TestConstantVelocity(0.25, 4.0)); //moves 1m
         c.rightTrigger().onTrue(new TestConstantVelocity(0.25, 8.0)); //moves 2m
+
+        // Test named command Shoot off a button...
+        c.a().onTrue(RegisteredCommands.ncShoot());
     }
 }

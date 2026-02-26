@@ -18,8 +18,8 @@ import frc.robot2026.command.shooter.AutoShoot;
  */
 @SuppressWarnings("unused")
 public class RegisteredCommands {
-    
-    public static void RegisterCommands() {
+   
+    public static Command ncShoot() {
         //grab the subsystem refs setup in bindings, to use for these cmds
         var shooter_left = BindingsCompetition.shooter_left;
         var shooter_right = BindingsCompetition.shooter_right;
@@ -28,8 +28,8 @@ public class RegisteredCommands {
         var targeter = BindingsCompetition.targeter;
         var hopper = BindingsCompetition.hopper;
         var intake = BindingsCompetition.intake;
-    NamedCommands.registerCommand("shoot", 
-        new ParallelCommandGroup(
+
+        return new ParallelCommandGroup(            
             new PrintCommand("Shooting lots of fuel ... nothing but net."),
             //new FaceToTag(10, 26), 
             new AutoShoot(shooter_left, indexer_left, targeter::getTargetSpeed, 1),
@@ -37,9 +37,15 @@ public class RegisteredCommands {
             hopper.cmdBeltPct(1),
             intake.cmdPctPwr(0.80)
             ).withDeadline( new WaitCommand(6.0))
-             .withName("rc_shoot")
+             .withName("ncShoot")
              .andThen(hopper.cmdBeltPct(0.0)
-             .andThen( intake.cmdPctPwr(0.0))));
+             .andThen( intake.cmdPctPwr(0.0)));
+    }
+
+
+    public static void RegisterCommands() {
+       
+    NamedCommands.registerCommand("shoot", ncShoot());       
 
     NamedCommands.registerCommand("climb_right",   
         new PrintCommand("Climbing from right side."));

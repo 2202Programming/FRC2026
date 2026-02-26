@@ -20,6 +20,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -33,7 +34,7 @@ public class Indexer extends SubsystemBase {
   final SparkClosedLoopController closedLoopController;
   final FeedForwardConfig ffObj;
 
-  // final DigitalInput indexGate; // unused
+  final DigitalInput indexGate; 
 
   final ClosedLoopSlot PositionSlot = ClosedLoopSlot.kSlot0;
 
@@ -61,7 +62,12 @@ public class Indexer extends SubsystemBase {
   double increment_position = 6.0; // rough estimate as of 2/20/2026
   boolean m_changes = false;
 
-  public Indexer(int CanID, boolean inverted, ClosedLoopSlot slot) {
+
+  // TODO -  QUESTION, why are we exposing the Slot? Doesn't seem like it merits Ctor level exposure
+  // consider changing slots via some api?  Looks like all the work is done in ctor.
+
+  public Indexer(int CanID, boolean inverted, ClosedLoopSlot slot, int dio_gate) {
+    indexGate = new DigitalInput(dio_gate);
     controller = new SparkFlex(CanID, MotorType.kBrushless);
     controllerCfg = new SparkFlexConfig();
     encoder = controller.getEncoder();
@@ -121,19 +127,23 @@ public class Indexer extends SubsystemBase {
     controller.set(pct);
   }
 
+  public boolean hasFuel(){
+    return indexGate.get();
+  }
+
   public Command cmdSetPct(double pct) {
     return runOnce(() -> {
       setPct(pct);
     });
   }
 
-  public void setkS(double newkS) {
+  void setkS(double newkS) {
     ffObj.kS(newkS);
     kS = newkS;
     m_changes = true;
   }
 
-  public void setkV(double newkV) {
+  void setkV(double newkV) {
     ffObj.kV(newkV);
     kV = newkV;
     m_changes = true;
@@ -163,7 +173,7 @@ public class Indexer extends SubsystemBase {
 
   @Override
   public void periodic() {
-    update(controller, controllerCfg, PositionSlot);
+    update(controller, controllerCfg, PositionSlot);  //changes only when actively tuning via Elastic
   }
 
   public void setTestBindings(CommandXboxController xbox) {

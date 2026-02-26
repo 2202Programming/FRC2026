@@ -39,6 +39,7 @@ import frc.lib2202.subsystem.swerve.config.ModuleConfig;
 import frc.lib2202.subsystem.swerve.config.ModuleConfig.CornerID;
 import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
+import frc.robot2026.Constants.DigitalIO;
 import frc.robot2026.command.pose.setGyroOffsetWithVision;
 import frc.robot2026.subsystems.Climber;
 import frc.robot2026.subsystems.Hopper;
@@ -95,10 +96,10 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
       })
       // VisonPoseEstimator needs LL and Odometry, adds simplename and alias to lookup
       .add(Indexer.class, "indexer_left", () -> {
-        return new Indexer(CAN.LIndexerID, true, ClosedLoopSlot.kSlot0);
+        return new Indexer(CAN.LIndexerID, true, ClosedLoopSlot.kSlot0, DigitalIO.IndexerGateLeft);
       })
       .add(Indexer.class, "indexer_right", () -> {
-        return new Indexer(CAN.RIndexerID, false, ClosedLoopSlot.kSlot0);
+        return new Indexer(CAN.RIndexerID, false, ClosedLoopSlot.kSlot0, DigitalIO.IndexerGateLeft);
       })
       .addAlias(VisionPoseEstimator.class, "vision_odo")
       .add(Shooter.class, "shooter_left", () -> {

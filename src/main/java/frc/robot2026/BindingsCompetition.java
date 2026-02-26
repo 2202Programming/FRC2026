@@ -66,7 +66,7 @@ public final class BindingsCompetition {
         get_references();
         DriverBinding();
         if (initOpr) 
-            OperatorBindings();
+            OperatorBindings();     
     }
 
     private static void DriverBinding() {       
@@ -118,7 +118,9 @@ public final class BindingsCompetition {
             CommandXboxController operator = (CommandXboxController) generic_opr;
          
             // intake bindings
-            
+             //Testing this - DPL - auto run intake on lightgate
+            // intake.FuelPresent.onTrue(intake.cmdRunForPeriod(.8, 2.0));       
+
             //intake in
             operator.leftBumper().whileTrue(intake.cmdPctPwr(0.80))
                                  .onFalse(intake.cmdPctPwr(0.0));

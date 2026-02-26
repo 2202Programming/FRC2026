@@ -9,19 +9,27 @@ import com.revrobotics.spark.SparkFlex;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib2202.command.WatcherCmd;
 import frc.lib2202.util.NeoServo;
 import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
+import frc.robot2026.Constants.DigitalIO;
 
 public class Intake extends SubsystemBase {
 
+  //Hardware
   final NeoServo Roller;
-
   final SparkBase Rlrmtr;  // filled from Servo object
+  final DigitalInput lightgate;
+
+  //Triggers
+  public final Trigger FuelPresent;
 
   boolean disable_servo = true;
 
@@ -47,7 +55,8 @@ public class Intake extends SubsystemBase {
 
   /** Creates a new Intake. */
   public Intake() {
-    setName("Intake-" + CAN.IntakeID);// + " | Intake-Bottom=" + CAN.IntakeBottomID);
+    setName("Intake-" + CAN.IntakeID);
+    lightgate = new DigitalInput(DigitalIO.IntakeGate);
 
     // setup any other hardware Pid values, like Izone 
     HWVelocity_PID.setIZone(200.0); //[deg/s]  outside this region ignore integral
@@ -57,9 +66,15 @@ public class Intake extends SubsystemBase {
     
     //Mr.L Feedback - can't recreate contRollers with CANID, it was used by NeoServo, so pull from it
     Rlrmtr = Roller.getController();  
+    Roller.setSmartCurrentLimit(STALL_CURRENT, FREE_CURRENT);
 
-        Roller.setSmartCurrentLimit(STALL_CURRENT, FREE_CURRENT);
+    // Create a trigger for fuel in light gate
+    FuelPresent = new Trigger(this::fuelPresent);
+  }
 
+
+  public boolean fuelPresent() {
+    return lightgate.get();
   }
 
   // velocity control only used for testing, normal cmds will use position
@@ -87,9 +102,17 @@ public class Intake extends SubsystemBase {
     });
   }
 
+  // can use this to run on FuelPresent trigger or to run forward/back
+  public Command cmdRunForPeriod(double pct, double seconds) {
+    return Commands.sequence(
+              cmdPctPwr(pct),
+              Commands.waitSeconds(seconds)
+       ).finallyDo(() -> this.setPercent(0.0) );
+  }
+
   public void setTestBindings(CommandXboxController opr) {
     opr.leftBumper()
-        .onTrue(this.cmdPctPwr(0.5))
+        .whileTrue(this.cmdPctPwr(0.5))
         .onFalse(this.cmdPctPwr(0.0));
 
     opr.rightBumper()
@@ -98,6 +121,9 @@ public class Intake extends SubsystemBase {
 
     opr.b()
         .onTrue(this.cmdPctPwr(0.0));
+
+    opr.a()
+        .onTrue(this.cmdRunForPeriod(.8, 2.0));    
   }
 
   @Override
@@ -105,7 +131,6 @@ public class Intake extends SubsystemBase {
         super.initSendable(builder);
         //TODO add parameters here for tuning
         builder.addDoubleProperty("vel_1", this.Roller::getVelocity, this.Roller::setSetpoint);
-
         builder.addDoubleProperty("pct_pwr", this.Rlrmtr::get, this.Rlrmtr::set);
     }
 
@@ -114,10 +139,10 @@ public class Intake extends SubsystemBase {
         return this.new IntakeWatcher();
     }
 
-
   class IntakeWatcher extends WatcherCmd {
     IntakeWatcher() {
        addEntry("vel", Intake.this.Roller::getVelocity, 2);
+       addEntry("fuelPresent", Intake.this::fuelPresent);
     }
   }
 
