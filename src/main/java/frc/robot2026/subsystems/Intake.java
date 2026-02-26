@@ -9,10 +9,13 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.FeedbackSensor;
+import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.FeedForwardConfig;
+import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkFlexConfig;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -29,24 +32,26 @@ public class Intake extends SubsystemBase {
   final SparkFlexConfig config;
   final RelativeEncoder encoder;
   final SparkClosedLoopController closedLoopController;
+  final FeedForwardConfig ffObj;
 
-  final double GearRatio = 5.0;
+  final double GearRatio = 3.0;
   final double conversionFactor = 1.0 / GearRatio; // [rot (mtr) / rot (output)]
 
   final ClosedLoopSlot slot = ClosedLoopSlot.kSlot0;
 
   final boolean motor_inverted = true;
 
-  final double cruiseVel = 100.0;
-  final double maxAccel = 75.0;
+  final double cruiseVel = 5767.0;
+  final double maxAccel = 10000.0;
 
-  double P = 0.0;
+  double P = 0.4;
   double I = 0.0;
   double D = 0.0;
   double kS = 0.0;
-  double kV = 12.0/5767.0;
+  double kV = 12.0 / 5767.0;
 
   double pos_setpoint;
+  boolean m_changes = false;
 
   boolean disable_servo = true;
 
@@ -63,6 +68,8 @@ public class Intake extends SubsystemBase {
     encoder = controller.getEncoder();
     closedLoopController = controller.getClosedLoopController();
 
+    ffObj = config.closedLoop.feedForward;
+
     config
         .inverted(motor_inverted);
 
@@ -77,30 +84,70 @@ public class Intake extends SubsystemBase {
         .maxAcceleration(maxAccel, slot)
         .allowedProfileError(1);
 
-
     config.closedLoop
-        .p(P).i(I).d(D)
-    .feedForward
-        .kS(kS).kV(kV);
+        .p(P, slot).i(I, slot).d(D, slot)
+        .feedForward
+          .kS(kS, slot).kV(kV, slot);
 
     controller.configure(config, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
   }
 
-  public void setPosSetpoint(double setpoint) {
-      closedLoopController.setSetpoint(setpoint, ControlType.kMAXMotionPositionControl, slot);
-      pos_setpoint = setpoint;
+  /**
+   * 
+   * @param motorController - The motor controller to apply the values to
+   * @param motorConfig     - The cfg to send the values into
+   * @param slot            - The slot (PositionSlot / VelocitySlot) to send the
+   *                        values to
+   * 
+   *                        Updates values every frame for PID, kV, kS, iMaxAccum,
+   *                        iZone, rampRate,
+   */
+  private void update(SparkBase motorController, SparkBaseConfig motorConfig, ClosedLoopSlot slot) {
+    // skip if no changes or no attached hw typical if use PIDF without calling
+    if (!m_changes || motorConfig == null || motorController == null)
+      return;
+
+    motorConfig.closedLoop.pid(P, I, D, slot);
+    motorConfig.closedLoop.feedForward.sv(kS, kV, slot);
+
+    // send to HW if we have a pid change, use async so robot loop isn't delayed
+    motorController.configureAsync(motorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+    m_changes = false;
   }
 
-  /*
-   * getPosSetpoint()
-   * getPosition()
-   * getPosError()
-   * zeroPos() - encoder
-   * 
-   * add set/get pos setpoint on the sendable
-   * 
-   * apply test bindings of zeroPos -> B
-   */
+  @Override
+  public void periodic() {
+    update(controller, config, slot);
+  }
+
+  public void setPosSetpoint(double setpoint) {
+    closedLoopController.setSetpoint(setpoint, ControlType.kMAXMotionPositionControl, slot);
+    pos_setpoint = setpoint;
+  }
+
+  public Command cmdSetPos(double setpoint) {
+    return runOnce(() -> {
+      setPosSetpoint(setpoint);
+    });
+  }
+
+  public Command cmdZeroPos() {
+    return runOnce(() -> {
+      zeroPos();
+    });
+  }
+
+  public void setkS(double newkS) {
+    ffObj.kS(newkS);
+    kS = newkS;
+    m_changes = true;
+  }
+
+  public void setkV(double newkV) {
+    ffObj.kV(newkV);
+    kV = newkV;
+    m_changes = true;
+  }
 
   public double getPosSetPoint() {
     return pos_setpoint;
@@ -109,6 +156,10 @@ public class Intake extends SubsystemBase {
   public double getPosition() {
     return encoder.getPosition();
   }
+
+public double getRPM() {
+  return encoder.getVelocity();
+}
 
   public double getPositionError() {
     return Math.abs(getPosition() - pos_setpoint);
@@ -122,15 +173,6 @@ public class Intake extends SubsystemBase {
   public void setPercent(double pct) {
     cmdPct = pct;
     controller.set(pct);
-  }
-
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
-    // power mode testing, disable servo if testing with duty-cycle
-    if (!disable_servo) {
-      // Roller.periodic();
-    }
   }
 
   public Command cmdPctPwr(double cmd_pct) {
@@ -151,14 +193,47 @@ public class Intake extends SubsystemBase {
     opr.b()
         .onTrue(this.cmdPctPwr(0.0));
 
-    opr.b().onTrue(new InstantCommand(() -> { zeroPos();} ));
+    opr.b().onTrue(new InstantCommand(() -> {
+      zeroPos();
+    }));
   }
 
   @Override
   public void initSendable(SendableBuilder builder) {
     super.initSendable(builder);
 
-    builder.addDoubleProperty("pos_cmd", this::getPosition, this::setPosSetpoint);
+    builder.addDoubleProperty("pos_cmd", this::getPosSetPoint, this::setPosSetpoint);
+    builder.addDoubleProperty("pos_err", this::getPosSetPoint, null);
+    builder.addDoubleProperty("pos", this::getPosition, null);
+    builder.addDoubleProperty("RPM", this::getRPM, null);
+
+    builder.addDoubleProperty("kS", () -> {
+      return kS;
+    }, this::setkS);
+    builder.addDoubleProperty("kV", () -> {
+      return kV;
+    }, this::setkV);
+
+    builder.addDoubleProperty("P", () -> {
+      return P;
+    }, (double v) -> {
+      this.P = v;
+      m_changes = true;
+    });
+
+    builder.addDoubleProperty("I", () -> {
+      return I;
+    }, (double i) -> {
+      this.I = i;
+      m_changes = true;
+    });
+
+    builder.addDoubleProperty("D", () -> {
+      return D;
+    }, (double d) -> {
+      this.D = d;
+      m_changes = true;
+    });
   }
 
   // Add a watcher so we can see stuff on network tables
