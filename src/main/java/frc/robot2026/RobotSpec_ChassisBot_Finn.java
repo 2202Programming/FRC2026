@@ -87,7 +87,9 @@ public class RobotSpec_ChassisBot_Finn implements IRobotSpec {
 //        return new Climber(true);
   //    })
       //.add(Hopper.class)
-   // .add(Targeter.class)
+    .add(Targeter.class, "targeter", () -> {
+      return new Targeter("odometry");
+    })
 
     
      ;

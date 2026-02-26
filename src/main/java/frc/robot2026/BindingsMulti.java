@@ -16,6 +16,7 @@ import frc.lib2202.command.swerve.RobotCentricDrive;
 import frc.lib2202.subsystem.hid.HID_Subsystem;
 import frc.lib2202.subsystem.hid.TMJoystickController;
 import frc.lib2202.subsystem.swerve.DriveTrainInterface;
+import frc.robot2026.command.shooter.AutoShoot;
 import frc.robot2026.command.shooter.AutoShootMulti;
 import frc.robot2026.subsystems.Climber;
 import frc.robot2026.subsystems.Hopper;
@@ -46,7 +47,7 @@ public final class BindingsMulti {
         shooter = RobotContainer.getSubsystem("shooter");
         drivetrain = RobotContainer.getSubsystem("drivetrain");
         intake = RobotContainer.getSubsystem(MultiIntake.class);
-        //targeter = RobotContainer.getSubsystem(Targeter.class);
+        targeter = RobotContainer.getSubsystem(Targeter.class);
         indexerT = RobotContainer.getSubsystem("indexer_top");
         indexerB = RobotContainer.getSubsystem("indexer_bottom");
        // hopper = RobotContainer.getSubsystem(Hopper.class);
@@ -87,11 +88,12 @@ public final class BindingsMulti {
                     new RobotCentricDrive(drivetrain, dc)));
 
             //Shoot with targetSpeed based on distance to hub
-            //driver.leftTrigger(0.7).whileTrue(new AutoShootMulti(shooter, indexerT, indexerB, .8, 1));
+            driver.leftTrigger(0.7).whileTrue(new AutoShootMulti(shooter, indexerT, indexerB, targeter::getTargetSpeed, 1));
             //driver.leftTrigger(0.1).whileTrue(hopper.cmdBeltPct(1))
               //                               .onFalse(hopper.cmdBeltPct(0));
             
             //Driver wants to manually fire/pass
+            driver.rightTrigger(0.7).whileTrue(new AutoShootMulti(shooter, indexerT,indexerB, targeter::getManualSpeed, 1));
             //driver.rightTrigger(0.7).whileTrue(new AutoShootMulti(shooter, indexerT, indexerB, .8, 1));
             //driver.rightTrigger(0.1).whileTrue(hopper.cmdBeltPct(1))
              //                                 .onFalse(hopper.cmdBeltPct(0));
