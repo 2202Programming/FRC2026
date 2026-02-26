@@ -3,11 +3,7 @@ package frc.robot2026.testBindings;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib2202.builder.RobotContainer;
 import frc.robot2026.command.intake.Burp;
-//import frc.robot2026.command.shooter.AutoShoot;
-import frc.robot2026.subsystems.Hopper;
 import frc.robot2026.subsystems.Intake;
-import frc.robot2026.subsystems.Shooter.Indexer;
-import frc.robot2026.subsystems.Shooter.Shooter;
 
 public class BGTestBindings {
 
@@ -27,7 +23,7 @@ public class BGTestBindings {
        c.a().onTrue(intake.cmdSetPos(1.0));
        c.b().onTrue(intake.cmdZeroPos()); 
 
-       c.x().onTrue(new Burp());
+       c.x().onTrue(new Burp(-0.5, 20.0));
         
     }
 }

@@ -44,8 +44,8 @@ public class Intake extends SubsystemBase {
   final double cruiseVel = 5767.0;
   final double maxAccel = 10000.0;
 
-  double P = 0.4;
-  double I = 0.0;
+  double P = 0.7;
+  double I = 0.0015;
   double D = 0.0;
   double kS = 0.0;
   double kV = 12.0 / 5767.0;
