@@ -17,14 +17,22 @@ public class AutoShoot extends Command {
   final Shooter shooter;
   final Indexer indexer;
 
+  public enum states{
+    off,
+    spinning,
+    ready
+  }
+
   DoubleSupplier speedProvider;
   double idxPct;
+  states currentState;
 
   public AutoShoot(Shooter shooter, Indexer indexer, DoubleSupplier speedProvider, double idxPct) {
     this.shooter = shooter;
     this.indexer = indexer;
     this.speedProvider = speedProvider;
     this.idxPct = idxPct;
+    currentState = states.off;
   }
 
   // Called when the command is initially scheduled.
@@ -34,13 +42,31 @@ public class AutoShoot extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    shooter.flywheel.setSetpoint(speedProvider.getAsDouble());
-
-    if(shooter.atSetpoint()) {
-      indexer.setPct(idxPct);
-    } else {
+    if(currentState == states.off) {
+      shooter.flywheel.setSetpoint(speedProvider.getAsDouble());
+      currentState = states.spinning;
       indexer.setPct(0.0);
     }
+    else if(currentState == states.spinning) {
+      if(atSpeed())
+      {
+        currentState = states.ready;
+      }
+      indexer.setPct(0.0);
+    }
+    else if(currentState == states.ready) {
+      indexer.setPct(idxPct);
+    }
+  }
+
+  public boolean atSpeed()
+  {
+    return shooter.atSetpoint();
+  }
+
+  public states getState()
+  {
+    return currentState;
   }
 
   // Called once the command ends or is interrupted.
@@ -54,6 +80,7 @@ public class AutoShoot extends Command {
     //create cmd and schedule it before we leave, 0.0 set at end
     var cmd = shooter.cmdVelocityDuration(spd, 0.300);
     CommandScheduler.getInstance().schedule(cmd);    
+    currentState = states.off;
   }
 
   // Returns true when the command should end.

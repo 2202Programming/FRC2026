@@ -147,6 +147,7 @@ public class Shooter extends SubsystemBase {
         builder.addDoubleProperty("vel_cmd", flywheel::getSetpoint, flywheel::setSetpoint);
         builder.addDoubleProperty("vel_measured", flywheel::getVelocity, null);
         builder.addDoubleProperty("vel_tolerance", flywheel::getTolerance, flywheel::setVelocityTolerance);
+    
 
         // Rev Only
         if (flywheel instanceof FlyWheelRev) {
@@ -230,6 +231,7 @@ public class Shooter extends SubsystemBase {
             addEntry("at_setpoint", Shooter.this::atSetpoint);
             addEntry("position", Shooter.this.flywheel::getPosition);
             addEntry("get_pos_rot", Shooter.this.flywheel::getPosRot);
+            addEntry("velocity_tolerance", Shooter.this.flywheel::getTolerance);
 
             // other info about flywheel's motor
             addEntry("mtr_appliedOutput", Shooter.this.flywheel::getAppliedOutput, 2);
