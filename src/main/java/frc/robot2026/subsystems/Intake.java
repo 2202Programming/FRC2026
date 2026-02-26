@@ -4,43 +4,53 @@
 
 package frc.robot2026.subsystems;
 
-import com.revrobotics.spark.SparkBase;
+import com.revrobotics.PersistMode;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.ResetMode;
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.FeedbackSensor;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkFlexConfig;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib2202.command.WatcherCmd;
-import frc.lib2202.util.NeoServo;
-import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
 
 public class Intake extends SubsystemBase {
 
-  final NeoServo Roller;
+  final SparkFlex controller;
+  final SparkFlexConfig config;
+  final RelativeEncoder encoder;
+  final SparkClosedLoopController closedLoopController;
 
-  final SparkBase Rlrmtr;  // filled from Servo object
+  final double GearRatio = 5.0;
+  final double conversionFactor = 1.0 / GearRatio; // [rot (mtr) / rot (output)]
+
+  final ClosedLoopSlot slot = ClosedLoopSlot.kSlot0;
+
+  final boolean motor_inverted = true;
+
+  final double cruiseVel = 100.0;
+  final double maxAccel = 75.0;
+
+  double P = 0.0;
+  double I = 0.0;
+  double D = 0.0;
+  double kS = 0.0;
+  double kV = 12.0/5767.0;
+
+  double pos_setpoint;
 
   boolean disable_servo = true;
 
-  PIDFController HWVelocity_PID = new PIDFController(0.0, 0.0, 0.0, 5.0 / 180.0 / 1.2); // [deg/s]
-  PIDController  Position_PID = new PIDController(0.0 ,0, 0);  //[deg]
-
-  //convert to deg/s units at the geared output
-  final double GearRatio = 5.0;
-  final double conversionFactor = 360.0 / GearRatio;  // [deg/rot]
-
-  // Motor settings for Servo
-  final int STALL_CURRENT = 80;
-  final int FREE_CURRENT = 5;
-  final boolean motor_inverted = true;
-
-
   // Servo speed/positions
-  final double maxVel = 100.0;
-  final double maxAccel = 75.0;
-
   double cmdPos;
   double cmdPct;
 
@@ -48,35 +58,78 @@ public class Intake extends SubsystemBase {
   public Intake() {
     setName("Intake-" + CAN.IntakeID);// + " | Intake-Bottom=" + CAN.IntakeBottomID);
 
-    // setup any other hardware Pid values, like Izone 
-    HWVelocity_PID.setIZone(200.0); //[deg/s]  outside this region ignore integral
+    controller = new SparkFlex(CAN.IntakeID, MotorType.kBrushless);
+    config = new SparkFlexConfig();
+    encoder = controller.getEncoder();
+    closedLoopController = controller.getClosedLoopController();
 
-    //Setup servos, for velocity or position control.
-    Roller = new NeoServo(CAN.IntakeID, Position_PID, HWVelocity_PID, motor_inverted);
-    
-    //Mr.L Feedback - can't recreate contRollers with CANID, it was used by NeoServo, so pull from it
-    Rlrmtr = Roller.getController();  
+    config
+        .inverted(motor_inverted);
 
-        Roller.setSmartCurrentLimit(STALL_CURRENT, FREE_CURRENT);
+    config.encoder
+        .positionConversionFactor(conversionFactor);
 
+    config.closedLoop
+        .feedbackSensor(FeedbackSensor.kPrimaryEncoder);
+
+    config.closedLoop.maxMotion
+        .cruiseVelocity(cruiseVel, slot)
+        .maxAcceleration(maxAccel, slot)
+        .allowedProfileError(1);
+
+
+    config.closedLoop
+        .p(P).i(I).d(D)
+    .feedForward
+        .kS(kS).kV(kV);
+
+    controller.configure(config, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+  }
+
+  public void setPosSetpoint(double setpoint) {
+      closedLoopController.setSetpoint(setpoint, ControlType.kMAXMotionPositionControl, slot);
+      pos_setpoint = setpoint;
+  }
+
+  /*
+   * getPosSetpoint()
+   * getPosition()
+   * getPosError()
+   * zeroPos() - encoder
+   * 
+   * add set/get pos setpoint on the sendable
+   * 
+   * apply test bindings of zeroPos -> B
+   */
+
+  public double getPosSetPoint() {
+    return pos_setpoint;
+  }
+
+  public double getPosition() {
+    return encoder.getPosition();
+  }
+
+  public double getPositionError() {
+    return Math.abs(getPosition() - pos_setpoint);
+  }
+
+  public void zeroPos() {
+    encoder.setPosition(0.0);
   }
 
   // velocity control only used for testing, normal cmds will use position
   public void setPercent(double pct) {
     cmdPct = pct;
-    Rlrmtr.set(pct);
+    controller.set(pct);
   }
 
-  public double getVelocity() {
-    return Roller.getVelocity();
-  }
- 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
     // power mode testing, disable servo if testing with duty-cycle
     if (!disable_servo) {
-      Roller.periodic();
+      // Roller.periodic();
     }
   }
 
@@ -97,28 +150,25 @@ public class Intake extends SubsystemBase {
 
     opr.b()
         .onTrue(this.cmdPctPwr(0.0));
+
+    opr.b().onTrue(new InstantCommand(() -> { zeroPos();} ));
   }
 
   @Override
-    public void initSendable(SendableBuilder builder) {
-        super.initSendable(builder);
-        //TODO add parameters here for tuning
-        builder.addDoubleProperty("vel_1", this.Roller::getVelocity, this.Roller::setSetpoint);
+  public void initSendable(SendableBuilder builder) {
+    super.initSendable(builder);
 
-        builder.addDoubleProperty("pct_pwr", this.Rlrmtr::get, this.Rlrmtr::set);
-    }
+    builder.addDoubleProperty("pos_cmd", this::getPosition, this::setPosSetpoint);
+  }
 
-    // Add a watcher so we can see stuff on network tables
-    public WatcherCmd getWatcherCmd() {
-        return this.new IntakeWatcher();
-    }
-
+  // Add a watcher so we can see stuff on network tables
+  public WatcherCmd getWatcherCmd() {
+    return this.new IntakeWatcher();
+  }
 
   class IntakeWatcher extends WatcherCmd {
     IntakeWatcher() {
-       addEntry("vel", Intake.this.Roller::getVelocity, 2);
+
     }
   }
-
 }
-
