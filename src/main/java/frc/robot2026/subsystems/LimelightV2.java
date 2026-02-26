@@ -76,7 +76,9 @@ public class LimelightV2 extends SubsystemBase implements ILimelight {
                 mount_pt.getX(), mount_pt.getY(), mount_pt.getZ(),
                 llRot.getX() * DEGperRAD, llRot.getY() * DEGperRAD, llRot.getZ() * DEGperRAD);
 
-        check_pipelines();
+        //check_pipelines();  // not detecting any config, forcing pipeline 0
+        m_apriltag_pipe = 0;
+        setPipeline(m_apriltag_pipe);  
 
         /*
          * LL4 has IMU, others don't but still support MT2 if you set the gyro
@@ -96,7 +98,7 @@ public class LimelightV2 extends SubsystemBase implements ILimelight {
 
     void check_pipelines() {
         // dump existing config, get default pipes for retro and mt1/2
-        for (int idx = 0; idx < 9; idx++) {
+        for (int idx = 0; idx <= 9; idx++) {
             setPipeline(idx);
             LimelightHelpers.Flush();
             sleep(20); // not sure if we need time to change

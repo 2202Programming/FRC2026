@@ -7,6 +7,7 @@ import static frc.lib2202.Constants.MperFT;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathfindingCommand;
+import com.pathplanner.lib.config.PIDConstants;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkFlex;
 
@@ -18,7 +19,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+//import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib2202.builder.IRobotSpec;
 import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.builder.RobotLimits;
@@ -38,6 +39,7 @@ import frc.lib2202.subsystem.swerve.config.ModuleConfig;
 import frc.lib2202.subsystem.swerve.config.ModuleConfig.CornerID;
 import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
+import frc.robot2026.command.pose.setGyroOffsetWithVision;
 import frc.robot2026.subsystems.Climber;
 import frc.robot2026.subsystems.Hopper;
 import frc.robot2026.subsystems.Intake;
@@ -47,7 +49,7 @@ import frc.robot2026.subsystems.VisionPoseEstimator;
 import frc.robot2026.subsystems.Shooter.Indexer;
 import frc.robot2026.subsystems.Shooter.Shooter;
 import frc.robot2026.subsystems.Shooter.Targeter;
-import frc.robot2026.testBindings.DpltestBinding;
+//import frc.robot2026.testBindings.DpltestBinding;
 
 public class RobotSpec_AlphaBot implements IRobotSpec {
   // Subsystem objects for use at other cut points
@@ -195,18 +197,20 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
 
     // Initialize PathPlanner, if we have needed Subsystems
     if (odo != null && sdt != null) {
-      AutoPPConfigure.configureAutoBuilder(sdt, odo);
+      AutoPPConfigure.configureAutoBuilder(sdt, odo,
+            new PIDConstants(3.0, 0.0, 0.0), // Translation PID constants,
+            new PIDConstants(5.0, 0.0, 0.0)); // Rotation PID constants | P was 7.0);
       var cmd = PathfindingCommand.warmupCommand();
       CommandScheduler.getInstance().schedule(cmd);
     }
 
     // Competition bindings
-    BindingsCompetition.ConfigureCompetition(dc, false);
+    BindingsCompetition.ConfigureCompetition(dc, true);
 
     // Place your test binding in ./testBinding/<yourFile>.java and call it here
     // comment out any conflicting bindings. Try not to push with your bindings
     // active. Just comment them out.   
-    DpltestBinding.calbrate((CommandXboxController)dc.Operator());
+    //DpltestBinding.calbrate((CommandXboxController)dc.Operator());
     // BGTestBindings.calbrate(operator); // steals operator (A, B, X, Y)
 
     // CommandXboxController op = (CommandXboxController)dc.Operator();
@@ -265,4 +269,11 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
     IRobotSpec.super.autonomousInit();
     targeter.setTarget(); // set blue/red alliance    
   }
+
+
+  @Override
+  public void disabledInit(){
+    CommandScheduler.getInstance().schedule(new setGyroOffsetWithVision());
+  }
+
 }

@@ -37,14 +37,16 @@ public class setGyroOffsetWithVision extends Command {
   public void initialize() {
     multiResetDone = false;
     singleResetDone = false;
-    ll.setUse_MT1(true); //MT1 should be used if no gyro offset done yet.
-    ll.setUse_MT2(false);
+    if (ll != null) {
+      ll.setUse_MT1(true); //MT1 should be used if no gyro offset done yet.
+      ll.setUse_MT2(false);
+    }
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (pv == null || ll == null) {
+    if (pv == null  && ll == null) {
       multiResetDone = true;
       return;
     }
@@ -53,7 +55,7 @@ public class setGyroOffsetWithVision extends Command {
      * Check each PV camera for one with multiple-tags, if found use it and declare
      * victory
      */
-    if (pv.anyMultiTags()) { // someone has a multitag
+    if (pv != null && (pv.anyMultiTags())) { // someone has a multitag
       for (RobotCamera cam : pv.getCameras()) { 
         if (cam.hasMultitarget()) { // camera has a multitag, should be most reliable
           System.out.println("***Vision pose gryo Pre reset is: " + vpe.getPose().getRotation().getDegrees());
@@ -66,7 +68,7 @@ public class setGyroOffsetWithVision extends Command {
         }
       }
     }
-    if (ll.getMT1Valid()) {
+    if (ll !=null && ll.getMT1Valid()) {
       if (ll.getMt1().tagCount > 1) { // Limelight has multitag
         System.out.println("***Vision pose gryo Pre reset is: " 
                           + vpe.getPose().getRotation().getDegrees());
@@ -83,7 +85,7 @@ public class setGyroOffsetWithVision extends Command {
 
     // there is no multitag yet, but one or more cameras have a single tag,
     // and we haven't done a single tag estimate yet
-    if (pv.totalTargetsAllCameras() > 0 && !singleResetDone) {
+    if (pv != null && pv.totalTargetsAllCameras() > 0 && !singleResetDone) {
       System.out.println("***Vision pose gryo Pre reset is: " + vpe.getPose().getRotation().getDegrees());
       Rotation2d tempRot = pv.getAverageRot(); // there may be more than one camera with single tag, take an average of
                                                // their rotation estimates.
@@ -93,7 +95,7 @@ public class setGyroOffsetWithVision extends Command {
           .println(
               "***Vision pose gryo single tag reset done with PV, set to: " + vpe.getPose().getRotation().getDegrees());
     }
-    if (ll.getMT1Valid()) {
+    if (ll !=null && ll.getMT1Valid()) {
       if (ll.getMt1().tagCount > 0) { // Limelight has one target
         System.out.println("***Vision pose gryo Pre reset is: " + vpe.getPose().getRotation().getDegrees());
         Rotation2d tempRot = ll.getMt1().pose.getRotation();
@@ -118,8 +120,10 @@ public class setGyroOffsetWithVision extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    ll.setUse_MT1(false);
-    ll.setUse_MT2(true); //back to MT2 for competition, presumably gyro offset has been set now.
+    if (ll != null) {
+      ll.setUse_MT1(false);
+      ll.setUse_MT2(true); //back to MT2 for competition, presumably gyro offset has been set now.
+    }
   }
 
   // Returns true when the command should end.
