@@ -22,7 +22,7 @@ import frc.robot2026.subsystems.Shooter.Shooter;
 
 public class RobotSpec_BotOnBoard_Zeta implements IRobotSpec {
   // $env:serialnum = "0312db1a"
-  final SubsystemConfig ssconfig = new SubsystemConfig("BotOnBoard-Zeta", "0312db1a")
+  final SubsystemConfig ssconfig = new SubsystemConfig("BotOnBoard-Zeta", "0312DB1A")
       // deferred construction via Supplier<Object> lambda
       .add(PowerDistribution.class, "PDP", () -> {
         var pdp = new PowerDistribution(CAN.PDP, ModuleType.kCTRE);
