@@ -5,6 +5,7 @@
 package frc.robot2026.command;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.GoalEndState;
@@ -13,11 +14,15 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.Waypoint;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.builder.RobotLimits;
 import frc.lib2202.subsystem.swerve.IHeadingProvider;
+import frc.robot2026.Constants.TheField;
 
 // WARNING WARNING WARNING
 // Ok, this code is only intended to be used with the autoClimberCommand sequence. It has no requirements and should not be touched by anything else. 
@@ -29,15 +34,14 @@ public class climberManuver extends Command {
 //left and right defined from driver persepective to the tower
 
 
-  public final double lxStart = 0.5; //CANNOT STRESS HOW MUCH OF A GUESS THESE ARE.
-  public final double rxStart = 1.0; //TODO get actual values and put in constants
-  public final double ly = 5.0;
-  public final double ry = 3.0;
-  public final double xEnd = 1.0;
+  public final Transform2d rightMove = new Transform2d(new Translation2d(1.0, 0.0), Rotation2d.fromDegrees(0.0));
+  public final Transform2d leftMove = new Transform2d(new Translation2d(-1.0, 0.0), Rotation2d.fromDegrees(0.0));
 
-  public final Pose2d lStartPose = new Pose2d(lxStart,ly, Rotation2d.fromDegrees(0.0)); 
-  public final Pose2d rStartPose = new Pose2d(rxStart,ry, Rotation2d.fromDegrees(180.0));
+  public final Pose2d lStartPose; 
+  public final Pose2d rStartPose;
   private Rotation2d endRot;
+
+  private final Pose3d realBlueCenter;
 
   boolean leftSide;
 
@@ -45,6 +49,15 @@ public class climberManuver extends Command {
   Command runPath;
 
   public climberManuver(boolean leftSide) {
+    Optional<Pose3d> BlueCenter = TheField.fieldLayout.getTagPose(31);
+    if (BlueCenter.isPresent()) {
+      realBlueCenter = BlueCenter.get();
+    } else {
+      realBlueCenter = null;
+    }
+
+    lStartPose = realBlueCenter.toPose2d().transformBy(new Transform2d(new Translation2d(0.5,1.0), Rotation2d.fromDegrees(0.0)));
+    rStartPose = realBlueCenter.toPose2d().transformBy(new Transform2d(new Translation2d(1.5,-1.0), Rotation2d.fromDegrees(180.0)));
         // Create a list of waypoints from poses. Each pose represents one waypoint.
     // The rotation component of the pose should be the direction of travel. Do not
     // use holonomic rotation.
@@ -63,7 +76,7 @@ public class climberManuver extends Command {
   public void initialize() {
     List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(
         (leftSide ? lStartPose : rStartPose),
-        new Pose2d(xEnd, (leftSide?ly:ry), endRot)); // TODO THIS IS BAD. Should not reference like this.
+        (leftSide ? lStartPose.transformBy(leftMove) : rStartPose.transformBy(rightMove)));
 
     RobotLimits limits = RobotContainer.getRobotSpecs().getRobotLimits();
     PathConstraints constraints =  new PathConstraints(limits.kMaxSpeed, limits.kMaxSpeed / 1.33, 
