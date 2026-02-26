@@ -17,14 +17,15 @@ import frc.lib2202.subsystem.swerve.config.ChassisConfig;
 import frc.lib2202.subsystem.swerve.config.ModuleConfig;
 import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
+import frc.robot2026.subsystems.Shooter.Indexer;
 import frc.robot2026.subsystems.Shooter.Shooter;
 
-public class RobotSpec_BotOnBoard1 implements IRobotSpec {
+public class RobotSpec_BotOnBoard_Zeta implements IRobotSpec {
   // $env:serialnum = "0312db1a"
-  final SubsystemConfig ssconfig = new SubsystemConfig("BotOnBoard", "0312db1a")
+  final SubsystemConfig ssconfig = new SubsystemConfig("BotOnBoard-Zeta", "0312db1a")
       // deferred construction via Supplier<Object> lambda
       .add(PowerDistribution.class, "PDP", () -> {
-        var pdp = new PowerDistribution(CAN.PDP, ModuleType.kRev);
+        var pdp = new PowerDistribution(CAN.PDP, ModuleType.kCTRE);
         pdp.clearStickyFaults();
         return pdp;
       })
@@ -34,7 +35,13 @@ public class RobotSpec_BotOnBoard1 implements IRobotSpec {
 
       })
       // .add(Intake.class)
-      .add(Shooter.class)
+      .add(Shooter.class, "ShooterRight", () ->{
+        return new Shooter("ctre", CAN.ShooterIDRight, false); //opts: rev,ctre,multi
+      })
+      .add(Shooter.class, "ShooterLeft", () -> {
+        return new Shooter("ctre", CAN.ShooterIDLeft);
+      })
+      .add(Indexer.class)
       ;
       // below are optional watchers for shuffeleboard data - disable if need too.
 
@@ -62,7 +69,7 @@ public class RobotSpec_BotOnBoard1 implements IRobotSpec {
       new PIDFController(0.01, 0.0, 0.0, 0.0) // angle
   );
 
-  public RobotSpec_BotOnBoard1() {
+  public RobotSpec_BotOnBoard_Zeta() {
     // finish BetaBot's drivePIDF
     // add the specs to the ssconfig
     ssconfig.setRobotSpec(this);
@@ -98,8 +105,15 @@ public class RobotSpec_BotOnBoard1 implements IRobotSpec {
       CommandXboxController operator = (CommandXboxController)dc.Operator();
 
       // TEST BINDING FOR NOW 
-      Shooter shooter = RobotContainer.getSubsystem(Shooter.class);
-      shooter.setTestBindings(operator);  // uses triggers
+       Shooter shooter = RobotContainer.getSubsystemOrNull("Shooter");
+      if (shooter!=null) {
+        shooter.setTestBindings(driver);
+      } 
+
+      Indexer hopper = RobotContainer.getSubsystemOrNull(Indexer.class);
+      if (hopper !=null) {
+        hopper.setTestBindings(operator);  // uses triggers
+      }
       // operator.a().whileTrue(new IntakePwrSpin(0.2));
     }
   }

@@ -2,6 +2,10 @@ package frc.robot2026;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -53,15 +57,29 @@ public final class Constants {
     public static final int FR_Drive = 27;
     public static final int FR_CANCoder = 30;
 
-    // Intake
-    public static final int IntakeTopID = 30;
-    public static final int IntakeBotomID = 31;
+    public static final int r_arm = 998; // TODO: CHANGE
+    public static final int l_arm = 45;
    
-    //Shooter
-    public static final int ShooterID = 51;
+    // Intake
+    public static final int IntakeID = 40; // this canID is correct DONT CHANGE IT
+    //public static final int IntakeBottomID = 41; 
+
+    //Hopper
+    public static final int BeltID = 41;
+
+    //Shooter & Indexer - LEFT and Right Side
+    public static final int ShooterIDRight = 50;
+    public static final int RIndexerID = 51;
+    public static final int ShooterIDLeft = 52; 
+    public static final int LIndexerID = 53; 
 
     // IMU
     public static final int PIGEON_IMU_CAN = 60;
+
+    // CANRange
+    public static final int CANRANGE_R_CAN = 62;
+    public static final int CANRANGE_L_CAN = 61;
+  
   }
 
   public static final class PWM{
@@ -81,6 +99,9 @@ public final class Constants {
   }
 
   public final class DigitalIO {
+
+    public static final int IndexGate = 0;   //unused - to be removed
+
     //public static final int EndEffector_Lightgate = 2;
     //public static final int SignalLight1 = 7;
     //public static final int SignalLight2 = 8;
@@ -89,8 +110,17 @@ public final class Constants {
 
   //The Field info use WPILIB data
   public class TheField {
-    //TODO update field for 2026
-    public static AprilTagFields fieldChoice = AprilTagFields.k2025ReefscapeAndyMark; // k2025ReefscapeWelded;
+    public static AprilTagFields fieldChoice = AprilTagFields.k2026RebuiltAndymark;  // or k2026RebuiltWelded  
     public static AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(fieldChoice);
   }  
+
+    public static class Vision {
+      // The layout of the AprilTags on the field
+      public static final AprilTagFieldLayout kTagLayout = TheField.fieldLayout;
+
+        // The standard deviations of our vision estimated poses, which affect correction rate
+        // (Fake values. Experiment and determine estimation noise on an actual robot.)
+        public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(4, 4, 8);
+        public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 1);
+  }
 }

@@ -91,7 +91,7 @@ public class LimelightV2 extends SubsystemBase implements ILimelight {
         // callback when we reset the gyro
         AllianceAwareGyroReset.AddRotationCallback(this::setRobotOrientation);
         // always start the LL watcher
-        this.new LimelgihtWatcher();
+        //this.new LimelgihtWatcher();  not implemented yet
     }
 
     void check_pipelines() {
@@ -161,6 +161,7 @@ public class LimelightV2 extends SubsystemBase implements ILimelight {
             }
             // MT2 can be used with MT1
             if (m_use_mt2) {
+                //new behavior 2026, no longer returns null, instead 0 filled object.
                 m_mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(m_name);
                 m_mt2_valid = LimelightHelpers.validPoseEstimate(m_mt2); 
                 mt2_reject_update = !m_mt2_valid;

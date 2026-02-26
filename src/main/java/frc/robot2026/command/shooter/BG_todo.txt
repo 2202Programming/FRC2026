@@ -1,0 +1,27 @@
+1. Make indexer modular & get both spinning independently -- use Gavin's climber as a reference.
+2. Continue the ShootSequence command & make it repeatable on an interval;
+    -- try to make a function pointer that takes a DoubleConsumer/Supplier -- use the new NT framework as the framework
+3. Create a 
+3. Git merge all of my branches into main
+
+For Mr. Laufenberg:
+-- I have 3 branches that need to be dealt with:
+    - BG_Intake
+    - BG_MaxMotion (velocity MAXMotion)
+    - BG_MaxMotionPosition (position MAXMotion)
+
+- For MAXMotion, BG_MaxMotionPosition is more up-to-date, and it's the branch that I plan on making modular, and able to control both.
+    - This will mean that after tomorrow, BG_MaxMotion can be deleted.
+
+BG_Intake's code is very old, and most of it can likely be deleted. A fresh Intake class wouldn't be the worst idea, as the old one is polluted with a bunch of code we don't need.
+
+In the end, this will mean that BG_Intake will also be deleted. I will work tomorrow on the to-do list above, and hopefully by the enbd of the day the Git mess will be resolved.
+
+Feel free to add anything to the to-do list that you'd like me to do.
+
+- Ben G
+
+
+roller
+-- create a separare indexer/roller classes
+-- instantiate each roller in the shooter

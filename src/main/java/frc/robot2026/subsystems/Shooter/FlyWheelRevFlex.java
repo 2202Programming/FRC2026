@@ -7,20 +7,21 @@ import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkFlexConfig;
 
 /**
  * Flywheel handles motor and gearing for the shooter flywheels.
  * 
  */
-public class FlyWheelRev implements IFlyWheel {
+public class FlyWheelRevFlex implements IFlyWheel {
   
   // Hardware
-  final SparkMax controller; // this could be a generic controller controller...
-  final SparkMaxConfig controllerCfg;
+  final SparkFlex controller; // this could be a generic controller controller...
+  final SparkFlexConfig controllerCfg;
   final RelativeEncoder encoder;
   final SparkClosedLoopController closedLoopController;
   final ClosedLoopSlot kSlot = ClosedLoopSlot.kSlot0;
@@ -31,10 +32,10 @@ public class FlyWheelRev implements IFlyWheel {
   double vel_setpoint;
   double vel_tolerance = 0.5; // [m/s] flywheel edge linear velocity ~fuel speed
 
-  public FlyWheelRev(int CAN_ID, FlyWheelConfig cfg) {
+  public FlyWheelRevFlex(int CAN_ID, FlyWheelConfig cfg) {
     this.cfg = cfg;
-    controllerCfg = new SparkMaxConfig();
-    controller = new SparkMax(CAN_ID, SparkMax.MotorType.kBrushless);
+    controllerCfg = new SparkFlexConfig();
+    controller = new SparkFlex(CAN_ID, SparkMax.MotorType.kBrushless);
     posConverionFactor = 2.0 * Math.PI * cfg.flywheelRadius * cfg.gearRatio;
     // reset controller to factory
     controller.configure(controllerCfg, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
@@ -76,7 +77,7 @@ public class FlyWheelRev implements IFlyWheel {
   }
 
   // API used by sub-system
-  public FlyWheelRev setSetpoint(double vel) { // setVelocitySetpoint
+  public FlyWheelRevFlex setSetpoint(double vel) { // setVelocitySetpoint
     vel_setpoint = vel;
     if (vel_setpoint == 0.0) {
       //force mode change to %pwr at zero, let it spin down, don't drive it to zero vel
@@ -110,7 +111,7 @@ public class FlyWheelRev implements IFlyWheel {
     return encoder.getPosition();
   }
 
-  public FlyWheelRev setPosition(double pos) {
+  public FlyWheelRevFlex setPosition(double pos) {
     encoder.setPosition(pos);
     return this;
   }
@@ -124,7 +125,7 @@ public class FlyWheelRev implements IFlyWheel {
     return closedLoopController.getIAccum();
   }
 
-  public FlyWheelRev setVelocityTolerance(double vel_tolerance) {
+  public FlyWheelRevFlex setVelocityTolerance(double vel_tolerance) {
       this.vel_tolerance = vel_tolerance;
       return this;
     }
@@ -138,7 +139,7 @@ public class FlyWheelRev implements IFlyWheel {
     return cfg.rampRate;
   }
   
-  FlyWheelRev setRampRate(double rate) {
+  FlyWheelRevFlex setRampRate(double rate) {
     cfg.rampRate = rate;
     controllerCfg.closedLoopRampRate(rate);
     controller.configureAsync(controllerCfg, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
@@ -150,7 +151,7 @@ public class FlyWheelRev implements IFlyWheel {
     return cfg.iMaxAccum;
   }
 
-  FlyWheelRev setIMaxAccum(double iMaxAccum) {
+  FlyWheelRevFlex setIMaxAccum(double iMaxAccum) {
     cfg.iMaxAccum = iMaxAccum;
     controllerCfg.closedLoop.iMaxAccum(iMaxAccum, kSlot);
     controller.configureAsync(controllerCfg, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);

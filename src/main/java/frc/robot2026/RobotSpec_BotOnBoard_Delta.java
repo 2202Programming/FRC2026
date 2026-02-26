@@ -5,24 +5,25 @@ import static edu.wpi.first.units.Units.FeetPerSecond;
 
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
+import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib2202.builder.IRobotSpec;
 import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.builder.RobotLimits;
 import frc.lib2202.builder.SubsystemConfig;
 import frc.lib2202.subsystem.hid.HID_Subsystem;
 import frc.robot2026.Constants.CAN;
-import frc.robot2026.subsystems.Shooter.Indexer;
+import frc.robot2026.subsystems.Shooter.Shooter;
 
-public class RobotSpec_BotOnBoard_Epsilon implements IRobotSpec {
+public class RobotSpec_BotOnBoard_Delta implements IRobotSpec {
 
-  //Bot On Board Epsilon
-  // $env:serialnum = "0326F275"
-  final SubsystemConfig ssconfig = new SubsystemConfig("BotOnBoard_Epsilon", "0326F275")
+  //Bot On Board Delta
+  // $env:serialnum = "3061025"
+  final SubsystemConfig ssconfig = new SubsystemConfig("BotOnBoard_Delta", "03061025")
       // Add the subsystems or components use by this Bot-on-Board    
       // Bot-On-Board can always use controlers for test binding
        .add(HID_Subsystem.class, "DC", () -> {
@@ -33,14 +34,20 @@ public class RobotSpec_BotOnBoard_Epsilon implements IRobotSpec {
         pdp.clearStickyFaults();
         return pdp;
       })
-      .add(Indexer.class)
+      // .add(Intake.class)
+      .add(Shooter.class, "ShooterRight", () ->{
+        return new Shooter("ctre", CAN.ShooterIDRight, false); //opts: rev,ctre,multi
+      })
+      .add(Shooter.class, "ShooterLeft", () -> {
+        return new Shooter("ctre", CAN.ShooterIDLeft);
+      })
       ;
-      
+
 
   // Robot Speed Limits
   RobotLimits robotLimits = new RobotLimits(FeetPerSecond.of(15.0), DegreesPerSecond.of(180.0));
 
-  public RobotSpec_BotOnBoard_Epsilon() {
+  public RobotSpec_BotOnBoard_Delta() {
     // add the specs to the ssconfig
     ssconfig.setRobotSpec(this);
   }
@@ -55,15 +62,23 @@ public class RobotSpec_BotOnBoard_Epsilon implements IRobotSpec {
   @Override
   public void setBindings() {
     HID_Subsystem dc = RobotContainer.getSubsystemOrNull("DC");
-    @SuppressWarnings("unused")
-    CommandXboxController driver = (CommandXboxController)dc.Driver();
-    CommandXboxController operator = (CommandXboxController)dc.Operator();
+    if (dc == null ){
+        // BOB doesn't need DC. Return early if DC doesn't exist
+        System.out.println("Warning: DC doesn't exist not setting bindings");
+      return;
+    }
 
-    // TEST BINDING FOR NOW 
-    Indexer hopper = RobotContainer.getSubsystem(Indexer.class);
-    hopper.setTestBindings(operator);  // uses triggers
-    // operator.a().whileTrue(new IntakePwrSpin(0.2));
+    if (dc.Driver() instanceof CommandPS4Controller) {
+      // CommandPS4Controller operator = (CommandPS4Controller)dc.Driver();
+    } else {
+      @SuppressWarnings("unused")
+      CommandXboxController driver = (CommandXboxController)dc.Driver();
+      CommandXboxController operator = (CommandXboxController)dc.Operator();
 
+      // TEST BINDING FOR NOW 
+      Shooter shooter = RobotContainer.getSubsystem(Shooter.class);
+      shooter.setTestBindings(operator);  // uses triggers
+    }  
     // show what cmds are running
     SmartDashboard.putData(CommandScheduler.getInstance());
   }
@@ -84,7 +99,4 @@ public class RobotSpec_BotOnBoard_Epsilon implements IRobotSpec {
   public void setDefaultCommands() {
    
   }
-
-  
-
 }
