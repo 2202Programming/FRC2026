@@ -61,6 +61,7 @@ public class setGyroOffsetWithVision extends Command {
           System.out.println("***Vision pose gryo Pre reset is: " + vpe.getPose().getRotation().getDegrees());
           Rotation2d tempRot = cam.getPose2d().getRotation();
           publish(tempRot);
+          vpe.setGyroMultiTagDone();
           multiResetDone = true;
           System.out.println("***Vision pose gryo multitag reset done via PV, set to: "
                   + vpe.getPose().getRotation().getDegrees());
@@ -74,6 +75,7 @@ public class setGyroOffsetWithVision extends Command {
                           + vpe.getPose().getRotation().getDegrees());
         Rotation2d tempRot = ll.getMt1().pose.getRotation();
         publish(tempRot);
+        vpe.setGyroMultiTagDone();
         multiResetDone = true;
         System.out.println("***Vision pose gryo multitag reset done via LL, set to: "
                           + vpe.getPose().getRotation().getDegrees());
@@ -81,7 +83,7 @@ public class setGyroOffsetWithVision extends Command {
       }
     }
 
-    // got to here, no carmera had 2 or more images.
+    // got to here, no camera had 2 or more images.
 
     // there is no multitag yet, but one or more cameras have a single tag,
     // and we haven't done a single tag estimate yet
@@ -90,22 +92,23 @@ public class setGyroOffsetWithVision extends Command {
       Rotation2d tempRot = pv.getAverageRot(); // there may be more than one camera with single tag, take an average of
                                                // their rotation estimates.
       publish(tempRot);
+      vpe.setGyroSingleTagDone();
       singleResetDone = true;
       System.out
           .println(
               "***Vision pose gryo single tag reset done with PV, set to: " + vpe.getPose().getRotation().getDegrees());
     }
-    if (ll !=null && ll.getMT1Valid()) {
+    if (ll !=null && ll.getMT1Valid() && !singleResetDone) {
       if (ll.getMt1().tagCount > 0) { // Limelight has one target
         System.out.println("***Vision pose gryo Pre reset is: " + vpe.getPose().getRotation().getDegrees());
         Rotation2d tempRot = ll.getMt1().pose.getRotation();
         publish(tempRot);
-        multiResetDone = true;
+        vpe.setGyroSingleTagDone();
+        singleResetDone = true;
         System.out
             .println(
                 "***Vision pose gryo single tag reset done via LL, set to: "
                     + vpe.getPose().getRotation().getDegrees());
-        return;
       }
     }
   }
@@ -114,7 +117,6 @@ public class setGyroOffsetWithVision extends Command {
     if (vpe == null)
       return;
     vpe.setAnglePose(newRot);
-    vpe.setGyroDone();
   }
 
   // Called once the command ends or is interrupted.
