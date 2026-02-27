@@ -61,7 +61,7 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
     // Units.degreesToRadians(5.0));
     // final Matrix<N3, N1> farStdDevs =VecBuilder.fill(0.5, 0.5,
     // Units.degreesToRadians(15.0));
-     final Matrix<N3, N1> PVStdDevs =VecBuilder.fill(.5, .5, Units.degreesToRadians(10));
+    final Matrix<N3, N1> PVStdDevs = VecBuilder.fill(.5, .5, Units.degreesToRadians(10));
 
     final SwerveDrivePoseEstimator m_estimator;
     // monitor diffs in ll and odometry poses
@@ -73,7 +73,7 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
     private boolean gyroOffsetDone = false;
 
     // vision systems limelight and photonvision(TBD)
-    private Pose2d llPose;
+    private Pose2d llPose;// latest vision pose (ll and pv)
     private Pose2d prev_llPose;
     private Pose2d rawLLPose;
     private boolean llHasMultitarget;
@@ -234,8 +234,10 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
             m_estimator.setVisionMeasurementStdDevs(stdDev);
             m_estimator.addVisionMeasurement(pose, ts);
 
-            //@DL - this should probably run independantly of this limelight IF statement section
-            //@JR - I think it is correct, only call WD if there was an LL update. Really I think we can remove the WD.
+            // @DL - this should probably run independantly of this limelight IF statement
+            // section
+            // @JR - I think it is correct, only call WD if there was an LL update. Really I
+            // think we can remove the WD.
             if (watchdog != null)
                 watchdog.update(pose, prev_llPose);
         }
@@ -301,6 +303,17 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
         // set our estimator's newPose with current drivetrains wheel meas_pos
         m_estimator.resetPosition(gyro.getHeading(), meas_pos, m_odoPose);
         llPose = m_estimator.getEstimatedPosition();
+    }
+
+    @Override
+    public void autoSetPose(Pose2d initialPose) {
+        // this will get called if pathplanner resetOdometry is set, we want to ignore
+        // if we have a multitarget
+        boolean ll_bad = (limelight == null) ? true : limelight.getTargetTags().length < 2;
+        boolean pv_bad = (photon == null) ? true : photon.totalTargetsAllCameras() < 2;
+        if (ll_bad && pv_bad) {
+            setPose(initialPose);// take PP value and hope drive team placed robot well...
+        }
     }
 
     @Override
@@ -440,7 +453,7 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
             est_VPE_pose_y.setDouble(llPose.getY());
             est_VPE_pose_h.setDouble(llPose.getRotation().getDegrees());
             gyroResetDone.setBoolean(hasGryoResetHappened());
-            
+
             // vision pose updating NTs
             nt_x_diff.setDouble(x_diff);
             nt_y_diff.setDouble(y_diff);
