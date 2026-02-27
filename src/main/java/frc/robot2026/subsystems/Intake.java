@@ -17,17 +17,13 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.FeedForwardConfig;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkFlexConfig;
-import com.revrobotics.spark.SparkFlex;
-
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.lib2202.command.WatcherCmd;
 import frc.robot2026.Constants.CAN;
 import frc.robot2026.Constants.DigitalIO;
 
@@ -45,6 +41,8 @@ public class Intake extends SubsystemBase {
   final ClosedLoopSlot slot = ClosedLoopSlot.kSlot0;
 
   final boolean motor_inverted = true;
+
+  final DigitalInput lightgate;
 
   final double cruiseVel = 5767.0;
   final double maxAccel = 10000.0;
@@ -96,6 +94,7 @@ public class Intake extends SubsystemBase {
           .kS(kS, slot).kV(kV, slot);
 
     controller.configure(config, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+
   }
 
   /**
@@ -163,12 +162,16 @@ public class Intake extends SubsystemBase {
     return encoder.getPosition();
   }
 
-public double getRPM() {
-  return encoder.getVelocity();
-}
+  public double getRPM() {
+    return encoder.getVelocity();
+  }
 
   public double getPositionError() {
     return Math.abs(getPosition() - pos_setpoint);
+  }
+
+  public boolean hasFuel() {
+    return !lightgate.get();
   }
 
   public void zeroPos() {
@@ -185,14 +188,6 @@ public double getRPM() {
     return runOnce(() -> {
       this.setPercent(cmd_pct);
     });
-  }
-
-  // can use this to run on FuelPresent trigger or to run forward/back
-  public Command cmdRunForPeriod(double pct, double seconds) {
-    return Commands.sequence(
-              cmdPctPwr(pct),
-              Commands.waitSeconds(seconds)
-       ).finallyDo(() -> this.setPercent(0.0) );
   }
 
   public void setTestBindings(CommandXboxController opr) {
@@ -215,7 +210,7 @@ public double getRPM() {
   @Override
   public void initSendable(SendableBuilder builder) {
     super.initSendable(builder);
-
+    builder.addBooleanProperty("hasFuel", this::hasFuel, null);
     builder.addDoubleProperty("pos_cmd", this::getPosSetPoint, this::setPosSetpoint);
     builder.addDoubleProperty("pos_err", this::getPosSetPoint, null);
     builder.addDoubleProperty("pos", this::getPosition, null);
@@ -250,14 +245,44 @@ public double getRPM() {
     });
   }
 
-  // Add a watcher so we can see stuff on network tables
-  public WatcherCmd getWatcherCmd() {
-    return this.new IntakeWatcher();
+  public Command cmdRunWhileFuel(double pct, double seconds) {
+    return this.new RunWhileFuel(pct, seconds);
   }
 
-  class IntakeWatcher extends WatcherCmd {
-    IntakeWatcher() {
-       addEntry("vel", Intake.this.Roller::getVelocity, 2);
+  class RunWhileFuel extends Command {
+    double pct;
+    double seconds;
+    Timer no_fuel_timer;
+
+    public RunWhileFuel(double pct, double seconds) {
+      this.pct = pct;
+      this.seconds = seconds;
+      no_fuel_timer = new Timer();
     }
+
+    @Override
+    public void initialize() {
+      no_fuel_timer.restart();
+      Intake.this.setPercent(pct);
+    }
+
+    @Override
+    public void execute() {
+      // keep resetting timer as long as we see fuel
+      if (Intake.this.hasFuel() ) 
+        no_fuel_timer.restart();
+    }
+
+    public void end(boolean interrupted) {
+      Intake.this.setPercent(0.0);
+    }
+
+    public boolean isFinished(){
+      var x =  no_fuel_timer.hasElapsed(seconds);
+      return x;
+    }
+
   }
+
+
 }

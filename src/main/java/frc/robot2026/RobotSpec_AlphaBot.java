@@ -41,7 +41,6 @@ import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
 import frc.robot2026.Constants.DigitalIO;
 import frc.robot2026.command.pose.setGyroOffsetWithVision;
-import frc.robot2026.subsystems.Climber;
 import frc.robot2026.subsystems.Hopper;
 import frc.robot2026.subsystems.Intake;
 import frc.robot2026.subsystems.LimelightV2;
@@ -50,7 +49,7 @@ import frc.robot2026.subsystems.VisionPoseEstimator;
 import frc.robot2026.subsystems.Shooter.Indexer;
 import frc.robot2026.subsystems.Shooter.Shooter;
 import frc.robot2026.subsystems.Shooter.Targeter;
-import frc.robot2026.testBindings.BGTestBindings;
+import frc.robot2026.subsystems.Climber;
 
 public class RobotSpec_AlphaBot implements IRobotSpec {
   // Subsystem objects for use at other cut points
@@ -99,7 +98,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
         return new Indexer(CAN.LIndexerID, true, ClosedLoopSlot.kSlot0, DigitalIO.IndexerGateLeft);
       })
       .add(Indexer.class, "indexer_right", () -> {
-        return new Indexer(CAN.RIndexerID, false, ClosedLoopSlot.kSlot0, DigitalIO.IndexerGateLeft);
+        return new Indexer(CAN.RIndexerID, false, ClosedLoopSlot.kSlot0, DigitalIO.IndexerGateRight);
       })
       .addAlias(VisionPoseEstimator.class, "vision_odo")
       .add(Shooter.class, "shooter_left", () -> {
@@ -111,9 +110,9 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
       .add(Intake.class, "intake", () -> {
         return new Intake();
       })
-      // .add(Climber.class, "climber", () -> {
-      //   return new Climber(true);
-      // })
+      .add(Climber.class, "climber", () -> {
+         return new Climber(true);
+       })
       .add(Hopper.class)
       .add(Targeter.class)
       ;
@@ -193,32 +192,29 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
     DriveTrainInterface sdt = RobotContainer.getSubsystemOrNull("drivetrain");
     HID_Subsystem dc = RobotContainer.getSubsystem("DC");
 
-    CommandXboxController op = (CommandXboxController)dc.Operator();
+    @SuppressWarnings("unused")
+    CommandXboxController operator = (CommandXboxController)dc.Operator();
 
     //save for use in tele or auto init
     targeter = RobotContainer.getSubsystem(Targeter.class);
     
-    // CommandXboxController operator = (CommandXboxController) dc.Operator();
-
     // Initialize PathPlanner, if we have needed Subsystems
     if (odo != null && sdt != null) {
       AutoPPConfigure.configureAutoBuilder(sdt, odo,
-            new PIDConstants(3.0, 0.0, 0.0), // Translation PID constants,
+            new PIDConstants(3.0, 0.0, 0.0),  // Translation PID constants,
             new PIDConstants(5.0, 0.0, 0.0)); // Rotation PID constants | P was 7.0);
       var cmd = PathfindingCommand.warmupCommand();
       CommandScheduler.getInstance().schedule(cmd);
     }
 
     // Competition bindings
-    // BindingsCompetition.ConfigureCompetition(dc, true);
+    BindingsCompetition.ConfigureCompetition(dc, false); //TODO TRUE for COMPETITION
 
     // Place your test binding in ./testBinding/<yourFile>.java and call it here
     // comment out any conflicting bindings. Try not to push with your bindings
     // active. Just comment them out.   
     // DpltestBinding.calbrate((CommandXboxController)dc.Operator());
-    BGTestBindings.calbrate(op);
-
-    // CommandXboxController op = (CommandXboxController)dc.Operator();
+    // BGTestBindings.calbrate(op);
    
     // Anything else that needs to run after binding/commands are created 
     if (vpe != null) {

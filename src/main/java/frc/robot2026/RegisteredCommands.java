@@ -29,18 +29,17 @@ public class RegisteredCommands {
         var hopper = BindingsCompetition.hopper;
         var intake = BindingsCompetition.intake;
 
-    // NamedCommands.registerCommand("shoot", 
-    //     new ParallelCommandGroup(
-    //         new PrintCommand("Shooting lots of fuel ... nothing but net."),
-    //         new FaceToTag(10, 26), //wont work - old LL TODO FIX in lib2202
-    //         new AutoShoot(shooter_left, indexer_left, targeter::getTargetSpeed, 1),
-    //         new AutoShoot(shooter_right, indexer_right, targeter::getTargetSpeed, 1),
-    //         hopper.cmdBeltPct(1)
-    //         ).withTimeout(6.0)
-    //          .withName("rc_shoot")
-    //          .andThen(hopper.cmdBeltPct(0.0))
-    //         );
-
+        return 
+          new ParallelCommandGroup(
+            new PrintCommand("Shooting lots of fuel ... nothing but net."),
+           // new FaceToTag(10, 26), //wont work - old LL TODO FIX in lib2202
+            new AutoShoot(shooter_left, indexer_left, targeter::getTargetSpeed, 1),
+            new AutoShoot(shooter_right, indexer_right, targeter::getTargetSpeed, 1),
+            hopper.cmdBeltPct(1)
+            ).withTimeout(6.0)
+             .withName("rc_shoot")
+             .andThen(hopper.cmdBeltPct(0.0));
+    }
 
     public static void RegisterCommands() {
        
@@ -53,5 +52,4 @@ public class RegisteredCommands {
         new PrintCommand("Climbing from left side."));
 
     }
-
 }

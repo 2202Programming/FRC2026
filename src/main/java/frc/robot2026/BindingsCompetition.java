@@ -43,15 +43,15 @@ public final class BindingsCompetition {
     
     private static void get_references() {
         // Subsystems must exist in RobotSpec, if they don't an NPE is thrown.
-        climber = RobotContainer.getSubsystem("climber");
         shooter_left = RobotContainer.getSubsystem("shooter_left");
         shooter_right = RobotContainer.getSubsystem("shooter_right");
-        drivetrain = RobotContainer.getSubsystem("drivetrain");
-        intake = RobotContainer.getSubsystem(Intake.class);
-        targeter = RobotContainer.getSubsystem(Targeter.class);
+        drivetrain = RobotContainer.getSubsystem("drivetrain");  
         indexer_left = RobotContainer.getSubsystem("indexer_left");
         indexer_right = RobotContainer.getSubsystem("indexer_right");
-        hopper = RobotContainer.getSubsystem(Hopper.class);
+        intake = RobotContainer.getSubsystem("intake");
+        climber = RobotContainer.getSubsystem("climber");
+        hopper = RobotContainer.getSubsystem(Hopper.class); 
+        targeter = RobotContainer.getSubsystem(Targeter.class);
     }
 
 
@@ -67,6 +67,11 @@ public final class BindingsCompetition {
         DriverBinding();
         if (initOpr) 
             OperatorBindings();     
+
+        //Auto intake, works well if lightgate stays aligned.
+        Trigger HasFuel = new Trigger(intake::hasFuel);
+        HasFuel.onTrue(intake.cmdRunWhileFuel(.8, 0.5) );
+
     }
 
     private static void DriverBinding() {       

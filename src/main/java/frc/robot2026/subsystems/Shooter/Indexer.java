@@ -67,6 +67,7 @@ public class Indexer extends SubsystemBase {
   // consider changing slots via some api?  Looks like all the work is done in ctor.
 
   public Indexer(int CanID, boolean inverted, ClosedLoopSlot slot, int dio_gate) {
+    setName(inverted ? "indexer_left" : "indexer_right");
     indexGate = new DigitalInput(dio_gate);
     controller = new SparkFlex(CanID, MotorType.kBrushless);
     controllerCfg = new SparkFlexConfig();
@@ -128,7 +129,7 @@ public class Indexer extends SubsystemBase {
   }
 
   public boolean hasFuel(){
-    return indexGate.get();
+    return !indexGate.get();
   }
 
   public Command cmdSetPct(double pct) {
@@ -182,6 +183,7 @@ public class Indexer extends SubsystemBase {
 
   @Override
   public void initSendable(SendableBuilder builder) {
+    builder.addBooleanProperty("hasFuel", this::hasFuel, null);
     builder.addDoubleProperty("pos_cmd", this::getPosSetPoint, this::setPosSetpoint);
     builder.addDoubleProperty("pos_err", this::getPosSetPoint, null);
 

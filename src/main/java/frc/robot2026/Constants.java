@@ -101,8 +101,9 @@ public final class Constants {
   public final class DigitalIO {
     //TODO -VERIFY all DIO - 2/26/26
     public static final int IntakeGate = 0;
-    public static final int IndexerGateLeft = 1;
-    public static final int IndexerGateRight = 2;    
+    public static final int IndexerGateRight = 1;    
+    public static final int IndexerGateLeft = 2;
+    
   }
 
   //The Field info use WPILIB data
