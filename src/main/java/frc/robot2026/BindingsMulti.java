@@ -97,7 +97,7 @@ public final class BindingsMulti {
               //                               .onFalse(hopper.cmdBeltPct(0));
             
             //Driver wants to manually fire/pass
-            driver.rightTrigger(0.7).whileTrue(new AutoShootMulti(shooter, indexerT,indexerB, targeter::getManualSpeed, 0));
+            driver.rightTrigger(0.7).whileTrue(new AutoShootMulti(shooter, indexerT,indexerB, targeter::getManualSpeed, 0.5));
             //driver.rightTrigger(0.7).whileTrue(new AutoShootMulti(shooter, indexerT, indexerB, .8, 1));
             //driver.rightTrigger(0.1).whileTrue(hopper.cmdBeltPct(1))
              //                                 .onFalse(hopper.cmdBeltPct(0));

@@ -21,7 +21,7 @@ public class FlyWheelCtre implements IFlyWheel {
     final double converionFactor;
 
     double vel_setpoint_rps;    // [rps]
-    double vel_tolerance_rps = 0.1; // [rps]
+    double vel_tolerance_rps = 0.75; // [rps]
 
     public FlyWheelCtre(int CAN_ID, FlyWheelConfig _cfg) {
         CANBus canbus = new CANBus("rio");

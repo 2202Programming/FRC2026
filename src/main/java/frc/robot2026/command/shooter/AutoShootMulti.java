@@ -20,6 +20,7 @@ public class AutoShootMulti extends Command {
 
   DoubleSupplier speedProvider;
   double idxPct;
+double cmdPower;
 
   public AutoShootMulti(Shooter shooter, Indexer indexerT, Indexer indexerB, DoubleSupplier speedProvider, double idxPct) {
     this.shooter = shooter;
@@ -31,28 +32,30 @@ public class AutoShootMulti extends Command {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    cmdPower = speedProvider.getAsDouble();
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    shooter.flywheel.setSetpoint(speedProvider.getAsDouble());
+    shooter.flywheel.setSetpoint(cmdPower);
 
-    //if(shooter.atSetpoint()) {
-      //indexerT.setPct(idxPct);
-      //indexerB.setPct(idxPct);
-    /*} else {
+    if(shooter.atSetpoint()) {
+      indexerT.setPct(idxPct);
+      indexerB.setPct(idxPct);
+    } else {
       indexerT.setPct(0.0);
       indexerB.setPct(0.0);
-    }*/
+    }
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    //shooter.flywheel.setSetpoint(0.0);
-    //indexerT.setPct(0.0);
-    //indexerB.setPct(0.0);
+    shooter.flywheel.setSetpoint(0.0);
+    indexerT.setPct(0.0);
+    indexerB.setPct(0.0);
     // leave shooter running for 300ms after indexer is off
     // to make sure it is cleared
     double spd = speedProvider.getAsDouble();

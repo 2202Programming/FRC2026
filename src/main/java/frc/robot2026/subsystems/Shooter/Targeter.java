@@ -41,8 +41,8 @@ public class Targeter extends SubsystemBase {
 
     Translation2d targetTranslation2d;
     double target_dist; // function of VPE pose and Hub center + math
-    double target_speed = LOW_SPEED;
-    double manual_speed = LOW_SPEED; // flywheel speed manually controlled by driver
+    double target_speed;
+    double manual_speed; // flywheel speed manually controlled by driver
     double override_dist = 0.0;     // non-zero will skip LL distance calcs
 
     public Targeter() {
@@ -71,7 +71,11 @@ public class Targeter extends SubsystemBase {
         vel_table.put(6.0 * MperFT, 22.7);
         vel_table.put(10.0 * MperFT, 26.8);     // this is ladder radius
         vel_table.put(17.0 * MperFT, 32.5);
-        vel_table.put(25.0 * MperFT, 32.5);     //set a max    
+        vel_table.put(25.0 * MperFT, 32.5); 
+        
+        manual_speed = LOW_SPEED;
+        target_speed = LOW_SPEED;
+        //set a max    
     }
 
     @Override
