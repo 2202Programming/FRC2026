@@ -379,7 +379,7 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
         public VisionPoseEstimatorMonitorCmd() {
             addEntry("VPE Rotation", VisionPoseEstimator.this::getRotationDegrees);
             addEntry("Vision Gryo Multitag Correction Done", VisionPoseEstimator.this::hasGryoResetMultiTagHappened);
-            addEntry("Vision Gryo Singleitag Correction Done", VisionPoseEstimator.this::hasGryoResetSingleTagHappened);
+            addEntry("Vision Gryo Singletag Correction Done", VisionPoseEstimator.this::hasGryoResetSingleTagHappened);
             field = new Field2d();
             SmartDashboard.putData("PathWatcher", field);
             field.setRobotPose(llPose);
@@ -422,8 +422,7 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
             est_VPE_pose_x = MonitorTable.getEntry("VPE/X");
             est_VPE_pose_y = MonitorTable.getEntry("VPE/Y");
             est_VPE_pose_h = MonitorTable.getEntry("VPE/Heading");
-            gyroResetMultiTagDone = MonitorTable.getEntry("VPE/GyroResetMultiTagDone");
-            gyroResetSingleTagDone = MonitorTable.getEntry("VPE/GyroResetSingleTagDone");
+
             // Network Table setup
             nt_x_diff = MonitorTable.getEntry("compareLLOdo/diffX");
             nt_y_diff = MonitorTable.getEntry("compareLLOdo/diffY");
@@ -453,8 +452,7 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
             est_VPE_pose_x.setDouble(llPose.getX());
             est_VPE_pose_y.setDouble(llPose.getY());
             est_VPE_pose_h.setDouble(llPose.getRotation().getDegrees());
-            gyroResetMultiTagDone.setBoolean(hasGryoResetMultiTagHappened());
-            gyroResetMultiTagDone.setBoolean(hasGryoResetSingleTagHappened());
+
             // vision pose updating NTs
             nt_x_diff.setDouble(x_diff);
             nt_y_diff.setDouble(y_diff);
