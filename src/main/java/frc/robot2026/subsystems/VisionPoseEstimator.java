@@ -304,10 +304,12 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
     public void autoSetPose(Pose2d initialPose) {
         // this will get called if pathplanner resetOdometry is set, we want to ignore
         // if we have a multitarget
-        boolean ll_bad = (limelight == null) ? true : limelight.getTargetTags().length < 2;
-        boolean pv_bad = (photon == null) ? true : photon.totalTargetsAllCameras() < 2;
-        if (ll_bad && pv_bad) {
+        if (!hasGryoResetMultiTagHappened()) {
             setPose(initialPose);// take PP value and hope drive team placed robot well...
+            System.out.println("---->Using PathPlanner initial position<----");
+        }
+        else {
+            System.out.println("---->Vision set initial positon----->");
         }
     }
 
