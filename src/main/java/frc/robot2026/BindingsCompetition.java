@@ -70,7 +70,7 @@ public final class BindingsCompetition {
 
         //Auto intake, works well if lightgate stays aligned.
         Trigger HasFuel = new Trigger(intake::hasFuel);
-        HasFuel.onTrue(intake.cmdRunWhileFuel(.8, 0.5) );
+        HasFuel.onTrue(intake.cmdRunWhileFuel(.65, 0.5) );  //changed from .8 to 0.65 by drive team on 2/28
 
     }
 
@@ -127,7 +127,7 @@ public final class BindingsCompetition {
             // intake.FuelPresent.onTrue(intake.cmdRunForPeriod(.8, 2.0));       
 
             //intake in
-            operator.leftBumper().whileTrue(intake.cmdPctPwr(0.80))
+            operator.leftBumper().whileTrue(intake.cmdPctPwr(0.65)) //changed from .8 on 2/27 by drive team
                                  .onFalse(intake.cmdPctPwr(0.0));
             // intake out
             operator.a().whileTrue(intake.cmdPctPwr(-0.80))
