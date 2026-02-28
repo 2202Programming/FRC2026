@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib2202.builder.RobotContainer;
+import frc.lib2202.command.WatcherCmd;
 import frc.lib2202.subsystem.OdometryInterface;
 import frc.robot2026.Constants.TheField;
 
@@ -131,5 +132,12 @@ public class Targeter extends SubsystemBase {
         builder.addDoubleProperty("target_dist",  ()->{return this.target_dist;}, null);
         builder.addDoubleProperty("target_speed", ()->{return this.target_speed;}, null);
         builder.addDoubleProperty("manual_speed", ()->{return this.manual_speed;}, null);
+    }
+
+    class TargeterWatcher extends WatcherCmd {
+        TargeterWatcher() {
+            addEntry("isHighSpeed", ()->{return Targeter.this.getManualSpeed() == Targeter.this.HIGH_SPEED;});
+            addEntry("target_dist", ()->{return Targeter.this.target_dist;});
+        }
     }
 }
