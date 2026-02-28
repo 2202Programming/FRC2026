@@ -6,7 +6,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib2202.builder.RobotContainer;
@@ -132,6 +134,13 @@ public final class BindingsCompetition {
 
             // shooter unblock
             operator.y().whileTrue(new AutoShoot(shooter_left, indexer_left, targeter::getUnblockSpeed, 1));
+
+            // agitate back and forth
+            operator.a().whileTrue(new RepeatCommand(new SequentialCommandGroup(
+                    hopper.cmdBeltPct(0.5),
+                    new WaitCommand(.5),
+                    hopper.cmdBeltPct(-0.5),
+                    new WaitCommand(.5))));
 
             sideboard.sw14().onTrue(targeter.OverrideTargetDistanceFT(9.99)) // fixed distance
                     .onFalse(targeter.OverrideTargetDistanceFT(0.0)); // use vision distance
