@@ -216,9 +216,13 @@ public class Indexer extends SubsystemBase {
   }
 
 
+
   public class Load extends Command {
     final static double DEFAULT_SPEED = 0.3;  //pct power
+    final static double BackupSpeed = -0.3;
+
     final double speed;
+    boolean loaded;
 
     public Load() {
       this(DEFAULT_SPEED);
@@ -231,17 +235,26 @@ public class Indexer extends SubsystemBase {
 
     @Override
     public void initialize() {
-      if (!hasFuel())
+      loaded = true;
+      if (!hasFuel()) {
         Indexer.this.setPct(speed);
+        loaded = false;        // when done shooting, we should re-run init via reschedule
+      }
     }
+
     @Override
     public void execute() {
       //stop on fuel
-      if (Indexer.this.hasFuel()) 
-        Indexer.this.setPct(0.0);
-      else 
+      if (Indexer.this.hasFuel() ) { // just broke gate, backup until hasFuel is false
+        Indexer.this.setPct(BackupSpeed);
+        loaded = true;
+      }
+      else if (!Indexer.this.hasFuel() && loaded ) {
+        Indexer.this.setPct(0.0);   // done backing up
+      }
+      else if (!loaded) {
         Indexer.this.setPct(speed);
-
+      }
     }
 
     @Override

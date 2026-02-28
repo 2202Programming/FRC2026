@@ -128,24 +128,20 @@ public final class BindingsCompetition {
              //Testing this - DPL - auto run intake on lightgate
             // intake.FuelPresent.onTrue(intake.cmdRunForPeriod(.8, 2.0));       
 
-            //intake in
-            operator.leftBumper().whileTrue(intake.cmdPctPwr(0.65)) //changed from .8 on 2/27 by drive team
-                                 .onFalse(intake.cmdPctPwr(0.0));
-            // intake out
-            operator.a().whileTrue(intake.cmdPctPwr(-0.80))
-                                 .onFalse(intake.cmdPctPwr(0.0));
-
             // intake bindings
+            sideboard.sw21().onTrue(targeter.OverrideTargetDistanceFT(9.99))   // fixed distance
+                            .onFalse(targeter.OverrideTargetDistanceFT(0.0));  //use vision distance
 
-            // intake hopper in
+            // intake / hopper in
             operator.leftBumper().whileTrue(hopper.cmdBeltPct(1))
                     .onFalse(hopper.cmdBeltPct(0));
-            operator.leftBumper().whileTrue(intake.cmdPctPwr(0.80))
+            operator.leftBumper().whileTrue(intake.cmdPctPwr(0.65))
                     .onFalse(intake.cmdPctPwr(0.0));
+
             // intake and hopper out
             operator.rightBumper().whileTrue(hopper.cmdBeltPct(-1))
                     .onFalse(hopper.cmdBeltPct(0));
-            operator.rightBumper().whileTrue(intake.cmdPctPwr(-0.80))
+            operator.rightBumper().whileTrue(intake.cmdPctPwr(-0.65))
                     .onFalse(intake.cmdPctPwr(0.0));
 
             // shooter unblock
@@ -173,7 +169,8 @@ public final class BindingsCompetition {
             operator.povUp().onTrue(climber.armsToPoint(Climber.ExtendPosition));
 
             // climber arm to whatever drive team sets
-            operator.povDown().onTrue(climber.armsToPoint(Climber.RetractPosition));
+            operator.povDown().onTrue(climber.armsToPoint(Climber.ClimbPositon));
+            operator.x().onTrue(climber.armsSetpointCmd(Climber.PowerUpPosition));
 
             // manual flywheel speed adjustment
             operator.povLeft().onTrue(targeter.manualLow());

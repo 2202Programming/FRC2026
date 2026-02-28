@@ -21,8 +21,8 @@ import frc.robot2026.Constants.CAN;
 public class Climber extends SubsystemBase {
     /** Creates a new Climber. */
     public final static double PowerUpPosition = 0.0; // [cm]
+    public final static double ClimbPositon =  12.5;  // [cm]  go here when climbing
     public final static double ExtendPosition = 22.2; // [cm]  Was reading 28
-    public final static double RetractPosition = 0.0; // [cm]  could be changed by drive team depending on climb reqs
     public final static double ClimbCalibrateVel = 2.0; // [cm/s]
 
     final double GearRatio = 1.0 / 25.0;
