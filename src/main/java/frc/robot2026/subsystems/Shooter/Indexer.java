@@ -75,7 +75,7 @@ public class Indexer extends SubsystemBase {
     encoder.setPosition(0.0); // tells the motor it's at pos 0
 
     // Default command will keep indexer loaded but stops before flywheel
-    this.setDefaultCommand(this.new Load(0.8));
+    this.setDefaultCommand(this.new Load()); 
   }
 
   private void configure(ClosedLoopSlot slot, boolean inverted) {
@@ -217,7 +217,7 @@ public class Indexer extends SubsystemBase {
 
 
   public class Load extends Command {
-    final static double DEFAULT_SPEED = 0.5;  //pct power
+    final static double DEFAULT_SPEED = 0.3;  //pct power
     final double speed;
 
     public Load() {
@@ -231,9 +231,19 @@ public class Indexer extends SubsystemBase {
 
     @Override
     public void initialize() {
-      Indexer.this.setPct(speed);
+      if (!hasFuel())
+        Indexer.this.setPct(speed);
     }
-   
+    @Override
+    public void execute() {
+      //stop on fuel
+      if (Indexer.this.hasFuel()) 
+        Indexer.this.setPct(0.0);
+      else 
+        Indexer.this.setPct(speed);
+
+    }
+
     @Override
     public void end(boolean interrupted) {
       Indexer.this.setPct(0.0);
@@ -241,7 +251,7 @@ public class Indexer extends SubsystemBase {
 
     @Override
     public boolean isFinished() {
-      return hasFuel();
+      return false;    //used as default command, so never end...
     }
 
 
