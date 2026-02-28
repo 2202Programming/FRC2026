@@ -62,6 +62,8 @@ public class Targeter extends SubsystemBase {
         Pose3d red2 = TheField.fieldLayout.getTagPose(10).get();
         redHubTarget = new Translation2d((red1.getX()+red2.getX()) / 2.0, red1.getY()); 
         
+        new TargeterWatcher();
+
         targetTranslation2d = blueHubTarget;
         
         odo = RobotContainer.getSubsystem(odo_name);
