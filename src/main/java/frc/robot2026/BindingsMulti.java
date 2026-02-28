@@ -47,7 +47,7 @@ public final class BindingsMulti {
         shooter = RobotContainer.getSubsystem("shooter");
         drivetrain = RobotContainer.getSubsystem("drivetrain");
         intake = RobotContainer.getSubsystem(MultiIntake.class);
-        targeter = RobotContainer.getSubsystem(Targeter.class);
+        targeter = RobotContainer.getSubsystem("targeter");
         indexerT = RobotContainer.getSubsystem("indexer_top");
         indexerB = RobotContainer.getSubsystem("indexer_bottom");
        // hopper = RobotContainer.getSubsystem(Hopper.class);
@@ -88,12 +88,16 @@ public final class BindingsMulti {
                     new RobotCentricDrive(drivetrain, dc)));
 
             //Shoot with targetSpeed based on distance to hub
-            driver.leftTrigger(0.7).whileTrue(new AutoShootMulti(shooter, indexerT, indexerB, targeter::getTargetSpeed, 1));
+            driver.leftTrigger().whileTrue(indexerT.cmdSetPct(1.0).alongWith(indexerB.cmdSetPct(1.0)))
+                                 .onFalse(indexerT.cmdSetPct(0).alongWith(indexerB.cmdSetPct(0))
+                                 );
+            
+            //driver.leftTrigger(0.7).whileTrue(new AutoShootMulti(shooter, indexerT, indexerB, targeter::getTargetSpeed, 1));
             //driver.leftTrigger(0.1).whileTrue(hopper.cmdBeltPct(1))
               //                               .onFalse(hopper.cmdBeltPct(0));
             
             //Driver wants to manually fire/pass
-            driver.rightTrigger(0.7).whileTrue(new AutoShootMulti(shooter, indexerT,indexerB, targeter::getManualSpeed, 1));
+            driver.rightTrigger(0.7).whileTrue(new AutoShootMulti(shooter, indexerT,indexerB, targeter::getManualSpeed, 0));
             //driver.rightTrigger(0.7).whileTrue(new AutoShootMulti(shooter, indexerT, indexerB, .8, 1));
             //driver.rightTrigger(0.1).whileTrue(hopper.cmdBeltPct(1))
              //                                 .onFalse(hopper.cmdBeltPct(0));

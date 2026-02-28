@@ -38,21 +38,21 @@ public class AutoShootMulti extends Command {
   public void execute() {
     shooter.flywheel.setSetpoint(speedProvider.getAsDouble());
 
-    if(shooter.atSetpoint()) {
-      indexerT.setPct(idxPct);
-      indexerB.setPct(idxPct);
-    } else {
+    //if(shooter.atSetpoint()) {
+      //indexerT.setPct(idxPct);
+      //indexerB.setPct(idxPct);
+    /*} else {
       indexerT.setPct(0.0);
       indexerB.setPct(0.0);
-    }
+    }*/
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
     //shooter.flywheel.setSetpoint(0.0);
-    indexerT.setPct(0.0);
-    indexerB.setPct(0.0);
+    //indexerT.setPct(0.0);
+    //indexerB.setPct(0.0);
     // leave shooter running for 300ms after indexer is off
     // to make sure it is cleared
     double spd = speedProvider.getAsDouble();

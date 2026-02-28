@@ -72,14 +72,14 @@ public class RobotSpec_ChassisBot_Finn implements IRobotSpec {
       
       // VisonPoseEstimator needs LL and Odometry, adds simplename and alias to lookup
       .add(Indexer.class, "indexer_top", () -> {
-        return new Indexer(CAN.TIndexID, true, ClosedLoopSlot.kSlot0, SparkMax.class);
+        return new Indexer(CAN.TIndexID, false, ClosedLoopSlot.kSlot0, SparkMax.class);
       })
       .add(Indexer.class, "indexer_bottom", () -> {
-        return new Indexer(CAN.BIndexID, false, ClosedLoopSlot.kSlot0, SparkMax.class);
+        return new Indexer(CAN.BIndexID, true, ClosedLoopSlot.kSlot0, SparkMax.class);
       })
 //.addAlias(VisionPoseEstimator.class, "vision_odo")
       .add(Shooter.class, "shooter", () -> {
-        return new Shooter("ctre", CAN.MShooterID, false);
+        return new Shooter("ctre", CAN.MShooterID, true);
       })
       .add(MultiIntake.class)
 
@@ -158,7 +158,7 @@ public class RobotSpec_ChassisBot_Finn implements IRobotSpec {
         .setInversions(false, true, false);
 
     modules[CornerID.BackRight.getIdx()] = new ModuleConfig(CornerID.BackRight,
-        CAN.BR_CANCoder, CAN.BR_Drive, CAN.BR_Angle, -161.895)
+        CAN.BR_CANCoder, CAN.BR_Drive, CAN.BR_Angle, -154.16)
         .setInversions(true, true, false);
 
     return modules;
