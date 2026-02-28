@@ -90,6 +90,10 @@ public final class BindingsCompetition {
 
 
             driver.leftTrigger().whileTrue(new PrintCommand("TODO LIMELIGHT FIRE"));
+            // driver.leftTrigger(0.7).whileTrue(new AutoShoot(shooter_left, indexer_left, targeter::getManualSpeed, -1));
+            // driver.leftTrigger(0.7).whileTrue(new AutoShoot(shooter_right, indexer_right, targeter:: getManualSpeed, -1));
+            // driver.leftTrigger(0.2).whileTrue(hopper.cmdBeltPct(-1))
+            //                                   .onFalse(hopper.cmdBeltPct(0));
             
             //Driver wants to manually fire/pass
             driver.rightTrigger(0.7).whileTrue(new AutoShoot(shooter_left, indexer_left, targeter::getManualSpeed, 1));
@@ -117,10 +121,10 @@ public final class BindingsCompetition {
             // intake bindings
             
             //intake in
-            operator.leftBumper().whileTrue(intake.cmdPctPwr(0.80))
+            operator.leftBumper().whileTrue(intake.cmdPctPwr(0.65))
                                  .onFalse(intake.cmdPctPwr(0.0));
             // intake out
-            operator.a().whileTrue(intake.cmdPctPwr(-0.80))
+            operator.a().whileTrue(intake.cmdPctPwr(-0.65))
                                  .onFalse(intake.cmdPctPwr(0.0));
 
             //Calibration Commands
