@@ -4,80 +4,184 @@
 
 package frc.robot2026.subsystems;
 
+import com.revrobotics.PersistMode;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.ResetMode;
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.SparkBase;
-
-import edu.wpi.first.math.controller.PIDController;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.FeedForwardConfig;
+import com.revrobotics.spark.config.SparkBaseConfig;
+import com.revrobotics.spark.config.SparkFlexConfig;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.lib2202.command.WatcherCmd;
-import frc.lib2202.util.NeoServo;
-import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
+import frc.robot2026.Constants.DigitalIO;
 
 public class Intake extends SubsystemBase {
 
-  final NeoServo Roller;
+  final SparkFlex controller;
+  final SparkFlexConfig config;
+  final RelativeEncoder encoder;
+  final SparkClosedLoopController closedLoopController;
+  final FeedForwardConfig ffObj;
 
-  final SparkBase Rlrmtr;  // filled from Servo object
+  final double GearRatio = 3.0;
+  final double conversionFactor = 1.0 / GearRatio; // [rot (mtr) / rot (output)]
+
+  final ClosedLoopSlot slot = ClosedLoopSlot.kSlot0;
+
+  final boolean motor_inverted = true;
+
+  final DigitalInput lightgate;
+
+  final double cruiseVel = 5767.0;
+  final double maxAccel = 10000.0;
+
+  double P = 0.7;
+  double I = 0.0015;
+  double D = 0.0;
+  double kS = 0.0;
+  double kV = 12.0 / 5767.0;
+
+  double pos_setpoint;
+  boolean m_changes = false;
 
   boolean disable_servo = true;
 
-  PIDFController HWVelocity_PID = new PIDFController(0.0, 0.0, 0.0, 5.0 / 180.0 / 1.2); // [deg/s]
-  PIDController  Position_PID = new PIDController(0.0 ,0, 0);  //[deg]
-
-  //convert to deg/s units at the geared output
-  final double GearRatio = 5.0;
-  final double conversionFactor = 360.0 / GearRatio;  // [deg/rot]
-
-  // Motor settings for Servo
-  final int STALL_CURRENT = 80;
-  final int FREE_CURRENT = 5;
-  final boolean motor_inverted = true;
-
-
   // Servo speed/positions
-  final double maxVel = 100.0;
-  final double maxAccel = 75.0;
-
   double cmdPos;
   double cmdPct;
 
   /** Creates a new Intake. */
   public Intake() {
-    setName("Intake-" + CAN.IntakeID);// + " | Intake-Bottom=" + CAN.IntakeBottomID);
+    setName("Intake-" + CAN.IntakeID);
+    lightgate = new DigitalInput(DigitalIO.IntakeGate);
 
-    // setup any other hardware Pid values, like Izone 
-    HWVelocity_PID.setIZone(200.0); //[deg/s]  outside this region ignore integral
+    controller = new SparkFlex(CAN.IntakeID, MotorType.kBrushless);
+    config = new SparkFlexConfig();
+    encoder = controller.getEncoder();
+    closedLoopController = controller.getClosedLoopController();
 
-    //Setup servos, for velocity or position control.
-    Roller = new NeoServo(CAN.IntakeID, Position_PID, HWVelocity_PID, motor_inverted);
-    
-    //Mr.L Feedback - can't recreate contRollers with CANID, it was used by NeoServo, so pull from it
-    Rlrmtr = Roller.getController();  
+    ffObj = config.closedLoop.feedForward;
 
-        Roller.setSmartCurrentLimit(STALL_CURRENT, FREE_CURRENT);
+    config
+        .inverted(motor_inverted);
 
+    config.encoder
+        .positionConversionFactor(conversionFactor);
+
+    config.closedLoop
+        .feedbackSensor(FeedbackSensor.kPrimaryEncoder);
+
+    config.closedLoop.maxMotion
+        .cruiseVelocity(cruiseVel, slot)
+        .maxAcceleration(maxAccel, slot)
+        .allowedProfileError(1);
+
+    config.closedLoop
+        .p(P, slot).i(I, slot).d(D, slot)
+        .feedForward
+          .kS(kS, slot).kV(kV, slot);
+
+    controller.configure(config, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+
+  }
+
+  /**
+   * 
+   * @param motorController - The motor controller to apply the values to
+   * @param motorConfig     - The cfg to send the values into
+   * @param slot            - The slot (PositionSlot / VelocitySlot) to send the
+   *                        values to
+   * 
+   *                        Updates values every frame for PID, kV, kS, iMaxAccum,
+   *                        iZone, rampRate,
+   */
+  private void update(SparkBase motorController, SparkBaseConfig motorConfig, ClosedLoopSlot slot) {
+    // skip if no changes or no attached hw typical if use PIDF without calling
+    if (!m_changes || motorConfig == null || motorController == null)
+      return;
+
+    motorConfig.closedLoop.pid(P, I, D, slot);
+    motorConfig.closedLoop.feedForward.sv(kS, kV, slot);
+
+    // send to HW if we have a pid change, use async so robot loop isn't delayed
+    motorController.configureAsync(motorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+    m_changes = false;
+  }
+
+  @Override
+  public void periodic() {
+    update(controller, config, slot);
+  }
+
+  public void setPosSetpoint(double setpoint) {
+    closedLoopController.setSetpoint(setpoint, ControlType.kMAXMotionPositionControl, slot);
+    pos_setpoint = setpoint;
+  }
+
+  public Command cmdSetPos(double setpoint) {
+    return runOnce(() -> {
+      setPosSetpoint(setpoint);
+    });
+  }
+
+  public Command cmdZeroPos() {
+    return runOnce(() -> {
+      zeroPos();
+    });
+  }
+
+  public void setkS(double newkS) {
+    ffObj.kS(newkS);
+    kS = newkS;
+    m_changes = true;
+  }
+
+  public void setkV(double newkV) {
+    ffObj.kV(newkV);
+    kV = newkV;
+    m_changes = true;
+  }
+
+  public double getPosSetPoint() {
+    return pos_setpoint;
+  }
+
+  public double getPosition() {
+    return encoder.getPosition();
+  }
+
+  public double getRPM() {
+    return encoder.getVelocity();
+  }
+
+  public double getPositionError() {
+    return Math.abs(getPosition() - pos_setpoint);
+  }
+
+  public boolean hasFuel() {
+    return !lightgate.get();
+  }
+
+  public void zeroPos() {
+    encoder.setPosition(0.0);
   }
 
   // velocity control only used for testing, normal cmds will use position
   public void setPercent(double pct) {
     cmdPct = pct;
-    Rlrmtr.set(pct);
-  }
-
-  public double getVelocity() {
-    return Roller.getVelocity();
-  }
- 
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
-    // power mode testing, disable servo if testing with duty-cycle
-    if (!disable_servo) {
-      Roller.periodic();
-    }
+    controller.set(pct);
   }
 
   public Command cmdPctPwr(double cmd_pct) {
@@ -88,7 +192,7 @@ public class Intake extends SubsystemBase {
 
   public void setTestBindings(CommandXboxController opr) {
     opr.leftBumper()
-        .onTrue(this.cmdPctPwr(0.5))
+        .whileTrue(this.cmdPctPwr(0.5))
         .onFalse(this.cmdPctPwr(0.0));
 
     opr.rightBumper()
@@ -97,28 +201,88 @@ public class Intake extends SubsystemBase {
 
     opr.b()
         .onTrue(this.cmdPctPwr(0.0));
+
+    opr.b().onTrue(new InstantCommand(() -> {
+      zeroPos();
+    }));
   }
 
   @Override
-    public void initSendable(SendableBuilder builder) {
-        super.initSendable(builder);
-        //TODO add parameters here for tuning
-        builder.addDoubleProperty("vel_1", this.Roller::getVelocity, this.Roller::setSetpoint);
+  public void initSendable(SendableBuilder builder) {
+    super.initSendable(builder);
+    builder.addBooleanProperty("hasFuel", this::hasFuel, null);
+    builder.addDoubleProperty("pos_cmd", this::getPosSetPoint, this::setPosSetpoint);
+    builder.addDoubleProperty("pos_err", this::getPosSetPoint, null);
+    builder.addDoubleProperty("pos", this::getPosition, null);
+    builder.addDoubleProperty("RPM", this::getRPM, null);
 
-        builder.addDoubleProperty("pct_pwr", this.Rlrmtr::get, this.Rlrmtr::set);
-    }
+    builder.addDoubleProperty("kS", () -> {
+      return kS;
+    }, this::setkS);
+    builder.addDoubleProperty("kV", () -> {
+      return kV;
+    }, this::setkV);
 
-    // Add a watcher so we can see stuff on network tables
-    public WatcherCmd getWatcherCmd() {
-        return this.new IntakeWatcher();
-    }
+    builder.addDoubleProperty("P", () -> {
+      return P;
+    }, (double v) -> {
+      this.P = v;
+      m_changes = true;
+    });
 
+    builder.addDoubleProperty("I", () -> {
+      return I;
+    }, (double i) -> {
+      this.I = i;
+      m_changes = true;
+    });
 
-  class IntakeWatcher extends WatcherCmd {
-    IntakeWatcher() {
-       addEntry("vel", Intake.this.Roller::getVelocity, 2);
-    }
+    builder.addDoubleProperty("D", () -> {
+      return D;
+    }, (double d) -> {
+      this.D = d;
+      m_changes = true;
+    });
   }
 
-}
+  public Command cmdRunWhileFuel(double pct, double seconds) {
+    return this.new RunWhileFuel(pct, seconds);
+  }
 
+  class RunWhileFuel extends Command {
+    double pct;
+    double seconds;
+    Timer no_fuel_timer;
+
+    public RunWhileFuel(double pct, double seconds) {
+      this.pct = pct;
+      this.seconds = seconds;
+      no_fuel_timer = new Timer();
+    }
+
+    @Override
+    public void initialize() {
+      no_fuel_timer.restart();
+      Intake.this.setPercent(pct);
+    }
+
+    @Override
+    public void execute() {
+      // keep resetting timer as long as we see fuel
+      if (Intake.this.hasFuel() ) 
+        no_fuel_timer.restart();
+    }
+
+    public void end(boolean interrupted) {
+      Intake.this.setPercent(0.0);
+    }
+
+    public boolean isFinished(){
+      var x =  no_fuel_timer.hasElapsed(seconds);
+      return x;
+    }
+
+  }
+
+
+}

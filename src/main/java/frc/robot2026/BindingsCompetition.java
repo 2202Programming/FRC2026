@@ -45,15 +45,15 @@ public final class BindingsCompetition {
 
     private static void get_references() {
         // Subsystems must exist in RobotSpec, if they don't an NPE is thrown.
-        climber = RobotContainer.getSubsystem("climber");
         shooter_left = RobotContainer.getSubsystem("shooter_left");
         shooter_right = RobotContainer.getSubsystem("shooter_right");
-        drivetrain = RobotContainer.getSubsystem("drivetrain");
-        intake = RobotContainer.getSubsystem(Intake.class);
-        targeter = RobotContainer.getSubsystem(Targeter.class);
+        drivetrain = RobotContainer.getSubsystem("drivetrain");  
         indexer_left = RobotContainer.getSubsystem("indexer_left");
         indexer_right = RobotContainer.getSubsystem("indexer_right");
-        hopper = RobotContainer.getSubsystem(Hopper.class);
+        intake = RobotContainer.getSubsystem("intake");
+        climber = RobotContainer.getSubsystem("climber");
+        hopper = RobotContainer.getSubsystem(Hopper.class); 
+        targeter = RobotContainer.getSubsystem(Targeter.class);
     }
 
     public static void ConfigureCompetition(HID_Subsystem dc) {
@@ -66,8 +66,13 @@ public final class BindingsCompetition {
         dc = _dc;
         get_references();
         DriverBinding();
-        if (initOpr)
-            OperatorBindings();
+        if (initOpr) 
+            OperatorBindings();     
+
+        //Auto intake, works well if lightgate stays aligned.
+        Trigger HasFuel = new Trigger(intake::hasFuel);
+        HasFuel.onTrue(intake.cmdRunWhileFuel(.65, 0.5) );  //changed from .8 to 0.65 by drive team on 2/28
+
     }
 
     private static void DriverBinding() {
@@ -118,6 +123,17 @@ public final class BindingsCompetition {
         // buttons depend on what controller is plugged in
         if (generic_opr instanceof CommandXboxController) {
             CommandXboxController operator = (CommandXboxController) generic_opr;
+         
+            // intake bindings
+             //Testing this - DPL - auto run intake on lightgate
+            // intake.FuelPresent.onTrue(intake.cmdRunForPeriod(.8, 2.0));       
+
+            //intake in
+            operator.leftBumper().whileTrue(intake.cmdPctPwr(0.65)) //changed from .8 on 2/27 by drive team
+                                 .onFalse(intake.cmdPctPwr(0.0));
+            // intake out
+            operator.a().whileTrue(intake.cmdPctPwr(-0.80))
+                                 .onFalse(intake.cmdPctPwr(0.0));
 
             // intake bindings
 

@@ -20,6 +20,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -33,7 +34,7 @@ public class Indexer extends SubsystemBase {
   final SparkClosedLoopController closedLoopController;
   final FeedForwardConfig ffObj;
 
-  // final DigitalInput indexGate; // unused
+  final DigitalInput indexGate; 
 
   final ClosedLoopSlot PositionSlot = ClosedLoopSlot.kSlot0;
 
@@ -61,15 +62,20 @@ public class Indexer extends SubsystemBase {
   double increment_position = 6.0; // rough estimate as of 2/20/2026
   boolean m_changes = false;
 
-  public Indexer(int CanID, boolean inverted, ClosedLoopSlot slot) {
+  public Indexer(int CanID, boolean inverted, int dio_gate) {
+    setName(inverted ? "indexer_left" : "indexer_right");
+    indexGate = new DigitalInput(dio_gate);
     controller = new SparkFlex(CanID, MotorType.kBrushless);
     controllerCfg = new SparkFlexConfig();
     encoder = controller.getEncoder();
     closedLoopController = controller.getClosedLoopController();
     ffObj = controllerCfg.closedLoop.feedForward;
-    configure(slot, inverted);
-    configureTuning(slot);
-    encoder.setPosition(0.0); // tells the motor it's at pos. 0
+    configure(PositionSlot, inverted);
+    configureTuning(PositionSlot);
+    encoder.setPosition(0.0); // tells the motor it's at pos 0
+
+    // Default command will keep indexer loaded but stops before flywheel
+    this.setDefaultCommand(this.new Load()); 
   }
 
   private void configure(ClosedLoopSlot slot, boolean inverted) {
@@ -121,19 +127,23 @@ public class Indexer extends SubsystemBase {
     controller.set(pct);
   }
 
+  public boolean hasFuel(){
+    return !indexGate.get();
+  }
+
   public Command cmdSetPct(double pct) {
     return runOnce(() -> {
       setPct(pct);
     });
   }
 
-  public void setkS(double newkS) {
+  void setkS(double newkS) {
     ffObj.kS(newkS);
     kS = newkS;
     m_changes = true;
   }
 
-  public void setkV(double newkV) {
+  void setkV(double newkV) {
     ffObj.kV(newkV);
     kV = newkV;
     m_changes = true;
@@ -163,7 +173,7 @@ public class Indexer extends SubsystemBase {
 
   @Override
   public void periodic() {
-    update(controller, controllerCfg, PositionSlot);
+    update(controller, controllerCfg, PositionSlot);  //changes only when actively tuning via Elastic
   }
 
   public void setTestBindings(CommandXboxController xbox) {
@@ -172,6 +182,7 @@ public class Indexer extends SubsystemBase {
 
   @Override
   public void initSendable(SendableBuilder builder) {
+    builder.addBooleanProperty("hasFuel", this::hasFuel, null);
     builder.addDoubleProperty("pos_cmd", this::getPosSetPoint, this::setPosSetpoint);
     builder.addDoubleProperty("pos_err", this::getPosSetPoint, null);
 
@@ -203,4 +214,50 @@ public class Indexer extends SubsystemBase {
       m_changes = true;
     });
   }
+
+
+  public class Load extends Command {
+    final static double DEFAULT_SPEED = 0.3;  //pct power
+    final double speed;
+
+    public Load() {
+      this(DEFAULT_SPEED);
+    }
+
+    public Load(double _speed) {
+      this.speed = _speed;
+      this.addRequirements(Indexer.this);
+    }
+
+    @Override
+    public void initialize() {
+      if (!hasFuel())
+        Indexer.this.setPct(speed);
+    }
+    @Override
+    public void execute() {
+      //stop on fuel
+      if (Indexer.this.hasFuel()) 
+        Indexer.this.setPct(0.0);
+      else 
+        Indexer.this.setPct(speed);
+
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+      Indexer.this.setPct(0.0);
+    }
+
+    @Override
+    public boolean isFinished() {
+      return false;    //used as default command, so never end...
+    }
+
+
+  }
+
+
+
+
 }
