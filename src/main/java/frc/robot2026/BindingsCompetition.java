@@ -29,8 +29,8 @@ import frc.robot2026.subsystems.Shooter.Targeter;
  */
 @SuppressWarnings("unused")
 public final class BindingsCompetition {
-    //subsystem references for use in command bindings
-    public static DriveTrainInterface drivetrain; 
+    // subsystem references for use in command bindings
+    public static DriveTrainInterface drivetrain;
     public static HID_Subsystem dc;
     public static Climber climber;
     public static Shooter shooter_left;
@@ -40,7 +40,7 @@ public final class BindingsCompetition {
     public static Hopper hopper;
     public static Intake intake;
     public static Targeter targeter;
-    
+
     private static void get_references() {
         // Subsystems must exist in RobotSpec, if they don't an NPE is thrown.
         climber = RobotContainer.getSubsystem("climber");
@@ -54,24 +54,23 @@ public final class BindingsCompetition {
         hopper = RobotContainer.getSubsystem(Hopper.class);
     }
 
-
-    public static void ConfigureCompetition(HID_Subsystem dc) {       
+    public static void ConfigureCompetition(HID_Subsystem dc) {
         ConfigureCompetition(dc, true);
     }
 
     // optional disable opr binding for testing
     public static void ConfigureCompetition(HID_Subsystem _dc, boolean initOpr) {
-         // get references for the commands to use
+        // get references for the commands to use
         dc = _dc;
         get_references();
         DriverBinding();
-        if (initOpr) 
+        if (initOpr)
             OperatorBindings();
     }
 
-    private static void DriverBinding() {       
+    private static void DriverBinding() {
         var generic_driver = dc.Driver();
-        
+
         // Driver Buttons depend on the type of controller drivers selects
         if (generic_driver instanceof TMJoystickController) {
             // Joystick
@@ -85,21 +84,22 @@ public final class BindingsCompetition {
 
             // Driver will wants precision robot-centric throttle drive on left bumper
             driver.leftBumper().whileTrue(new ParallelCommandGroup(
-                    new ScaleDriver(0.3), 
+                    new ScaleDriver(0.3),
                     new RobotCentricDrive(drivetrain, dc)));
 
-            //Shoot with targetSpeed based on distance to hub
+            // Shoot with targetSpeed based on distance to hub
             driver.leftTrigger(0.7).whileTrue(new AutoShoot(shooter_left, indexer_left, targeter::getTargetSpeed, 1));
             driver.leftTrigger(0.7).whileTrue(new AutoShoot(shooter_right, indexer_right, targeter::getTargetSpeed, 1));
             driver.leftTrigger(0.1).whileTrue(hopper.cmdBeltPct(1))
-                                             .onFalse(hopper.cmdBeltPct(0));
-            
-            //Driver wants to manually fire/pass
+                    .onFalse(hopper.cmdBeltPct(0));
+
+            // Driver wants to manually fire/pass
             driver.rightTrigger(0.7).whileTrue(new AutoShoot(shooter_left, indexer_left, targeter::getManualSpeed, 1));
-            driver.rightTrigger(0.7).whileTrue(new AutoShoot(shooter_right, indexer_right, targeter::getManualSpeed, 1));
+            driver.rightTrigger(0.7)
+                    .whileTrue(new AutoShoot(shooter_right, indexer_right, targeter::getManualSpeed, 1));
             driver.rightTrigger(0.1).whileTrue(hopper.cmdBeltPct(1))
-                                              .onFalse(hopper.cmdBeltPct(0));
-            
+                    .onFalse(hopper.cmdBeltPct(0));
+
         } else {
             DriverStation.reportError("Comp Bindings: No driver bindings set, check controllers.", false);
         }
@@ -108,46 +108,51 @@ public final class BindingsCompetition {
     static void OperatorBindings() {
         var sideboard = dc.SwitchBoard();
         var generic_opr = dc.Operator();
-       
-        Trigger Cal = sideboard.sw11();  //calibration button (conventional)
-        Trigger NotCal = Cal.negate();   // regular competition mode
-        Trigger DumbShooter = sideboard.sw26();   // placeholder for fallback to fixed shooting region
+
+        Trigger Cal = sideboard.sw11(); // calibration button (conventional)
+        Trigger NotCal = Cal.negate(); // regular competition mode
+        Trigger DumbShooter = sideboard.sw26(); // placeholder for fallback to fixed shooting region
 
         // buttons depend on what controller is plugged in
         if (generic_opr instanceof CommandXboxController) {
             CommandXboxController operator = (CommandXboxController) generic_opr;
-         
+
             // intake bindings
-            
-            //intake in
+
+            // intake hopper in
+            operator.leftBumper().whileTrue(hopper.cmdBeltPct(1))
+                    .onFalse(hopper.cmdBeltPct(0));
             operator.leftBumper().whileTrue(intake.cmdPctPwr(0.80))
-                                 .onFalse(intake.cmdPctPwr(0.0));
-            // intake out
-            operator.a().whileTrue(intake.cmdPctPwr(-0.80))
-                                 .onFalse(intake.cmdPctPwr(0.0));
+                    .onFalse(intake.cmdPctPwr(0.0));
+            // intake and hopper out
+            operator.rightBumper().whileTrue(hopper.cmdBeltPct(-1))
+                    .onFalse(hopper.cmdBeltPct(0));
+            operator.rightBumper().whileTrue(intake.cmdPctPwr(-0.80))
+                    .onFalse(intake.cmdPctPwr(0.0));
 
-            sideboard.sw14().onTrue(targeter.OverrideTargetDistanceFT(9.99))   // fixed distance
-                            .onFalse(targeter.OverrideTargetDistanceFT(0.0));  //use vision distance
+            // shooter unblock
+            operator.y().whileTrue(new AutoShoot(shooter_left, indexer_left, targeter::getUnblockSpeed, 1));
 
-            //Calibration Commands
+            sideboard.sw14().onTrue(targeter.OverrideTargetDistanceFT(9.99)) // fixed distance
+                    .onFalse(targeter.OverrideTargetDistanceFT(0.0)); // use vision distance
+
+            // Calibration Commands
             Cal.and(sideboard.sw12()).whileTrue(climber.setVelocityCmd(Climber.ClimbCalibrateVel))
-                                     .onFalse(climber.setVelocityCmd(0.0));
+                    .onFalse(climber.setVelocityCmd(0.0));
             Cal.and(sideboard.sw13()).whileTrue(climber.setVelocityCmd(-Climber.ClimbCalibrateVel))
-                                     .onFalse(climber.setVelocityCmd(0.0));
+                    .onFalse(climber.setVelocityCmd(0.0));
 
-            //climber arm extend to max
+            // climber arm extend to max
             operator.povUp().onTrue(climber.armsToPoint(Climber.ExtendPosition));
-                           
-            //climber arm to 0
-            operator.povDown().onTrue(climber.armsToPoint(Climber.PowerUpPosition));
-            
+
+            // climber arm to whatever drive team sets
+            operator.povDown().onTrue(climber.armsToPoint(Climber.RetractPosition));
+
             // manual flywheel speed adjustment
             operator.povLeft().onTrue(targeter.manualLow());
             operator.povRight().onTrue(targeter.manualHigh());
 
-            
-        }
-        else {
+        } else {
             DriverStation.reportWarning("Comp Bindings: No operator bindings set, check controllers.", false);
         }
 
