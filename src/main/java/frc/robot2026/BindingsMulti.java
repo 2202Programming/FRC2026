@@ -88,7 +88,7 @@ public final class BindingsMulti {
                     new RobotCentricDrive(drivetrain, dc)));
 
             //Shoot with targetSpeed based on distance to hub
-            driver.leftTrigger().whileTrue(indexerT.cmdSetPct(1.0).alongWith(indexerB.cmdSetPct(1.0)))
+            driver.leftTrigger().whileTrue(indexerT.cmdSetPct(0.5).alongWith(indexerB.cmdSetPct(0.5)))
                                  .onFalse(indexerT.cmdSetPct(0).alongWith(indexerB.cmdSetPct(0))
                                  );
             
@@ -122,7 +122,7 @@ public final class BindingsMulti {
             // intake bindings
             
             //intake in
-            operator.leftBumper().whileTrue(intake.cmdPctPwr(1.0))
+            operator.leftBumper().whileTrue(intake.cmdPctPwr(1, .7))
                                  .onFalse(intake.cmdPctPwr(0.0));
             // intake out
             operator.a().whileTrue(intake.cmdPctPwr(-1.0))
