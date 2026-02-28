@@ -13,6 +13,8 @@ import com.revrobotics.spark.SparkFlex;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -44,6 +46,7 @@ import frc.robot2026.command.pose.setGyroOffsetWithVision;
 import frc.robot2026.subsystems.Hopper;
 import frc.robot2026.subsystems.Intake;
 import frc.robot2026.subsystems.LimelightV2;
+import frc.robot2026.subsystems.Photonvision;
 import frc.robot2026.subsystems.RangeSensor;
 import frc.robot2026.subsystems.VisionPoseEstimator;
 import frc.robot2026.subsystems.Shooter.Indexer;
@@ -54,7 +57,7 @@ import frc.robot2026.subsystems.Climber;
 public class RobotSpec_AlphaBot implements IRobotSpec {
   // Subsystem objects for use at other cut points
   Targeter targeter;   // auto/tele init
-
+  static Photonvision pv;
   // 2026 Robot rev Alpha
   // io sheet
   // https://docs.google.com/spreadsheets/d/1eZ89R4oWHoCDpM9nOMC420o4i6Zx-Fgi8y4tpiL58a4/edit?gid=2120414614#gid=2120414614
@@ -113,6 +116,28 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
       .add(Climber.class, "climber", () -> {
          return new Climber(true);
        })
+      .add(Photonvision.class, "photonvision", () -> {
+        // create config object with our cameras and their positions
+        // Photonvision uses WPI coordinates: https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html
+        // X to front, Y to left, Z up
+        // Rotation is roll, pitch, yaw 
+        // yaw is positive counterclockwise looking down on the robot
+        Photonvision.Config pvConfig = new Photonvision.Config(
+            // CAD: +x towards front, +y robot right, +z towards top
+            // left camera (-11.477,-11.477, 17.198) (inches)
+            // right camera (3.682, 7.839, 15.720)
+
+            new String[] { "Left_Camera", "Right_Camera" },
+            new Transform3d[] {
+                new Transform3d(new Translation3d(-11.477 * 0.0254, 11.477 * 0.0254, 17.198 * 0.0254),
+                    new Rotation3d( 0.0, 0.0, 90 / DEGperRAD )),
+                new Transform3d(new Translation3d(3.682 * 0.0254, -7.839 * 0.0254, 15.720 * 0.0254),
+                   new Rotation3d( 0.0, 0.00, -90 / DEGperRAD )),
+            });
+        // now setup our PV subsystem
+        pv = new Photonvision(pvConfig);
+        return pv;
+      })
       .add(Hopper.class)
       .add(Targeter.class)
       ;
