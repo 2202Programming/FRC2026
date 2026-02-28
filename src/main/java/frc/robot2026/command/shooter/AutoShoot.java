@@ -25,6 +25,8 @@ public class AutoShoot extends Command {
     this.indexer = indexer;
     this.speedProvider = speedProvider;
     this.idxPct = idxPct;
+
+    addRequirements(shooter, indexer);
   }
 
   // Called when the command is initially scheduled.

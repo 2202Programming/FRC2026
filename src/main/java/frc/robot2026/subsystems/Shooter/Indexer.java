@@ -62,11 +62,7 @@ public class Indexer extends SubsystemBase {
   double increment_position = 6.0; // rough estimate as of 2/20/2026
   boolean m_changes = false;
 
-
-  // TODO -  QUESTION, why are we exposing the Slot? Doesn't seem like it merits Ctor level exposure
-  // consider changing slots via some api?  Looks like all the work is done in ctor.
-
-  public Indexer(int CanID, boolean inverted, ClosedLoopSlot slot, int dio_gate) {
+  public Indexer(int CanID, boolean inverted, int dio_gate) {
     setName(inverted ? "indexer_left" : "indexer_right");
     indexGate = new DigitalInput(dio_gate);
     controller = new SparkFlex(CanID, MotorType.kBrushless);
@@ -74,9 +70,12 @@ public class Indexer extends SubsystemBase {
     encoder = controller.getEncoder();
     closedLoopController = controller.getClosedLoopController();
     ffObj = controllerCfg.closedLoop.feedForward;
-    configure(slot, inverted);
-    configureTuning(slot);
+    configure(PositionSlot, inverted);
+    configureTuning(PositionSlot);
     encoder.setPosition(0.0); // tells the motor it's at pos 0
+
+    // Default command will keep indexer loaded but stops before flywheel
+    this.setDefaultCommand(this.new Load(0.8));
   }
 
   private void configure(ClosedLoopSlot slot, boolean inverted) {
@@ -215,4 +214,40 @@ public class Indexer extends SubsystemBase {
       m_changes = true;
     });
   }
+
+
+  public class Load extends Command {
+    final static double DEFAULT_SPEED = 0.5;  //pct power
+    final double speed;
+
+    public Load() {
+      this(DEFAULT_SPEED);
+    }
+
+    public Load(double _speed) {
+      this.speed = _speed;
+      this.addRequirements(Indexer.this);
+    }
+
+    @Override
+    public void initialize() {
+      Indexer.this.setPct(speed);
+    }
+   
+    @Override
+    public void end(boolean interrupted) {
+      Indexer.this.setPct(0.0);
+    }
+
+    @Override
+    public boolean isFinished() {
+      return hasFuel();
+    }
+
+
+  }
+
+
+
+
 }

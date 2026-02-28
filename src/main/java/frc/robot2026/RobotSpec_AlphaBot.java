@@ -8,7 +8,6 @@ import static frc.lib2202.Constants.MperFT;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.config.PIDConstants;
-import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkFlex;
 
 import edu.wpi.first.math.geometry.Pose3d;
@@ -98,10 +97,10 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
       })
       // VisonPoseEstimator needs LL and Odometry, adds simplename and alias to lookup
       .add(Indexer.class, "indexer_left", () -> {
-        return new Indexer(CAN.LIndexerID, true, ClosedLoopSlot.kSlot0, DigitalIO.IndexerGateLeft);
+        return new Indexer(CAN.LIndexerID, true, DigitalIO.IndexerGateLeft);
       })
       .add(Indexer.class, "indexer_right", () -> {
-        return new Indexer(CAN.RIndexerID, false, ClosedLoopSlot.kSlot0, DigitalIO.IndexerGateRight);
+        return new Indexer(CAN.RIndexerID, false, DigitalIO.IndexerGateRight);
       })
       .addAlias(VisionPoseEstimator.class, "vision_odo")
       .add(Shooter.class, "shooter_left", () -> {
