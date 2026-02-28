@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib2202.builder.RobotContainer;
+import frc.lib2202.command.WatcherCmd;
 import frc.lib2202.subsystem.OdometryInterface;
 import frc.robot2026.Constants.TheField;
 
@@ -26,6 +27,7 @@ manage shooter speeds for different command use
 public class Targeter extends SubsystemBase {
     final double HIGH_SPEED = 32.5; // [M/S]
     final double LOW_SPEED = 26.3; // [M/S]
+    final double UNBLOCK_SPEED = -15.0; // [M/S]
 
     // Provided by vince as angle between the center of the motor and the trailing edge of the ball exit ramp
     final double Shooter_Angle = 65.0; // [deg]
@@ -60,6 +62,8 @@ public class Targeter extends SubsystemBase {
         Pose3d red2 = TheField.fieldLayout.getTagPose(10).get();
         redHubTarget = new Translation2d((red1.getX()+red2.getX()) / 2.0, red1.getY()); 
         
+        new TargeterWatcher();
+
         targetTranslation2d = blueHubTarget;
         
         odo = RobotContainer.getSubsystem(odo_name);
@@ -88,7 +92,10 @@ public class Targeter extends SubsystemBase {
     public double getTargetSpeed(){
         return target_speed;
     }
-    
+     public double getUnblockSpeed(){
+        return UNBLOCK_SPEED;
+    }
+
     // Call this on autoInit and teleInit to make sure alliance target is set
     public void setTarget() {
         var optAlliance = DriverStation.getAlliance(); // make sure this is accurate :)
@@ -127,5 +134,12 @@ public class Targeter extends SubsystemBase {
         builder.addDoubleProperty("target_dist-ft",  ()->{return this.target_dist / MperFT;}, null);
         builder.addDoubleProperty("target_speed", ()->{return this.target_speed;}, null);
         builder.addDoubleProperty("manual_speed", ()->{return this.manual_speed;}, null);
+    }
+
+    class TargeterWatcher extends WatcherCmd {
+        TargeterWatcher() {
+            addEntry("isLowSpeed", ()->{return Targeter.this.getManualSpeed() == Targeter.this.LOW_SPEED;});
+            addEntry("target_dist", ()->{return Targeter.this.target_dist;});
+        }
     }
 }
