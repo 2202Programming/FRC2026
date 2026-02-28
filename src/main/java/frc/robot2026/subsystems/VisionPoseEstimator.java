@@ -71,7 +71,7 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
     private boolean gyroOffsetSingleTagDone = false;
 
     // vision systems limelight and photonvision(TBD)
-    private Pose2d llPose;
+    private Pose2d llPose;// latest vision pose (ll and pv)
     private Pose2d prev_llPose;
     private Pose2d rawLLPose;
     private boolean llHasMultitarget;
@@ -301,6 +301,17 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
     }
 
     @Override
+    public void autoSetPose(Pose2d initialPose) {
+        // this will get called if pathplanner resetOdometry is set, we want to ignore
+        // if we have a multitarget
+        boolean ll_bad = (limelight == null) ? true : limelight.getTargetTags().length < 2;
+        boolean pv_bad = (photon == null) ? true : photon.totalTargetsAllCameras() < 2;
+        if (ll_bad && pv_bad) {
+            setPose(initialPose);// take PP value and hope drive team placed robot well...
+        }
+    }
+
+    @Override
     public void setAnglePose(Rotation2d rot) {
         // keep xy, update rotation and gyro
         setPose(new Pose2d(llPose.getTranslation(), rot));
@@ -363,7 +374,6 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
 
         private final Field2d field;
 
-        // TODO: MR.L fix this- we need both the old and new form working
         public VisionPoseEstimatorMonitorCmd() {
             addEntry("VPE Rotation", VisionPoseEstimator.this::getRotationDegrees);
             addEntry("Vision Gryo Multitag Correction Done", VisionPoseEstimator.this::hasGryoResetMultiTagHappened);
