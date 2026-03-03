@@ -27,6 +27,7 @@ manage shooter speeds for different command use
 public class Targeter extends SubsystemBase {
     final double HIGH_SPEED = 32.5; // [M/S]
     final double LOW_SPEED = 26.3; // [M/S]
+    final double LOW_TOLERANCE = 0.5; // [M/S]
     final double UNBLOCK_SPEED = -15.0; // [M/S]
 
     // Provided by vince as angle between the center of the motor and the trailing edge of the ball exit ramp
@@ -39,12 +40,15 @@ public class Targeter extends SubsystemBase {
 
     final InverseInterpolator<Double> distance = InverseInterpolator.forDouble();
     final Interpolator<Double> vel_mps = Interpolator.forDouble();
+    final Interpolator<Double> tolerance_mps = Interpolator.forDouble();
     final InterpolatingTreeMap<Double, Double> vel_table = new InterpolatingTreeMap<>(distance, vel_mps); // [m][m/s]
+    final InterpolatingTreeMap<Double, Double> tolerance_table = new InterpolatingTreeMap<>(distance, tolerance_mps); // [m][m/s]
 
     Translation2d targetTranslation2d;
     double target_dist; // function of VPE pose and Hub center + math
     double target_speed = LOW_SPEED;
     double manual_speed = LOW_SPEED; // flywheel speed manually controlled by driver
+    double target_tolerance = LOW_TOLERANCE;
     double override_dist = 0.0;     // non-zero will skip LL distance calcs
 
     public Targeter() {
@@ -76,6 +80,14 @@ public class Targeter extends SubsystemBase {
         vel_table.put(10.0 * MperFT, 25.0);     // was26.8 this is ladder radius
         vel_table.put(17.0 * MperFT, 34.5);
         vel_table.put(25.0 * MperFT, 34.5);     //set a max    
+
+
+        tolerance_table.put(0.0 * MperFT, 0.5);
+        tolerance_table.put(5.0 * MperFT, 0.5); 
+        tolerance_table.put(6.0 * MperFT, 0.5);
+        tolerance_table.put(10.0 * MperFT, 0.5);
+        tolerance_table.put(17.0 * MperFT, 0.5);
+        tolerance_table.put(25.0 * MperFT, 0.5);
     }
 
     @Override
@@ -87,6 +99,14 @@ public class Targeter extends SubsystemBase {
 
     public double getManualSpeed(){
         return manual_speed;
+    }
+
+    public double getTolerance(){
+        return target_tolerance;
+    }
+
+        public double getManualTolerance(){
+        return 0.5;
     }
 
     public double getTargetSpeed(){

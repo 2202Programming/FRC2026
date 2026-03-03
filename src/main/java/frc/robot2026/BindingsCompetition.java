@@ -95,15 +95,15 @@ public final class BindingsCompetition {
                     new RobotCentricDrive(drivetrain, dc)));
 
             // Shoot with targetSpeed based on distance to hub
-            driver.leftTrigger(0.7).whileTrue(new AutoShoot(shooter_left, indexer_left, targeter::getTargetSpeed, 1));
-            driver.leftTrigger(0.7).whileTrue(new AutoShoot(shooter_right, indexer_right, targeter::getTargetSpeed, 1));
+            driver.leftTrigger(0.7).whileTrue(new AutoShoot(shooter_left, indexer_left, targeter::getTargetSpeed, targeter::getTolerance, 1));
+            driver.leftTrigger(0.7).whileTrue(new AutoShoot(shooter_right, indexer_right, targeter::getTargetSpeed, targeter::getTolerance, 1));
             driver.leftTrigger(0.1).whileTrue(hopper.cmdBeltPct(1))
                     .onFalse(hopper.cmdBeltPct(0));
 
             // Driver wants to manually fire/pass
-            driver.rightTrigger(0.7).whileTrue(new AutoShoot(shooter_left, indexer_left, targeter::getManualSpeed, 1));
+            driver.rightTrigger(0.7).whileTrue(new AutoShoot(shooter_left, indexer_left, targeter::getManualSpeed, targeter::getManualTolerance, 1));
             driver.rightTrigger(0.7)
-                    .whileTrue(new AutoShoot(shooter_right, indexer_right, targeter::getManualSpeed, 1));
+                    .whileTrue(new AutoShoot(shooter_right, indexer_right, targeter::getManualSpeed, targeter::getManualTolerance, 1));
             driver.rightTrigger(0.1).whileTrue(hopper.cmdBeltPct(1))
                     .onFalse(hopper.cmdBeltPct(0));
 
@@ -145,8 +145,8 @@ public final class BindingsCompetition {
                     .onFalse(intake.cmdPctPwr(0.0));
 
             // shooter unblock
-            operator.y().whileTrue(new AutoShoot(shooter_left, indexer_left, targeter::getUnblockSpeed, 1))
-                    .whileTrue(new AutoShoot(shooter_right, indexer_right, targeter::getUnblockSpeed, 1));
+            operator.y().whileTrue(new AutoShoot(shooter_left, indexer_left, targeter::getUnblockSpeed, targeter::getTolerance, 1))
+                    .whileTrue(new AutoShoot(shooter_right, indexer_right, targeter::getUnblockSpeed, targeter::getTolerance, 1));
 
             // agitate back and forth
             operator.a().whileTrue(new RepeatCommand(new SequentialCommandGroup(
