@@ -84,7 +84,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
         // Limelight position in robot coords - this has LL in the front of bot
         Pose3d LimelightPosition = new Pose3d(-0.03, 0.01, 0.507,
             new Rotation3d(0.0, 11.0 / DEGperRAD, 0.0));
-        return new LimelightV2("", LimelightPosition);  //single ll use "" for name
+        return new LimelightV2("limelight", LimelightPosition);  //single ll use "" for name
       })
 
       .add(SwerveDrivetrain.class, "drivetrain", () -> {
