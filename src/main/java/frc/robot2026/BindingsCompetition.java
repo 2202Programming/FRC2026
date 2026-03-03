@@ -158,15 +158,16 @@ public final class BindingsCompetition {
             operator.a().whileTrue(new RepeatCommand(new SequentialCommandGroup(
                     hopper.cmdBeltPct(0.65),
                     intake.cmdPctPwr(0.65),
-                    new WaitCommand(.5),
+                    new WaitCommand(0.5),
                     hopper.cmdBeltPct(-0.65),
                     intake.cmdPctPwr(-0.65),
-                    new WaitCommand(.5),
+                    new WaitCommand(0.5),
                     hopper.cmdBeltPct(0.65),
                     intake.cmdPctPwr(-0.65),
-                    new WaitCommand(.5),
+                    new WaitCommand(0.5),
                     hopper.cmdBeltPct(-0.65),
-                    intake.cmdPctPwr(0.65))))
+                    intake.cmdPctPwr(0.65),
+                    new WaitCommand(0.5))))
                     .onFalse(hopper.cmdBeltPct(0))
                     .onFalse(intake.cmdPctPwr(0));
 
