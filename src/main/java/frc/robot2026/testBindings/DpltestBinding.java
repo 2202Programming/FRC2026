@@ -1,9 +1,11 @@
 package frc.robot2026.testBindings;
 
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.lib2202.command.swerve.FaceToTag;
 import frc.lib2202.command.swerve.calibrate.TestConstantVelocity;
 import frc.lib2202.command.swerve.calibrate.TestRotateVelocity;
 import frc.robot2026.RegisteredCommands;
+import frc.robot2026.command.autoClimberCommand;
 
 public class DpltestBinding {
 
@@ -16,5 +18,7 @@ public class DpltestBinding {
 
         // Test named command Shoot off a button...
         c.a().onTrue(RegisteredCommands.ncShoot());
+        c.b().onTrue(new FaceToTag(10));
+        c.x().onTrue(new autoClimberCommand(true) );
     }
 }

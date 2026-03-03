@@ -123,10 +123,6 @@ public final class BindingsCompetition {
         // buttons depend on what controller is plugged in
         if (generic_opr instanceof CommandXboxController) {
             CommandXboxController operator = (CommandXboxController) generic_opr;
-         
-            // intake bindings
-             //Testing this - DPL - auto run intake on lightgate
-            // intake.FuelPresent.onTrue(intake.cmdRunForPeriod(.8, 2.0));       
 
             // intake bindings
             sideboard.sw21().onTrue(targeter.OverrideTargetDistanceFT(9.99))   // fixed distance

@@ -51,6 +51,7 @@ import frc.robot2026.subsystems.VisionPoseEstimator;
 import frc.robot2026.subsystems.Shooter.Indexer;
 import frc.robot2026.subsystems.Shooter.Shooter;
 import frc.robot2026.subsystems.Shooter.Targeter;
+import frc.robot2026.testBindings.DpltestBinding;
 import frc.robot2026.subsystems.Climber;
 
 public class RobotSpec_AlphaBot implements IRobotSpec {
@@ -83,7 +84,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
         // Limelight position in robot coords - this has LL in the front of bot
         Pose3d LimelightPosition = new Pose3d(-0.03, 0.01, 0.507,
             new Rotation3d(0.0, 11.0 / DEGperRAD, 0.0));
-        return new LimelightV2("limelight", LimelightPosition);
+        return new LimelightV2("", LimelightPosition);  //single ll use "" for name
       })
 
       .add(SwerveDrivetrain.class, "drivetrain", () -> {
@@ -232,12 +233,13 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
     }
 
     // Competition bindings
-    BindingsCompetition.ConfigureCompetition(dc, true); //TODO TRUE for COMPETITION
+    BindingsCompetition.ConfigureCompetition(dc, false); //TODO TRUE for COMPETITION
 
     // Place your test binding in ./testBinding/<yourFile>.java and call it here
     // comment out any conflicting bindings. Try not to push with your bindings
     // active. Just comment them out.   
-    // DpltestBinding.calbrate((CommandXboxController)dc.Operator());
+    
+    DpltestBinding.calbrate((CommandXboxController)dc.Operator());
     // BGTestBindings.calbrate(op);
    
     // Anything else that needs to run after binding/commands are created 
