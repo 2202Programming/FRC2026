@@ -258,6 +258,7 @@ public class Intake extends SubsystemBase {
       this.pct = pct;
       this.seconds = seconds;
       no_fuel_timer = new Timer();
+      this.addRequirements(Intake.this);
     }
 
     @Override

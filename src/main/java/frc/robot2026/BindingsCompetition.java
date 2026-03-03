@@ -24,7 +24,7 @@ import frc.robot2026.subsystems.Hopper;
 import frc.robot2026.subsystems.Intake;
 import frc.robot2026.subsystems.Shooter.Indexer;
 import frc.robot2026.subsystems.Shooter.Shooter;
-import frc.robot2026.subsystems.Shooter.Targeter;
+import frc.robot2026.subsystems.Shooter.Targeter; 
 
 /*
  * Please don't edit this without leads/mentor/driveteam review
