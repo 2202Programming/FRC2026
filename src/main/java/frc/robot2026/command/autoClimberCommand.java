@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.builder.RobotLimits;
 import frc.lib2202.command.pathing.MoveToPose;
-import frc.lib2202.subsystem.swerve.SwerveDrivetrain;
+import frc.lib2202.subsystem.swerve.DriveTrainInterface;
 import frc.robot2026.subsystems.Climber;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
@@ -22,13 +22,13 @@ import frc.robot2026.subsystems.Climber;
 public class autoClimberCommand extends SequentialCommandGroup {
   /** Creates a new autoClimberCommand. */
   Climber climber;
-  SwerveDrivetrain sdt;
+  DriveTrainInterface sdt;
 
 
     public autoClimberCommand(boolean leftSide) {
 
     climber = RobotContainer.getSubsystem("climber");
-    sdt = RobotContainer.getSubsystem(SwerveDrivetrain.class);
+    sdt = RobotContainer.getSubsystem("drivetrain");
    
     RobotLimits limits = RobotContainer.getRobotSpecs().getRobotLimits();
     PathConstraints constraints =  new PathConstraints(limits.kMaxSpeed, limits.kMaxSpeed / 1.33, 
