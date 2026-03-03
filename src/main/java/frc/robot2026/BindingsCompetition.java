@@ -145,16 +145,25 @@ public final class BindingsCompetition {
                     .onFalse(intake.cmdPctPwr(0.0));
 
             // shooter unblock
-            operator.y().whileTrue(new AutoShoot(shooter_left, indexer_left, targeter::getUnblockSpeed, 1))
-                    .whileTrue(new AutoShoot(shooter_right, indexer_right, targeter::getUnblockSpeed, 1));
+            operator.y().whileTrue(shooter_left.cmdVelocity(-15))
+                        .whileTrue(shooter_right.cmdVelocity(-15))
+                        .onFalse(shooter_left.cmdVelocity(0))
+                        .onFalse(shooter_right.cmdVelocity(0));
+            operator.y().whileTrue(indexer_left.cmdSetPct(-1))
+                        .whileTrue(indexer_right.cmdSetPct(-1))
+                        .onFalse(indexer_left.cmdSetPct(0))
+                        .onFalse(indexer_right.cmdSetPct(0));   
 
             // agitate back and forth
             operator.a().whileTrue(new RepeatCommand(new SequentialCommandGroup(
                     hopper.cmdBeltPct(0.5),
+                    intake.cmdPctPwr(0.5),
                     new WaitCommand(.5),
                     hopper.cmdBeltPct(-0.5),
+                    intake.cmdPctPwr(0.5),
                     new WaitCommand(.5))))
-                    .onFalse(hopper.cmdBeltPct(0));
+                    .onFalse(hopper.cmdBeltPct(0))
+                    .onFalse(intake.cmdPctPwr(0));
 
             sideboard.sw14().onTrue(targeter.OverrideTargetDistanceFT(9.99)) // fixed distance
                     .onFalse(targeter.OverrideTargetDistanceFT(0.0)); // use vision distance
