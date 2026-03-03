@@ -27,7 +27,7 @@ public class autoClimberCommand extends SequentialCommandGroup {
 
     public autoClimberCommand(boolean leftSide) {
 
-    climber = RobotContainer.getSubsystem(Climber.class);
+    climber = RobotContainer.getSubsystem("climber");
     sdt = RobotContainer.getSubsystem(SwerveDrivetrain.class);
    
     RobotLimits limits = RobotContainer.getRobotSpecs().getRobotLimits();
