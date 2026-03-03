@@ -8,6 +8,7 @@ import com.pathplanner.lib.path.PathConstraints;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.lib2202.builder.RobotContainer;
@@ -39,8 +40,8 @@ public class autoClimberCommand extends SequentialCommandGroup {
 
     addCommands(new MoveToPose("vision_odo",
                             constraints,
-                            new Pose2d((leftSide ? 5.0 : 3.0), 
-                                      (leftSide ? 0.5 : 1.0), 
+                            new Pose2d((leftSide ? 0.5 : 1.0), 
+                                      (leftSide ? 5.0 : 3.0), 
                                       Rotation2d.fromDegrees(leftSide ? 0.0 : 180.0))),
                 climber.armsToPoint(climber.climbposition()), 
                 new WaitCommand(1.0),

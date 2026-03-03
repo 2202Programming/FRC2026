@@ -30,7 +30,7 @@ public class climberManuver extends Command {
 
 
   public final double lxStart = 0.5; //CANNOT STRESS HOW MUCH OF A GUESS THESE ARE.
-  public final double rxStart = 1.5; //TODO get actual values and put in constants
+  public final double rxStart = 1.0; //TODO get actual values and put in constants
   public final double ly = 5.0;
   public final double ry = 3.0;
   public final double xEnd = 1.0;
