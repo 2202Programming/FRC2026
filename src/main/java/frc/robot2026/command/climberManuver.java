@@ -18,6 +18,8 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.builder.RobotLimits;
@@ -41,7 +43,7 @@ public class climberManuver extends Command {
   public final Pose2d rStartPose;
   private Rotation2d endRot;
 
-  private final Pose3d realBlueCenter;
+  private final Pose3d realCenter;
 
   boolean leftSide;
 
@@ -49,15 +51,19 @@ public class climberManuver extends Command {
   Command runPath;
 
   public climberManuver(boolean leftSide) {
+  Optional<Alliance> alliance =DriverStation.getAlliance();
     Optional<Pose3d> BlueCenter = TheField.fieldLayout.getTagPose(31);
-    if (BlueCenter.isPresent()) {
-      realBlueCenter = BlueCenter.get();
+    Optional<Pose3d> RedCenter = TheField.fieldLayout.getTagPose(16); 
+    if (BlueCenter.isPresent() && (alliance.get() == Alliance.Blue)) {
+      realCenter = BlueCenter.get();
+    } else if (RedCenter.isPresent() && (alliance.get() == Alliance.Red)){
+      realCenter = RedCenter.get();
     } else {
-      realBlueCenter = null;
+      realCenter = null;
+      System.out.println("No center found");
     }
-
-    lStartPose = realBlueCenter.toPose2d().transformBy(new Transform2d(new Translation2d(0.5,1.0), Rotation2d.fromDegrees(0.0)));
-    rStartPose = realBlueCenter.toPose2d().transformBy(new Transform2d(new Translation2d(1.5,-1.0), Rotation2d.fromDegrees(180.0)));
+    lStartPose = realCenter.toPose2d().transformBy(new Transform2d(new Translation2d(0.5,1.0), Rotation2d.fromDegrees(0.0)));
+    rStartPose = realCenter.toPose2d().transformBy(new Transform2d(new Translation2d(1.5,-1.0), Rotation2d.fromDegrees(180.0)));
         // Create a list of waypoints from poses. Each pose represents one waypoint.
     // The rotation component of the pose should be the direction of travel. Do not
     // use holonomic rotation.
@@ -91,7 +97,6 @@ public class climberManuver extends Command {
         null, // The ideal starting state, this is only relevant for pre-planned paths, so can
               // be null for on-the-fly paths.
         new GoalEndState(0.0, endRot) // Goal end state. You can set a holonomic rotation here. If
-
     );
 
     // Prevent the path from being flipped if the coordinates are already correct
