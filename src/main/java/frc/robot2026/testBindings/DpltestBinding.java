@@ -18,7 +18,7 @@ public class DpltestBinding {
 
         // Test named command Shoot off a button...
         c.a().onTrue(RegisteredCommands.ncShoot());
-        c.b().onTrue(new FaceToTag(10));
+        c.b().onTrue(new FaceToTag(10, 5.0));
         c.x().onTrue(new autoClimberCommand(true) );
     }
 }
