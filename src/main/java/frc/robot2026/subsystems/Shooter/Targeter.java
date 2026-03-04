@@ -27,7 +27,6 @@ manage shooter speeds for different command use
 public class Targeter extends SubsystemBase {
     final double HIGH_SPEED = 32.5; // [M/S]
     final double LOW_SPEED = 26.3; // [M/S]
-    final double UNBLOCK_SPEED = -15.0; // [M/S]
 
     // Provided by vince as angle between the center of the motor and the trailing edge of the ball exit ramp
     final double Shooter_Angle = 65.0; // [deg]
@@ -91,9 +90,6 @@ public class Targeter extends SubsystemBase {
 
     public double getTargetSpeed(){
         return target_speed;
-    }
-     public double getUnblockSpeed(){
-        return UNBLOCK_SPEED;
     }
 
     // Call this on autoInit and teleInit to make sure alliance target is set
