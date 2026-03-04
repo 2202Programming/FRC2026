@@ -19,6 +19,6 @@ public class DpltestBinding {
         // Test named command Shoot off a button...
         c.a().onTrue(RegisteredCommands.ncShoot());
         c.b().onTrue(new FaceToTag(10, 5.0));
-        c.x().onTrue(new autoClimberCommand(true) );
+        c.x().onTrue(new autoClimberCommand(false) );  // good for testing with Pos3 starts
     }
 }

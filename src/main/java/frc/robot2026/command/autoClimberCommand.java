@@ -13,67 +13,87 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.builder.RobotLimits;
 import frc.lib2202.command.pathing.MoveToPose;
+import frc.lib2202.subsystem.OdometryInterface;
 import frc.lib2202.subsystem.swerve.DriveTrainInterface;
+import frc.lib2202.util.PoseMath;
 import frc.robot2026.Constants.TheField;
 import frc.robot2026.subsystems.Climber;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class autoClimberCommand extends SequentialCommandGroup {
+public class autoClimberCommand extends Command {
+//SequentialCommandGroup {
   /** Creates a new autoClimberCommand. */
-  Climber climber;
-  DriveTrainInterface sdt;
+  final Climber climber;
+  final DriveTrainInterface sdt;
+  final RobotLimits limits;
+  final PathConstraints constraints;
 
-  final Pose3d realCenter;
+  //debugging use only
+  final OdometryInterface odo;
 
-  // Blue position for auto climbing.
-  final Pose2d leftPose;
-  final Pose2d rightPose;
-
+  final Pose3d blueCenter;
+  final Pose3d redCenter;
+  final boolean leftSide;
+  //computed in init based on Alliance and side...
+  Pose3d realCenter;
+  
   public autoClimberCommand(boolean leftSide) {
-
+    this.leftSide = leftSide;
     Optional<Pose3d> BlueCenter = TheField.fieldLayout.getTagPose(31);
     Optional<Pose3d> RedCenter = TheField.fieldLayout.getTagPose(16);
-    if (BlueCenter.isPresent()) {
-      realCenter = BlueCenter.get();
-    } else if (RedCenter.isPresent()) {
-      realCenter = RedCenter.get();
-    } else {
-      realCenter = null;
-      System.out.println("No center found");
-    }
+    blueCenter = BlueCenter.isPresent() ? BlueCenter.get() : null;
+    redCenter = RedCenter.isPresent() ? RedCenter.get() : null;
+    limits = RobotContainer.getRobotSpecs().getRobotLimits();
 
-    leftPose = realCenter.toPose2d()
-        .transformBy(new Transform2d(new Translation2d(0.5, 1.0), Rotation2d.fromDegrees(0.0)));
-    rightPose = realCenter.toPose2d()
-        .transformBy(new Transform2d(new Translation2d(1.5, -1.0), Rotation2d.fromDegrees(180.0)));
-
+    odo = RobotContainer.getSubsystem("vision_odo");
     climber = RobotContainer.getSubsystem("climber");
     sdt = RobotContainer.getSubsystem("drivetrain");
+    constraints = new PathConstraints(limits.kMaxSpeed, limits.kMaxSpeed / 1.33,
+        limits.kMaxAngularSpeed, limits.kMaxAngularSpeed / 0.75);  
+        
+    // no requirements, we will add them to the cmd we build in initialize        
+  }
 
-    RobotLimits limits = RobotContainer.getRobotSpecs().getRobotLimits();
-    PathConstraints constraints = new PathConstraints(limits.kMaxSpeed, limits.kMaxSpeed / 1.33,
-        limits.kMaxAngularSpeed, limits.kMaxAngularSpeed / 0.75);
-
-    addRequirements(climber, sdt);
-    // Use addRequirements() here to declare subsystem dependencies
-    addCommands(new MoveToPose("vision_odo",
-        constraints,
-        (leftSide ? leftPose : rightPose)),
+  @Override
+  public void initialize() {
+    realCenter = (DriverStation.getAlliance().get() == Alliance.Blue) ? blueCenter : redCenter;
+    Pose2d currentPose = odo.getPose();
+    Pose2d pose;
+    pose =  (leftSide) ?    
+        realCenter.toPose2d().transformBy(new Transform2d(new Translation2d(0.5, 1.0), Rotation2d.fromDegrees(0.0)))  :
+        realCenter.toPose2d().transformBy(new Transform2d(new Translation2d(1.5, -1.0), Rotation2d.fromDegrees(180.0)));
+    
+    var cmd = new SequentialCommandGroup(
+      new PrintCommand("climb pose"+pose.toString() + " dist=" + PoseMath.poseDistance(currentPose, pose) ),
+      new MoveToPose("vision_odo", constraints, pose),
         climber.armsToPoint(Climber.ExtendPosition),
+        new WaitCommand(2.0),
         new climberManuver(leftSide),
         climber.armsToPoint(0));
-
-    // Things to add / fix: Make sure the distances are correct in manuver, switch
-    // around left and right side, make climb position run in parallel with movement
-
-    // order of opp: send arms to a position (predetermined by the subsystem), dive
-    // backwards X amount, then arms to position 0.)
-    // The command itself is not difficult, the issues come other forms.
+    
+    cmd.addRequirements(climber, sdt);
+    cmd.setName("autoClimb-"+ pose.toString());
+    cmd.andThen(new PrintCommand("autoClimb DONE!!"));
+    
+    // run what we built
+    CommandScheduler.getInstance().schedule(cmd);
   }
+
+  @Override
+  public boolean isFinished() {
+    return true;
+  }
+    
 }

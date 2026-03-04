@@ -46,7 +46,7 @@ import frc.robot2026.subsystems.Hopper;
 import frc.robot2026.subsystems.Intake;
 import frc.robot2026.subsystems.LimelightV2;
 import frc.robot2026.subsystems.Photonvision;
-import frc.robot2026.subsystems.RangeSensor;
+//import frc.robot2026.subsystems.RangeSensor;
 import frc.robot2026.subsystems.VisionPoseEstimator;
 import frc.robot2026.subsystems.Shooter.Indexer;
 import frc.robot2026.subsystems.Shooter.Shooter;
@@ -86,11 +86,10 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
             new Rotation3d(0.0, 11.0 / DEGperRAD, 0.0));
         return new LimelightV2("limelight", LimelightPosition);  //single ll use "" for name
       })
-
       .add(SwerveDrivetrain.class, "drivetrain", () -> {
         return new SwerveDrivetrain(SparkFlex.class);
       })
-      .add(RangeSensor.class)
+      //.add(RangeSensor.class) //works but not used
       .add(OdometryInterface.class, "odometry", () -> {
         var obj = new Odometry();
         obj.new OdometryWatcher();

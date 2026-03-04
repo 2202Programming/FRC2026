@@ -171,9 +171,6 @@ public final class BindingsCompetition {
             .onFalse(hopper.cmdBeltPct(0))
             .onFalse(intake.cmdPctPwr(0));
 
-            sideboard.sw14().onTrue(targeter.OverrideTargetDistanceFT(9.99)) // fixed distance
-                    .onFalse(targeter.OverrideTargetDistanceFT(0.0)); // use vision distance
-
             // Calibration Commands
             Cal.and(sideboard.sw12()).whileTrue(climber.setVelocityCmd(Climber.ClimbCalibrateVel))
                     .onFalse(climber.setVelocityCmd(0.0));
