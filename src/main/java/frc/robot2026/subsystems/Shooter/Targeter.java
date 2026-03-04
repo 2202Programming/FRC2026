@@ -135,7 +135,7 @@ public class Targeter extends SubsystemBase {
     class TargeterWatcher extends WatcherCmd {
         TargeterWatcher() {
             addEntry("isLowSpeed", ()->{return Targeter.this.getManualSpeed() == Targeter.this.LOW_SPEED;});
-            addEntry("target_dist", ()->{return Targeter.this.target_dist;});
+            addEntry("target_dist-ft", ()->{return Targeter.this.target_dist / MperFT;});
         }
     }
 }
