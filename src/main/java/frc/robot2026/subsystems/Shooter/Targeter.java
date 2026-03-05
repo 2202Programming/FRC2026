@@ -92,8 +92,8 @@ public class Targeter extends SubsystemBase {
 
     @Override
     public void periodic() {
-        Alliance alliance = DriverStation.getAlliance().get();
-        targetTranslation2d = (alliance != null && alliance == Alliance.Blue) ? blueHubTarget : redHubTarget;
+        Alliance alliance = DriverStation.getAlliance().orElse(Alliance.Red);
+        targetTranslation2d = (alliance == Alliance.Blue) ? blueHubTarget : redHubTarget;
 
         target_dist = (override_dist == 0.0) ? odo.getDistanceToTranslation(targetTranslation2d) : override_dist;
         target_speed = vel_table.get(target_dist);
