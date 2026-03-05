@@ -99,13 +99,11 @@ public final class Constants {
   }
 
   public final class DigitalIO {
-
-    public static final int IndexGate = 0;   //unused - to be removed
-
-    //public static final int EndEffector_Lightgate = 2;
-    //public static final int SignalLight1 = 7;
-    //public static final int SignalLight2 = 8;
-    //public static final int SignalLight3 = 9;              
+    //TODO -VERIFY all DIO - 2/26/26
+    public static final int IntakeGate = 0;
+    public static final int IndexerGateRight = 1;    
+    public static final int IndexerGateLeft = 2;
+    
   }
 
   //The Field info use WPILIB data

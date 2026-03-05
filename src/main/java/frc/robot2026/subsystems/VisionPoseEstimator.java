@@ -1,5 +1,7 @@
 package frc.robot2026.subsystems;
 
+import static frc.lib2202.Constants.DEGperRAD;
+
 import com.pathplanner.lib.util.PathPlannerLogging;
 
 import edu.wpi.first.math.Matrix;
@@ -27,8 +29,6 @@ import frc.lib2202.command.pathing.AllianceAwareGyroReset;
 import frc.lib2202.subsystem.ILimelight;
 import frc.lib2202.subsystem.LimelightHelpers;
 import frc.lib2202.subsystem.OdometryInterface;
-import frc.lib2202.subsystem.SignalLight;
-import frc.lib2202.subsystem.SignalLight.Color;
 import frc.lib2202.subsystem.swerve.DriveTrainInterface;
 import frc.lib2202.subsystem.swerve.IHeadingProvider;
 import frc.lib2202.util.VisionWatchdog;
@@ -48,20 +48,17 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
     final SwerveDriveKinematics kinematics; // const matrix based on chassis geometry, get from drivetrain
     SwerveModulePosition[] meas_pos; // provided by drivetrain
 
-    Pose2d m_odoPose; // based on odometry
+    Pose2d m_odoPose; // based on odometry, mechanical wheel counts only
 
     final VisionWatchdog watchdog;
     final ILimelight limelight;
-    final SignalLight signal;
     final Photonvision photon;
 
     // stddev based on distance/quality of tag
     final Matrix<N3, N1> closeStdDevs = VecBuilder.fill(0.25, 0.25, Units.degreesToRadians(5.0));
-    // final Matrix<N3, N1> medStdDevs =VecBuilder.fill(0.25, 0.25,
-    // Units.degreesToRadians(5.0));
-    // final Matrix<N3, N1> farStdDevs =VecBuilder.fill(0.5, 0.5,
-    // Units.degreesToRadians(15.0));
-     final Matrix<N3, N1> PVStdDevs =VecBuilder.fill(.5, .5, Units.degreesToRadians(10));
+    // final Matrix<N3, N1> medStdDevs =VecBuilder.fill(0.25, 0.25, Units.degreesToRadians(5.0));
+    // final Matrix<N3, N1> farStdDevs =VecBuilder.fill(0.5, 0.5, Units.degreesToRadians(15.0));
+    final Matrix<N3, N1> PVStdDevs = VecBuilder.fill(.5, .5, Units.degreesToRadians(10));
 
     final SwerveDrivePoseEstimator m_estimator;
     // monitor diffs in ll and odometry poses
@@ -70,10 +67,11 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
     private double yaw_diff; // [deg]
     private double bot_vel;
     private boolean llValid = false;
-    private boolean gyroOffsetDone = false;
+    private boolean gyroOffsetMultiTagDone = false;
+    private boolean gyroOffsetSingleTagDone = false;
 
     // vision systems limelight and photonvision(TBD)
-    private Pose2d llPose;
+    private Pose2d llPose;// latest vision pose (ll and pv)
     private Pose2d prev_llPose;
     private Pose2d rawLLPose;
     private boolean llHasMultitarget;
@@ -91,11 +89,12 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
 
     // no-args ctor, default timings
     public VisionPoseEstimator(String limelightName) {
-        this(3.0, limelightName); // typical settings
+        this(0.0, limelightName); // typical settings
     }
 
     public VisionPoseEstimator(double watchdog_interval, String limelightName) {
-        watchdog = new VisionWatchdog(watchdog_interval);
+        //allow skipping watchdog
+        watchdog = (watchdog_interval > 0.0) ? new VisionWatchdog(watchdog_interval) : null;
         m_field = new Field2d();
         m_ll_name = limelightName;
         m_field_obj = m_field.getObject("VPE_odo" + m_ll_name);
@@ -104,8 +103,7 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
         drivetrain = RobotContainer.getSubsystemOrNull("drivetrain");
         m_odometry = RobotContainer.getSubsystemOrNull("odometry");
         gyro = RobotContainer.getRobotSpecs().getHeadingProvider();
-        limelight = RobotContainer.getSubsystemOrNull(limelightName);
-        signal = RobotContainer.getObjectOrNull("light");
+        limelight = RobotContainer.getSubsystemOrNull(limelightName);       
         photon = RobotContainer.getObjectOrNull("photonvision");
 
         altName = limelight.getLLName(); // debug
@@ -164,28 +162,15 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
         m_field.setRobotPose(llPose);
         m_field_obj.setPose(m_odoPose);
 
+        if (watchdog != null)
+            watchdog.update(rawLLPose, prev_llPose);
+
         // compare llPose and odometry pose for reporting
         x_diff = (llPose.getX() - m_odoPose.getX());
         y_diff = (llPose.getY() - m_odoPose.getY());
         yaw_diff = (llPose.getRotation().getDegrees() - m_odoPose.getRotation().getDegrees());
-
-        SetSignal();
     }
 
-    void SetSignal() {
-        if (signal == null)
-            return;
-
-        Color color = SignalLight.Color.RED; // nothing visible
-
-        if (!limelight.getRejectUpdate()) { // true = not valid
-            color = SignalLight.Color.GREEN;
-            if (bot_vel < 0.1) {
-                color = SignalLight.Color.BLUE;
-            }
-        }
-        signal.setLight(color);
-    }
 
     // helper functions
     SwerveDrivePoseEstimator initializeEstimator() {
@@ -232,12 +217,7 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
             Matrix<N3, N1> stdDev = getStdDev(bot_vel, dist2Tag);
 
             m_estimator.setVisionMeasurementStdDevs(stdDev);
-            m_estimator.addVisionMeasurement(pose, ts);
-
-            //@DL - this should probably run independantly of this limelight IF statement section
-            //@JR - I think it is correct, only call WD if there was an LL update. Really I think we can remove the WD.
-            if (watchdog != null)
-                watchdog.update(pose, prev_llPose);
+            m_estimator.addVisionMeasurement(pose, ts);                    
         }
 
         processPhotonVision();
@@ -261,13 +241,22 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
         AllianceAwareGyroReset.AddRotationCallback(this::setAnglePose);
     }
 
-    public void setGyroDone() {
-        gyroOffsetDone = true;
+    public void setGyroSingleTagDone() {
+        gyroOffsetSingleTagDone = true;
     }
 
-    public boolean hasGryoResetHappened() {
-        return gyroOffsetDone;
+    public boolean hasGryoResetSingleTagHappened() {
+        return gyroOffsetSingleTagDone;
     }
+
+    public void setGyroMultiTagDone() {
+        gyroOffsetMultiTagDone = true;
+    }
+
+    public boolean hasGryoResetMultiTagHappened() {
+        return gyroOffsetMultiTagDone;
+    }
+
 
     // see if we can get the LL stddevs for mt1[0..5] and mt2[6..11]
     double[] default_stddevs = new double[12];
@@ -284,9 +273,17 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
     }
 
     public double getDistanceToTranslation(Translation2d targetTranslation) {
-        return Math.sqrt(
-                Math.pow(llPose.getX() - targetTranslation.getX(), 2.0) +
-                        Math.pow(llPose.getY() - targetTranslation.getY(), 2.0));
+        double x_diff = llPose.getX() - targetTranslation.getX();
+        double y_diff = llPose.getY() - targetTranslation.getY();
+        return Math.hypot(x_diff, y_diff);
+        //Math.sqrt(Math.pow(llPose.getX() - targetTranslation.getX(), 2.0) +
+        //          Math.pow(llPose.getY() - targetTranslation.getY(), 2.0));
+    }
+
+    public double getHeadingToTranslation(Translation2d targetTranslation){
+        double x_diff = llPose.getX() - targetTranslation.getX();
+        double y_diff = llPose.getY() - targetTranslation.getY();
+        return DEGperRAD*Math.atan2(y_diff, x_diff);
     }
 
     @Override
@@ -301,6 +298,19 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
         // set our estimator's newPose with current drivetrains wheel meas_pos
         m_estimator.resetPosition(gyro.getHeading(), meas_pos, m_odoPose);
         llPose = m_estimator.getEstimatedPosition();
+    }
+
+    @Override
+    public void autoSetPose(Pose2d initialPose) {
+        // this will get called if pathplanner resetOdometry is set, we want to ignore
+        // if we have a multitarget
+        if (!hasGryoResetMultiTagHappened()) {
+            setPose(initialPose);// take PP value and hope drive team placed robot well...
+            System.out.println("---->Using PathPlanner initial position<----");
+        }
+        else {
+            System.out.println("---->Vision set initial positon----->");
+        }
     }
 
     @Override
@@ -358,17 +368,18 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
         NetworkTableEntry est_ll_pose_h;
         NetworkTableEntry ll_has_target;
         NetworkTableEntry ll_has_multitarget;
-        NetworkTableEntry gyroResetDone;
+        NetworkTableEntry gyroResetMultiTagDone;
+        NetworkTableEntry gyroResetSingleTagDone;
         NetworkTableEntry est_VPE_pose_x;
         NetworkTableEntry est_VPE_pose_y;
         NetworkTableEntry est_VPE_pose_h;
 
         private final Field2d field;
 
-        // TODO: MR.L fix this- we need both the old and new form working
         public VisionPoseEstimatorMonitorCmd() {
             addEntry("VPE Rotation", VisionPoseEstimator.this::getRotationDegrees);
-            addEntry("Vision Gryo Correction Done", VisionPoseEstimator.this::hasGryoResetHappened);
+            addEntry("Vision Gryo Multitag Correction Done", VisionPoseEstimator.this::hasGryoResetMultiTagHappened);
+            addEntry("Vision Gryo Singletag Correction Done", VisionPoseEstimator.this::hasGryoResetSingleTagHappened);
             field = new Field2d();
             SmartDashboard.putData("PathWatcher", field);
             field.setRobotPose(llPose);
@@ -400,6 +411,7 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
 
         @Override
         public void ntcreate() {
+            super.ntcreate();
             NetworkTable MonitorTable = getTable();
             est_ll_pose_x = MonitorTable.getEntry("LL/X");
             est_ll_pose_y = MonitorTable.getEntry("LL/Y");
@@ -410,7 +422,7 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
             est_VPE_pose_x = MonitorTable.getEntry("VPE/X");
             est_VPE_pose_y = MonitorTable.getEntry("VPE/Y");
             est_VPE_pose_h = MonitorTable.getEntry("VPE/Heading");
-            gyroResetDone = MonitorTable.getEntry("VPE/GyroResetDone");
+
             // Network Table setup
             nt_x_diff = MonitorTable.getEntry("compareLLOdo/diffX");
             nt_y_diff = MonitorTable.getEntry("compareLLOdo/diffY");
@@ -420,6 +432,7 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
         // Network Table Monitoring
         @Override
         public void ntupdate() {
+            super.ntupdate();
             // The pose just from LL
             if (llPose != null) {
                 est_ll_pose_x.setDouble(rawLLPose.getX());
@@ -439,13 +452,11 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
             est_VPE_pose_x.setDouble(llPose.getX());
             est_VPE_pose_y.setDouble(llPose.getY());
             est_VPE_pose_h.setDouble(llPose.getRotation().getDegrees());
-            gyroResetDone.setBoolean(hasGryoResetHappened());
-            
+
             // vision pose updating NTs
             nt_x_diff.setDouble(x_diff);
             nt_y_diff.setDouble(y_diff);
             nt_yaw_diff.setDouble(yaw_diff);
-
         }
 
     } // monitor cmd class

@@ -18,13 +18,17 @@ public class AutoShoot extends Command {
   final Indexer indexer;
 
   DoubleSupplier speedProvider;
+  DoubleSupplier toleranceProvider;
   double idxPct;
 
-  public AutoShoot(Shooter shooter, Indexer indexer, DoubleSupplier speedProvider, double idxPct) {
+  public AutoShoot(Shooter shooter, Indexer indexer, DoubleSupplier speedProvider, DoubleSupplier toleranceProvider, double idxPct) {
     this.shooter = shooter;
     this.indexer = indexer;
     this.speedProvider = speedProvider;
+    this.toleranceProvider = toleranceProvider;
     this.idxPct = idxPct;
+
+    addRequirements(shooter, indexer);
   }
 
   // Called when the command is initially scheduled.
@@ -35,6 +39,7 @@ public class AutoShoot extends Command {
   @Override
   public void execute() {
     shooter.flywheel.setSetpoint(speedProvider.getAsDouble());
+    shooter.flywheel.setVelocityTolerance(toleranceProvider.getAsDouble());
 
     if(shooter.atSetpoint()) {
       indexer.setPct(idxPct);

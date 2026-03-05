@@ -5,6 +5,7 @@
 package frc.robot2026.command;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.GoalEndState;
@@ -13,61 +14,94 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.Waypoint;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.builder.RobotLimits;
-import frc.lib2202.subsystem.swerve.IHeadingProvider;
+import frc.robot2026.Constants.TheField;
 
 // WARNING WARNING WARNING
 // Ok, this code is only intended to be used with the autoClimberCommand sequence. It has no requirements and should not be touched by anything else. 
 // Consider yourself warned
 
-
 public class climberManuver extends Command {
 
-//left and right defined from driver persepective to the tower
+  // left and right defined from driver persepective to the tower @Gavin, how does red/blue change these? Robot Coords?
+  final Transform2d rightMove = new Transform2d(new Translation2d(1.0, 0.0), Rotation2d.fromDegrees(0.0));
+  final Transform2d leftMove = new Transform2d(new Translation2d(-1.0, 0.0), Rotation2d.fromDegrees(0.0));
 
+  final Pose3d blueCenter; //center of climber via tag
+  final Pose3d redCenter;
+  final boolean leftSide;          // doing left or right 
 
-  public final double lxStart = 0.5; //CANNOT STRESS HOW MUCH OF A GUESS THESE ARE.
-  public final double rxStart = 1.5; //TODO get actual values and put in constants
-  public final double ly = 5.0;
-  public final double ry = 3.0;
-  public final double xEnd = 1.0;
-
-  public final Pose2d lStartPose = new Pose2d(lxStart,ly, Rotation2d.fromDegrees(0.0)); 
-  public final Pose2d rStartPose = new Pose2d(rxStart,ry, Rotation2d.fromDegrees(180.0));
+  // vars completed in initialize()
   private Rotation2d endRot;
-
-  boolean leftSide;
-
+  private Pose3d realCenter;
+  
   PathPlannerPath path;
   Command runPath;
 
   public climberManuver(boolean leftSide) {
-        // Create a list of waypoints from poses. Each pose represents one waypoint.
-    // The rotation component of the pose should be the direction of travel. Do not
-    // use holonomic rotation.
+    // decode climber related tags to get coordinates
+    Optional<Pose3d> BlueCenter = TheField.fieldLayout.getTagPose(31);
+    Optional<Pose3d> RedCenter = TheField.fieldLayout.getTagPose(16);
+    blueCenter = (BlueCenter.isPresent()) ? BlueCenter.get() : null;
+    redCenter = (RedCenter.isPresent()) ? RedCenter.get() : null;
     this.leftSide = leftSide;
-    try {
-      IHeadingProvider sensor = RobotContainer.getSubsystem("sensors");
-      endRot = sensor.getHeading();
-    } catch (Exception e) {
-      System.out.println("Current bot does not have a sensor. THE HELL ARE YOU DOING HOW DID YOU GET HERE");
-      endRot = Rotation2d.fromDegrees((leftSide?0.0:180.0)); //THIS IS SO BAD
-    }
+
+    //@Gavin - I don't think you need heading(), you will spec the endPose you want
+    // also, if you did need it, it would be pulled in initialize(), not construction.
+    // try {
+    //   IHeadingProvider sensor = RobotContainer.getSubsystem("sensors");
+    //   endRot = sensor.getHeading();
+    // } catch (Exception e) {
+    //   System.out.println("Current bot does not have a sensor. THE HELL ARE YOU DOING HOW DID YOU GET HERE");
+    //   endRot = Rotation2d.fromDegrees((leftSide ? 0.0 : 180.0)); // THIS IS SO BAD
+    // }
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(
-        (leftSide ? lStartPose : rStartPose),
-        new Pose2d(xEnd, (leftSide?ly:ry), endRot)); // TODO THIS IS BAD. Should not reference like this.
+    //@Gavin, you really can't check alliance during construction, but it is safe at initialize()
+    Alliance alliance = DriverStation.getAlliance().get();
+    realCenter = (alliance == Alliance.Blue) ? blueCenter : redCenter;
+    // our computed waypoints
+    Rotation2d sideRotation;  //for endRot based on tag & left/rt side
+    Pose2d startPose;
+    Pose2d endPose;
+    
+    // Create a list of waypoints from poses. Each pose represents one waypoint.
+    // The rotation component of the pose should be the direction of travel. Do not
+    // use holonomic rotation.
+    //lStartPose = realCenter.toPose2d().transformBy(new Transform2d(new Translation2d(0.5, 1.0), Rotation2d.fromDegrees(0.0)));
+    //rStartPose = realCenter.toPose2d().transformBy(new Transform2d(new Translation2d(1.5, -1.0), Rotation2d.fromDegrees(180.0)));
+    if (leftSide) {
+      startPose = realCenter.toPose2d().transformBy(new Transform2d(new Translation2d(0.5, 1.0), Rotation2d.fromDegrees(0.0)));
+      endPose = startPose.transformBy(leftMove);
+      sideRotation = Rotation2d.fromDegrees(0.0);   // TODO - is this correct?
+    } else {        
+      startPose = realCenter.toPose2d().transformBy(new Transform2d(new Translation2d(1.5, -1.0), Rotation2d.fromDegrees(180.0)));
+      endPose = startPose.transformBy(rightMove);
+      sideRotation = Rotation2d.fromDegrees(180.0);   // TODO - is this correct?
+    }
+    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses( startPose, endPose);
+
+    //endRot can be based on the heading of the tag and the Left/right side
+    var tagHeading = realCenter.getRotation().toRotation2d();
+    System.out.println("tagHeading for climb = " + tagHeading.toString());
+    endRot = tagHeading.rotateBy(sideRotation);
+    System.out.println("endRot for climb = " + endRot.toString());
 
     RobotLimits limits = RobotContainer.getRobotSpecs().getRobotLimits();
-    PathConstraints constraints =  new PathConstraints(limits.kMaxSpeed, limits.kMaxSpeed / 1.33, 
-                              limits.kMaxAngularSpeed, limits.kMaxAngularSpeed / 0.75); //pulled from the MoveToPose Command
+    PathConstraints constraints = new PathConstraints(
+        limits.kMaxSpeed, limits.kMaxSpeed / 1.33,              
+        limits.kMaxAngularSpeed, limits.kMaxAngularSpeed / 0.75); // pulled from the MoveToPose Command
     // You can also use unlimited constraints, only limited by motor torque and
     // nominal battery voltage
 
@@ -78,7 +112,6 @@ public class climberManuver extends Command {
         null, // The ideal starting state, this is only relevant for pre-planned paths, so can
               // be null for on-the-fly paths.
         new GoalEndState(0.0, endRot) // Goal end state. You can set a holonomic rotation here. If
-
     );
 
     // Prevent the path from being flipped if the coordinates are already correct

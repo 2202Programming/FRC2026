@@ -7,7 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "pos2 to climber"
+            "pathName": "Pos2 to Climber"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot"
           }
         }
       ]

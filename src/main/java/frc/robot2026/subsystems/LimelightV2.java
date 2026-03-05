@@ -76,7 +76,9 @@ public class LimelightV2 extends SubsystemBase implements ILimelight {
                 mount_pt.getX(), mount_pt.getY(), mount_pt.getZ(),
                 llRot.getX() * DEGperRAD, llRot.getY() * DEGperRAD, llRot.getZ() * DEGperRAD);
 
-        check_pipelines();
+        //check_pipelines();  // not detecting any config, forcing pipeline 0
+        m_apriltag_pipe = 0;
+        setPipeline(m_apriltag_pipe);  
 
         /*
          * LL4 has IMU, others don't but still support MT2 if you set the gyro
@@ -96,7 +98,7 @@ public class LimelightV2 extends SubsystemBase implements ILimelight {
 
     void check_pipelines() {
         // dump existing config, get default pipes for retro and mt1/2
-        for (int idx = 0; idx < 9; idx++) {
+        for (int idx = 0; idx <= 9; idx++) {
             setPipeline(idx);
             LimelightHelpers.Flush();
             sleep(20); // not sure if we need time to change
@@ -108,6 +110,7 @@ public class LimelightV2 extends SubsystemBase implements ILimelight {
             if (cfg.equals("pipe_color") && m_retro_pipe < 0) {
                 m_retro_pipe_default = m_retro_pipe = idx;
             }
+            // use first configured april tag pipeline ad default and active.
             if (cfg.equals("pipe_fiducial") && m_apriltag_pipe < 0) {
                 m_apriltag_pipe_default = m_apriltag_pipe = idx;
             }
@@ -123,8 +126,7 @@ public class LimelightV2 extends SubsystemBase implements ILimelight {
             msg = String.format("!!!!!! WARNING NO APRILTAG PIPE CONFIGURED for '%s'!!!!", m_name);
             DriverStation.reportWarning(msg, false);
         } else {
-            setPipeline(m_apriltag_pipe);
-            return;
+            setPipeline(m_apriltag_pipe);        
         }
     }
 

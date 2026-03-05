@@ -5,19 +5,23 @@ import static edu.wpi.first.units.Units.FeetPerSecond;
 import static frc.lib2202.Constants.DEGperRAD;
 import static frc.lib2202.Constants.MperFT;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathfindingCommand;
-import com.revrobotics.spark.ClosedLoopSlot;
+import com.pathplanner.lib.config.PIDConstants;
 import com.revrobotics.spark.SparkFlex;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib2202.builder.IRobotSpec;
 import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.builder.RobotLimits;
@@ -37,11 +41,14 @@ import frc.lib2202.subsystem.swerve.config.ModuleConfig;
 import frc.lib2202.subsystem.swerve.config.ModuleConfig.CornerID;
 import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
+import frc.robot2026.Constants.DigitalIO;
+import frc.robot2026.command.pose.setGyroOffsetWithVision;
 import frc.robot2026.subsystems.Climber;
 import frc.robot2026.subsystems.Hopper;
 import frc.robot2026.subsystems.Intake;
 import frc.robot2026.subsystems.LimelightV2;
-import frc.robot2026.subsystems.RangeSensor;
+import frc.robot2026.subsystems.Photonvision;
+//import frc.robot2026.subsystems.RangeSensor;
 import frc.robot2026.subsystems.VisionPoseEstimator;
 import frc.robot2026.subsystems.Shooter.Indexer;
 import frc.robot2026.subsystems.Shooter.Shooter;
@@ -50,7 +57,7 @@ import frc.robot2026.subsystems.Shooter.Targeter;
 public class RobotSpec_AlphaBot implements IRobotSpec {
   // Subsystem objects for use at other cut points
   Targeter targeter;   // auto/tele init
-
+  static Photonvision pv;
   // 2026 Robot rev Alpha
   // io sheet
   // https://docs.google.com/spreadsheets/d/1eZ89R4oWHoCDpM9nOMC420o4i6Zx-Fgi8y4tpiL58a4/edit?gid=2120414614#gid=2120414614
@@ -77,13 +84,12 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
         // Limelight position in robot coords - this has LL in the front of bot
         Pose3d LimelightPosition = new Pose3d(-0.03, 0.01, 0.507,
             new Rotation3d(0.0, 11.0 / DEGperRAD, 0.0));
-        return new LimelightV2("limelight", LimelightPosition);
+        return new LimelightV2("limelight", LimelightPosition);  //single ll use "" for name
       })
-
       .add(SwerveDrivetrain.class, "drivetrain", () -> {
         return new SwerveDrivetrain(SparkFlex.class);
       })
-      .add(RangeSensor.class)
+      //.add(RangeSensor.class) //works but not used
       .add(OdometryInterface.class, "odometry", () -> {
         var obj = new Odometry();
         obj.new OdometryWatcher();
@@ -91,10 +97,10 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
       })
       // VisonPoseEstimator needs LL and Odometry, adds simplename and alias to lookup
       .add(Indexer.class, "indexer_left", () -> {
-        return new Indexer(CAN.LIndexerID, true, ClosedLoopSlot.kSlot0);
+        return new Indexer(CAN.LIndexerID, true, DigitalIO.IndexerGateLeft);
       })
       .add(Indexer.class, "indexer_right", () -> {
-        return new Indexer(CAN.RIndexerID, false, ClosedLoopSlot.kSlot0);
+        return new Indexer(CAN.RIndexerID, false, DigitalIO.IndexerGateRight);
       })
       .addAlias(VisionPoseEstimator.class, "vision_odo")
       .add(Shooter.class, "shooter_left", () -> {
@@ -103,9 +109,33 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
       .add(Shooter.class, "shooter_right", () -> {
         return new Shooter("flex", Constants.CAN.ShooterIDRight, true);
       })
-      .add(Intake.class)
+      .add(Intake.class, "intake", () -> {
+        return new Intake();
+      })
       .add(Climber.class, "climber", () -> {
-        return new Climber(true);
+         return new Climber(true);
+       })
+      .add(Photonvision.class, "photonvision", () -> {
+        // create config object with our cameras and their positions
+        // Photonvision uses WPI coordinates: https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html
+        // X to front, Y to left, Z up
+        // Rotation is roll, pitch, yaw 
+        // yaw is positive counterclockwise looking down on the robot
+        Photonvision.Config pvConfig = new Photonvision.Config(
+            // CAD: +x towards front, +y robot right, +z towards top
+            // left camera (-11.477,-11.477, 17.198) (inches)
+            // right camera (3.682, 7.839, 15.720)
+
+            new String[] { "Left_Camera", "Right_Camera" },
+            new Transform3d[] {
+                new Transform3d(new Translation3d(-11.477 * 0.0254, 11.477 * 0.0254, 17.198 * 0.0254),
+                    new Rotation3d( 0.0, 0.0, 90 / DEGperRAD )),
+                new Transform3d(new Translation3d(3.682 * 0.0254, -7.839 * 0.0254, 15.720 * 0.0254),
+                   new Rotation3d( 0.0, 0.00, -90 / DEGperRAD )),
+            });
+        // now setup our PV subsystem
+        pv = new Photonvision(pvConfig);
+        return pv;
       })
       .add(Hopper.class)
       .add(Targeter.class)
@@ -115,7 +145,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
   RobotLimits robotLimits = new RobotLimits(FeetPerSecond.of(15.0), DegreesPerSecond.of(360.0));
 
   // Chassis
-  double kWheelCorrectionFactor = 1.0;
+  double kWheelCorrectionFactor = 1.008;
   double kSteeringGR = 12.8;
   double kDriveGR = 5.36;
   double kWheelDiameter = MperFT * 4.0 / 12.0; // [m]
@@ -186,28 +216,33 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
     DriveTrainInterface sdt = RobotContainer.getSubsystemOrNull("drivetrain");
     HID_Subsystem dc = RobotContainer.getSubsystem("DC");
 
+    // quiet the phoenix 6 logger noise
+    SignalLogger.enableAutoLogging(false);
+
+    @SuppressWarnings("unused")
+    CommandXboxController operator = (CommandXboxController)dc.Operator();
+
     //save for use in tele or auto init
     targeter = RobotContainer.getSubsystem(Targeter.class);
     
-    // CommandXboxController operator = (CommandXboxController) dc.Operator();
-
     // Initialize PathPlanner, if we have needed Subsystems
     if (odo != null && sdt != null) {
-      AutoPPConfigure.configureAutoBuilder(sdt, odo);
+      AutoPPConfigure.configureAutoBuilder(sdt, odo,
+            new PIDConstants(3.0, 0.0, 0.0),  // Translation PID constants,
+            new PIDConstants(5.0, 0.0, 0.0)); // Rotation PID constants | P was 7.0);
       var cmd = PathfindingCommand.warmupCommand();
       CommandScheduler.getInstance().schedule(cmd);
     }
 
     // Competition bindings
-    BindingsCompetition.ConfigureCompetition(dc, true);
+    BindingsCompetition.ConfigureCompetition(dc, true); //TODO TRUE for COMPETITION
 
     // Place your test binding in ./testBinding/<yourFile>.java and call it here
     // comment out any conflicting bindings. Try not to push with your bindings
     // active. Just comment them out.   
+    
     // DpltestBinding.calbrate((CommandXboxController)dc.Operator());
-    // BGTestBindings.calbrate(operator); // steals operator (A, B, X, Y)
-
-    // CommandXboxController op = (CommandXboxController)dc.Operator();
+    // BGTestBindings.calbrate(op);
    
     // Anything else that needs to run after binding/commands are created 
     if (vpe != null) {
@@ -263,4 +298,11 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
     IRobotSpec.super.autonomousInit();
     targeter.setTarget(); // set blue/red alliance    
   }
+
+
+  @Override
+  public void disabledInit(){
+    CommandScheduler.getInstance().schedule(new setGyroOffsetWithVision());
+  }
+
 }

@@ -55,6 +55,9 @@ public class Photonvision extends SubsystemBase {
       camera = new PhotonCamera(name);
       photonEstimator = new PhotonPoseEstimator(kTagLayout, kRobotToCam);
       poseUpdateList = new ArrayDeque<PoseUpdate>();
+      
+      // Quiet the spam on missing Processors - comment out when debugging PV.
+      PhotonCamera.setVersionCheckEnabled(false);  
     }
 
     public void update() {

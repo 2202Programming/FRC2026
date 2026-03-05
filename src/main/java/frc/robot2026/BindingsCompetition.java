@@ -6,7 +6,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib2202.builder.RobotContainer;
@@ -16,21 +19,22 @@ import frc.lib2202.command.swerve.RobotCentricDrive;
 import frc.lib2202.subsystem.hid.HID_Subsystem;
 import frc.lib2202.subsystem.hid.TMJoystickController;
 import frc.lib2202.subsystem.swerve.DriveTrainInterface;
+import frc.robot2026.command.Agitator;
 import frc.robot2026.command.shooter.AutoShoot;
 import frc.robot2026.subsystems.Climber;
 import frc.robot2026.subsystems.Hopper;
 import frc.robot2026.subsystems.Intake;
 import frc.robot2026.subsystems.Shooter.Indexer;
 import frc.robot2026.subsystems.Shooter.Shooter;
-import frc.robot2026.subsystems.Shooter.Targeter;
+import frc.robot2026.subsystems.Shooter.Targeter; 
 
 /*
  * Please don't edit this without leads/mentor/driveteam review
  */
 @SuppressWarnings("unused")
 public final class BindingsCompetition {
-    //subsystem references for use in command bindings
-    public static DriveTrainInterface drivetrain; 
+    // subsystem references for use in command bindings
+    public static DriveTrainInterface drivetrain;
     public static HID_Subsystem dc;
     public static Climber climber;
     public static Shooter shooter_left;
@@ -40,38 +44,42 @@ public final class BindingsCompetition {
     public static Hopper hopper;
     public static Intake intake;
     public static Targeter targeter;
-    
+
     private static void get_references() {
         // Subsystems must exist in RobotSpec, if they don't an NPE is thrown.
-        climber = RobotContainer.getSubsystem("climber");
         shooter_left = RobotContainer.getSubsystem("shooter_left");
         shooter_right = RobotContainer.getSubsystem("shooter_right");
-        drivetrain = RobotContainer.getSubsystem("drivetrain");
-        intake = RobotContainer.getSubsystem(Intake.class);
-        targeter = RobotContainer.getSubsystem(Targeter.class);
+        drivetrain = RobotContainer.getSubsystem("drivetrain");  
         indexer_left = RobotContainer.getSubsystem("indexer_left");
         indexer_right = RobotContainer.getSubsystem("indexer_right");
-        hopper = RobotContainer.getSubsystem(Hopper.class);
+        intake = RobotContainer.getSubsystem("intake");
+        climber = RobotContainer.getSubsystem("climber");
+        hopper = RobotContainer.getSubsystem(Hopper.class); 
+        targeter = RobotContainer.getSubsystem(Targeter.class);
     }
 
-
-    public static void ConfigureCompetition(HID_Subsystem dc) {       
+    public static void ConfigureCompetition(HID_Subsystem dc) {
         ConfigureCompetition(dc, true);
     }
 
     // optional disable opr binding for testing
     public static void ConfigureCompetition(HID_Subsystem _dc, boolean initOpr) {
-         // get references for the commands to use
+        // get references for the commands to use
         dc = _dc;
         get_references();
         DriverBinding();
         if (initOpr) 
-            OperatorBindings();
+            OperatorBindings();     
+
+        //Auto intake, works well if lightgate stays aligned.
+        Trigger HasFuel = new Trigger(intake::hasFuel);
+        HasFuel.onTrue(intake.cmdRunWhileFuel(.45, 0.5) );  //changed from .8 to 0.65 by drive team on 2/28
+
     }
 
-    private static void DriverBinding() {       
+    private static void DriverBinding() {
         var generic_driver = dc.Driver();
-        
+
         // Driver Buttons depend on the type of controller drivers selects
         if (generic_driver instanceof TMJoystickController) {
             // Joystick
@@ -85,21 +93,22 @@ public final class BindingsCompetition {
 
             // Driver will wants precision robot-centric throttle drive on left bumper
             driver.leftBumper().whileTrue(new ParallelCommandGroup(
-                    new ScaleDriver(0.3), 
+                    new ScaleDriver(0.3),
                     new RobotCentricDrive(drivetrain, dc)));
 
-            //Shoot with targetSpeed based on distance to hub
-            driver.leftTrigger(0.7).whileTrue(new AutoShoot(shooter_left, indexer_left, targeter::getTargetSpeed, 1));
-            driver.leftTrigger(0.7).whileTrue(new AutoShoot(shooter_right, indexer_right, targeter::getTargetSpeed, 1));
+            // Shoot with targetSpeed based on distance to hub
+            driver.leftTrigger(0.7).whileTrue(new AutoShoot(shooter_left, indexer_left, targeter::getTargetSpeed, targeter::getTolerance, 1));
+            driver.leftTrigger(0.7).whileTrue(new AutoShoot(shooter_right, indexer_right, targeter::getTargetSpeed, targeter::getTolerance, 1));
             driver.leftTrigger(0.1).whileTrue(hopper.cmdBeltPct(1))
-                                             .onFalse(hopper.cmdBeltPct(0));
-            
-            //Driver wants to manually fire/pass
-            driver.rightTrigger(0.7).whileTrue(new AutoShoot(shooter_left, indexer_left, targeter::getManualSpeed, 1));
-            driver.rightTrigger(0.7).whileTrue(new AutoShoot(shooter_right, indexer_right, targeter::getManualSpeed, 1));
+                    .onFalse(hopper.cmdBeltPct(0));
+
+            // Driver wants to manually fire/pass
+            driver.rightTrigger(0.7).whileTrue(new AutoShoot(shooter_left, indexer_left, targeter::getManualSpeed, targeter::getManualTolerance, 1));
+            driver.rightTrigger(0.7)
+                    .whileTrue(new AutoShoot(shooter_right, indexer_right, targeter::getManualSpeed, targeter::getManualTolerance, 1));
             driver.rightTrigger(0.1).whileTrue(hopper.cmdBeltPct(1))
-                                              .onFalse(hopper.cmdBeltPct(0));
-            
+                    .onFalse(hopper.cmdBeltPct(0));
+
         } else {
             DriverStation.reportError("Comp Bindings: No driver bindings set, check controllers.", false);
         }
@@ -108,46 +117,74 @@ public final class BindingsCompetition {
     static void OperatorBindings() {
         var sideboard = dc.SwitchBoard();
         var generic_opr = dc.Operator();
-       
-        Trigger Cal = sideboard.sw11();  //calibration button (conventional)
-        Trigger NotCal = Cal.negate();   // regular competition mode
-        Trigger DumbShooter = sideboard.sw26();   // placeholder for fallback to fixed shooting region
+
+        Trigger Cal = sideboard.sw11(); // calibration button (conventional)
+        Trigger NotCal = Cal.negate(); // regular competition mode
+        Trigger DumbShooter = sideboard.sw26(); // placeholder for fallback to fixed shooting region
 
         // buttons depend on what controller is plugged in
         if (generic_opr instanceof CommandXboxController) {
             CommandXboxController operator = (CommandXboxController) generic_opr;
-         
-            // intake bindings
-            
-            //intake in
-            operator.leftBumper().whileTrue(intake.cmdPctPwr(0.80))
-                                 .onFalse(intake.cmdPctPwr(0.0));
-            // intake out
-            operator.a().whileTrue(intake.cmdPctPwr(-0.80))
-                                 .onFalse(intake.cmdPctPwr(0.0));
 
-            sideboard.sw14().onTrue(targeter.OverrideTargetDistanceFT(9.99))   // fixed distance
+            // intake bindings
+            sideboard.sw21().onTrue(targeter.OverrideTargetDistanceFT(9.99))   // fixed distance
                             .onFalse(targeter.OverrideTargetDistanceFT(0.0));  //use vision distance
 
-            //Calibration Commands
-            Cal.and(sideboard.sw12()).whileTrue(climber.setVelocityCmd(Climber.ClimbCalibrateVel))
-                                     .onFalse(climber.setVelocityCmd(0.0));
-            Cal.and(sideboard.sw13()).whileTrue(climber.setVelocityCmd(-Climber.ClimbCalibrateVel))
-                                     .onFalse(climber.setVelocityCmd(0.0));
+            // intake / hopper in
+            operator.leftBumper().whileTrue(hopper.cmdBeltPct(1))
+                    .onFalse(hopper.cmdBeltPct(0));
+            operator.leftBumper().whileTrue(intake.cmdPctPwr(0.65))
+                    .onFalse(intake.cmdPctPwr(0.0));
 
-            //climber arm extend to max
+            /* === Intake & Hopper Eject ===
+            * The .repeatedly() decorator wraps around the cmdPctPwr() instant command so that
+            * whenever incoming commands using the intake are sceduled, they are ignored.
+            * This prevents the auto intake lightgate trigger command from being scheduled
+            * when the balls being ejected. */ 
+            operator.rightBumper().whileTrue(hopper.cmdBeltPct(-1))
+                    .onFalse(hopper.cmdBeltPct(0));
+            operator.rightBumper().whileTrue(intake.cmdPctPwr(-0.95)
+                                            .repeatedly()
+                                            .withInterruptBehavior(InterruptionBehavior.kCancelIncoming))
+                    .onFalse(intake.cmdPctPwr(0.0));
+
+            // shooter unblock
+            operator.y().whileTrue(shooter_left.cmdVelocity(-15))
+                        .whileTrue(shooter_right.cmdVelocity(-15))
+                        .onFalse(shooter_left.cmdVelocity(0))
+
+                        .onFalse(shooter_right.cmdVelocity(0));
+            operator.y().whileTrue(indexer_left.cmdSetPct(-1))
+                        .whileTrue(indexer_right.cmdSetPct(-1))
+                        .onFalse(indexer_left.cmdSetPct(0))
+                        .onFalse(indexer_right.cmdSetPct(0));   
+
+            // agitate back and forth, uses intake trigger to not lose fuel
+            operator.a().whileTrue(new RepeatCommand(
+                new Agitator().withInterruptBehavior(InterruptionBehavior.kCancelIncoming)
+                )
+            ) 
+            .onFalse(hopper.cmdBeltPct(0))
+            .onFalse(intake.cmdPctPwr(0));
+
+            // Calibration Commands
+            Cal.and(sideboard.sw12()).whileTrue(climber.setVelocityCmd(Climber.ClimbCalibrateVel))
+                    .onFalse(climber.setVelocityCmd(0.0));
+            Cal.and(sideboard.sw13()).whileTrue(climber.setVelocityCmd(-Climber.ClimbCalibrateVel))
+                    .onFalse(climber.setVelocityCmd(0.0));
+
+            // climber arm extend to max
             operator.povUp().onTrue(climber.armsToPoint(Climber.ExtendPosition));
-                           
-            //climber arm to 0
-            operator.povDown().onTrue(climber.armsToPoint(Climber.PowerUpPosition));
-            
+
+            // climber arm to whatever drive team sets
+            operator.povDown().onTrue(climber.armsToPoint(Climber.ClimbPositon));
+            operator.x().onTrue(climber.armsSetpointCmd(Climber.PowerUpPosition));
+
             // manual flywheel speed adjustment
             operator.povLeft().onTrue(targeter.manualLow());
             operator.povRight().onTrue(targeter.manualHigh());
 
-            
-        }
-        else {
+        } else {
             DriverStation.reportWarning("Comp Bindings: No operator bindings set, check controllers.", false);
         }
 
