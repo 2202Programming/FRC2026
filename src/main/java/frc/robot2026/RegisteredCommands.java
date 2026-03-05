@@ -33,8 +33,8 @@ public class RegisteredCommands {
           new ParallelCommandGroup(
             new PrintCommand("Shooting lots of fuel ... nothing but net."),
            // new FaceToTag(10, 26), //wont work - old LL TODO FIX in lib2202
-            new AutoShoot(shooter_left, indexer_left, targeter::getTargetSpeed, 1),
-            new AutoShoot(shooter_right, indexer_right, targeter::getTargetSpeed, 1),
+            new AutoShoot(shooter_left, indexer_left, targeter::getTargetSpeed, targeter::getTolerance,1),
+            new AutoShoot(shooter_right, indexer_right, targeter::getTargetSpeed, targeter::getTolerance, 1),
             hopper.cmdBeltPct(1)
             ).withTimeout(6.0)
              .withName("rc_shoot")
