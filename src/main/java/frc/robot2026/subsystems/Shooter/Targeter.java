@@ -98,6 +98,8 @@ public class Targeter extends SubsystemBase {
 
         target_dist = (override_dist == 0.0) ? odo.getDistanceToTranslation(targetTranslation2d) : override_dist;
         target_speed = vel_table.get(target_dist);
+        target_tolerance = tolerance_table.get(target_dist);
+
     }
 
     public double getManualSpeed() {
