@@ -19,6 +19,7 @@ import frc.lib2202.command.swerve.RobotCentricDrive;
 import frc.lib2202.subsystem.hid.HID_Subsystem;
 import frc.lib2202.subsystem.hid.TMJoystickController;
 import frc.lib2202.subsystem.swerve.DriveTrainInterface;
+import frc.robot2026.command.Agitator;
 import frc.robot2026.command.shooter.AutoShoot;
 import frc.robot2026.subsystems.Climber;
 import frc.robot2026.subsystems.Hopper;
@@ -160,21 +161,9 @@ public final class BindingsCompetition {
 
             // agitate back and forth
             operator.a().whileTrue(new RepeatCommand(
-                new SequentialCommandGroup(
-                    hopper.cmdBeltPct(0.65),
-                    intake.cmdPctPwr(0.65),
-                    new WaitCommand(0.5),
-                    hopper.cmdBeltPct(-0.65),
-                    intake.cmdPctPwr(-0.65),
-                    new WaitCommand(0.5),
-                    hopper.cmdBeltPct(0.65),
-                    intake.cmdPctPwr(-0.65),
-                    new WaitCommand(0.5),
-                    hopper.cmdBeltPct(-0.65),
-                    intake.cmdPctPwr(0.65),
-                    new WaitCommand(0.5)).withInterruptBehavior(InterruptionBehavior.kCancelIncoming)
-                ) //repeat
-            ) //whileTrue
+                new Agitator().withInterruptBehavior(InterruptionBehavior.kCancelIncoming)
+                )
+            ) 
             .onFalse(hopper.cmdBeltPct(0))
             .onFalse(intake.cmdPctPwr(0));
 
