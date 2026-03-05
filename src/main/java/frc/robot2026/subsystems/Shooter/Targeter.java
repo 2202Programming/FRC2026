@@ -78,17 +78,18 @@ public class Targeter extends SubsystemBase {
         vel_table.put(0.0 * MperFT, 22.0); // set a min
         vel_table.put(5.0 * MperFT, 22.0);
         vel_table.put(6.0 * MperFT, 22.7);
-        vel_table.put(10.0 * MperFT, 25.0); // was26.8 this is ladder radius
+        vel_table.put(10.0 * MperFT, 24.4); // was26.8 this is ladder radius
         vel_table.put(12.0 * MperFT, 26.5);
+        vel_table.put(15.0 * MperFT, 30.4);
         vel_table.put(17.0 * MperFT, 34.5);
         vel_table.put(25.0 * MperFT, 34.5); // set a max
 
-        tolerance_table.put(0.0 * MperFT, 1.4);
-        tolerance_table.put(5.0 * MperFT, 1.4);
-        tolerance_table.put(6.0 * MperFT, 1.4);
-        tolerance_table.put(10.0 * MperFT, 1.4);
-        tolerance_table.put(17.0 * MperFT, 1.4);
-        tolerance_table.put(25.0 * MperFT, 1.4);
+        tolerance_table.put(0.0 * MperFT, .8);
+        tolerance_table.put(5.0 * MperFT, .8);
+        tolerance_table.put(6.0 * MperFT, .8);
+        tolerance_table.put(10.0 * MperFT, .8);
+        tolerance_table.put(17.0 * MperFT, .8);
+        tolerance_table.put(25.0 * MperFT, .8);
     }
 
     @Override
