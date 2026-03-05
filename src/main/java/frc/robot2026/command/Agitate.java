@@ -20,12 +20,13 @@ public class Agitate extends SequentialCommandGroup {
     Intake intake = RobotContainer.getSubsystem("intake");
     Hopper hopper = RobotContainer.getSubsystem(Hopper.class);
 
+    setName("Agitate");
     addRequirements(intake, hopper);
 
     double hopper_fwd = 0.65; //[%pwr]
     // optionally, keep hopperbelt moving forward for shooting
     double hopper_rev = hopperForward ? hopper_fwd : -0.65; //[%pwr]
-    setName("Agitate");
+    
     addCommands(
         hopper.cmdBeltPct(hopper_fwd),
         intake.cmdPctPwr(0.65),
@@ -39,11 +40,13 @@ public class Agitate extends SequentialCommandGroup {
         hopper.cmdBeltPct(hopper_rev),
         intake.cmdPctPwr(0.65),
         new WaitCommand(0.5)
-    );
+    );  
+
+    //TODO figure out why this breaks composition
     // add a final step to stop everything
-    finallyDo( interrupted ->{
-        hopper.setBeltPct(0.0);
-        intake.setPercent(0.0); 
-    });
+  //   finallyDo( interrupted ->{
+  //       hopper.setBeltPct(0.0);
+  //       intake.setPercent(0.0); 
+  //   });
   }
 }

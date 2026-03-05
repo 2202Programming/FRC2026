@@ -97,15 +97,14 @@ public final class BindingsCompetition {
                     new RobotCentricDrive(drivetrain, dc)));
 
             // Shoot with targetSpeed based on distance to hub
-            driver.leftTrigger(0.7).whileTrue(new AutoShoot(shooter_left, indexer_left, targeter::getTargetSpeed, targeter::getTolerance, 1));
-            driver.leftTrigger(0.7).whileTrue(new AutoShoot(shooter_right, indexer_right, targeter::getTargetSpeed, targeter::getTolerance, 1));
+            driver.leftTrigger(0.7).whileTrue(new AutoShoot("left", targeter::getTargetSpeed, targeter::getTolerance, 1));
+            driver.leftTrigger(0.7).whileTrue(new AutoShoot("right", targeter::getTargetSpeed, targeter::getTolerance, 1));
             driver.leftTrigger(0.1).whileTrue(hopper.cmdBeltPct(1))
                     .onFalse(hopper.cmdBeltPct(0));
 
             // Driver wants to manually fire/pass
-            driver.rightTrigger(0.7).whileTrue(new AutoShoot(shooter_left, indexer_left, targeter::getManualSpeed, targeter::getManualTolerance, 1));
-            driver.rightTrigger(0.7)
-                    .whileTrue(new AutoShoot(shooter_right, indexer_right, targeter::getManualSpeed, targeter::getManualTolerance, 1));
+            driver.rightTrigger(0.7).whileTrue(new AutoShoot("left", targeter::getManualSpeed, targeter::getManualTolerance, 1));
+            driver.rightTrigger(0.7).whileTrue(new AutoShoot("right", targeter::getManualSpeed, targeter::getManualTolerance, 1));
             driver.rightTrigger(0.1).whileTrue(hopper.cmdBeltPct(1))
                     .onFalse(hopper.cmdBeltPct(0));
 
@@ -160,9 +159,9 @@ public final class BindingsCompetition {
                         .onFalse(indexer_right.cmdSetPct(0));   
 
             // agitate back and forth, uses intake trigger to not lose fuel
-            operator.a().whileTrue(new RepeatCommand(new Agitate()) ); 
-                        //.onFalse(hopper.cmdBeltPct(0))  //should be done in agitate finish
-                        //.onFalse(intake.cmdPctPwr(0));
+            operator.a().whileTrue(new RepeatCommand(new Agitate()) ) 
+                        .onFalse(hopper.cmdBeltPct(0)) 
+                        .onFalse(intake.cmdPctPwr(0));
 
             // Calibration Commands
             Cal.and(sideboard.sw12()).whileTrue(climber.setVelocityCmd(Climber.ClimbCalibrateVel))

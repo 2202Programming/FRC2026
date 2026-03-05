@@ -11,11 +11,14 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib2202.command.WatcherCmd;
 import frc.lib2202.util.PIDFController;
+import frc.robot2026.Constants.CAN;
 
 public class Shooter extends SubsystemBase {
     final public IFlyWheel flywheel;
     final FlyWheelConfig cfg;
     final boolean inverted;
+
+    int shots_taken=0;
 
     public Shooter() {
         this("rev", 0, true);
@@ -27,7 +30,9 @@ public class Shooter extends SubsystemBase {
 
     public Shooter(String controllerType, int ShooterID, boolean inverted) {
         this.inverted = inverted;
-        setName("Shooter-" + ShooterID);
+        String side = (ShooterID == CAN.ShooterIDLeft) ? "left" : "right";
+        setName("Shooter_" + side);
+        
         // pick which controller we are using
         if (controllerType.equalsIgnoreCase("ctre")) {
             cfg = initFlyWheelConfigCTRE();
@@ -172,6 +177,14 @@ public class Shooter extends SubsystemBase {
         return this.new ShooterWatcher();
     }
 
+    public int getShotsTaken() {
+        return shots_taken;
+    }
+
+    public void addShots(int shots) {
+        shots_taken += shots;
+    }
+
     // Shooter API
     public boolean atSetpoint() {
         boolean off = flywheel.getSetpoint() == 0.0;
@@ -226,6 +239,7 @@ public class Shooter extends SubsystemBase {
     // watcher will put values on the network tables for viewing elastic
     class ShooterWatcher extends WatcherCmd {
         ShooterWatcher() {
+            addEntry("_shots_", Shooter.this::getShotsTaken, 2);
             addEntry("velocity", Shooter.this.flywheel::getVelocity, 2);
             addEntry("at_setpoint", Shooter.this::atSetpoint);
             addEntry("position", Shooter.this.flywheel::getPosition);

@@ -42,10 +42,12 @@ public class RegisteredCommands {
                 // the commands in this parallel group DO NOT FINISH ...
                 new ParallelCommandGroup(
                         new Agitate(true).repeatedly(),
-                        new AutoShoot(shooter_left, indexer_left, targeter::getTargetSpeed, targeter::getTolerance, 1),
-                        new AutoShoot(shooter_right, indexer_right, targeter::getTargetSpeed, targeter::getTolerance, 1)
+                        new AutoShoot("left", targeter::getTargetSpeed, targeter::getTolerance, 1),
+                        new AutoShoot("right", targeter::getTargetSpeed, targeter::getTolerance, 1)
                 ).withTimeout(shoot_timeout) // ... so we need this timeout.
         ).finallyDo(interrupted -> {
+            hopper.setBeltPct(0.0);
+            intake.setPercent(0.0); 
             System.out.println("ncShoot finalyDo lambda executed.");
         });
 
