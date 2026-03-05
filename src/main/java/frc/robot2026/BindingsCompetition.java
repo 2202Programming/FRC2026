@@ -72,7 +72,7 @@ public final class BindingsCompetition {
 
         //Auto intake, works well if lightgate stays aligned.
         Trigger HasFuel = new Trigger(intake::hasFuel);
-        HasFuel.onTrue(intake.cmdRunWhileFuel(.65, 0.5) );  //changed from .8 to 0.65 by drive team on 2/28
+        HasFuel.onTrue(intake.cmdRunWhileFuel(.45, 0.5) );  //changed from .8 to 0.65 by drive team on 2/28
 
     }
 
@@ -135,16 +135,23 @@ public final class BindingsCompetition {
             operator.leftBumper().whileTrue(intake.cmdPctPwr(0.65))
                     .onFalse(intake.cmdPctPwr(0.0));
 
-            // intake and hopper out
+            /* === Intake & Hopper OUT ===
+            * The .repeatedly() decorator wraps around the cmdPctPwr() instant command so that
+            * whenever incoming commands using the intake are sceduled, they are ignored.
+            * This prevents the auto intake lightgate trigger command from being scheduled
+            * when the balls being ejected. */ 
             operator.rightBumper().whileTrue(hopper.cmdBeltPct(-1))
                     .onFalse(hopper.cmdBeltPct(0));
-            operator.rightBumper().whileTrue(intake.cmdPctPwr(-0.65))
+            operator.rightBumper().whileTrue(intake.cmdPctPwr(-0.65)
+                                            .repeatedly()
+                                            .withInterruptBehavior(InterruptionBehavior.kCancelIncoming))
                     .onFalse(intake.cmdPctPwr(0.0));
 
             // shooter unblock
             operator.y().whileTrue(shooter_left.cmdVelocity(-15))
                         .whileTrue(shooter_right.cmdVelocity(-15))
                         .onFalse(shooter_left.cmdVelocity(0))
+
                         .onFalse(shooter_right.cmdVelocity(0));
             operator.y().whileTrue(indexer_left.cmdSetPct(-1))
                         .whileTrue(indexer_right.cmdSetPct(-1))

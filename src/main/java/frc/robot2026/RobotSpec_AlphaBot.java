@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.FeetPerSecond;
 import static frc.lib2202.Constants.DEGperRAD;
 import static frc.lib2202.Constants.MperFT;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.config.PIDConstants;
@@ -42,6 +43,7 @@ import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
 import frc.robot2026.Constants.DigitalIO;
 import frc.robot2026.command.pose.setGyroOffsetWithVision;
+import frc.robot2026.subsystems.Climber;
 import frc.robot2026.subsystems.Hopper;
 import frc.robot2026.subsystems.Intake;
 import frc.robot2026.subsystems.LimelightV2;
@@ -51,8 +53,6 @@ import frc.robot2026.subsystems.VisionPoseEstimator;
 import frc.robot2026.subsystems.Shooter.Indexer;
 import frc.robot2026.subsystems.Shooter.Shooter;
 import frc.robot2026.subsystems.Shooter.Targeter;
-import frc.robot2026.testBindings.DpltestBinding;
-import frc.robot2026.subsystems.Climber;
 
 public class RobotSpec_AlphaBot implements IRobotSpec {
   // Subsystem objects for use at other cut points
@@ -216,6 +216,9 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
     DriveTrainInterface sdt = RobotContainer.getSubsystemOrNull("drivetrain");
     HID_Subsystem dc = RobotContainer.getSubsystem("DC");
 
+    // quiet the phoenix 6 logger noise
+    SignalLogger.enableAutoLogging(false);
+
     @SuppressWarnings("unused")
     CommandXboxController operator = (CommandXboxController)dc.Operator();
 
@@ -232,13 +235,13 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
     }
 
     // Competition bindings
-    BindingsCompetition.ConfigureCompetition(dc, false); //TODO TRUE for COMPETITION
+    BindingsCompetition.ConfigureCompetition(dc, true); //TODO TRUE for COMPETITION
 
     // Place your test binding in ./testBinding/<yourFile>.java and call it here
     // comment out any conflicting bindings. Try not to push with your bindings
     // active. Just comment them out.   
     
-    DpltestBinding.calbrate((CommandXboxController)dc.Operator());
+    // DpltestBinding.calbrate((CommandXboxController)dc.Operator());
     // BGTestBindings.calbrate(op);
    
     // Anything else that needs to run after binding/commands are created 
