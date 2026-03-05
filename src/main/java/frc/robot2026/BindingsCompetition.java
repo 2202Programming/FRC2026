@@ -19,6 +19,7 @@ import frc.lib2202.command.swerve.RobotCentricDrive;
 import frc.lib2202.subsystem.hid.HID_Subsystem;
 import frc.lib2202.subsystem.hid.TMJoystickController;
 import frc.lib2202.subsystem.swerve.DriveTrainInterface;
+import frc.robot2026.command.Agitator;
 import frc.robot2026.command.shooter.AutoShoot;
 import frc.robot2026.subsystems.Climber;
 import frc.robot2026.subsystems.Hopper;
@@ -135,14 +136,14 @@ public final class BindingsCompetition {
             operator.leftBumper().whileTrue(intake.cmdPctPwr(0.65))
                     .onFalse(intake.cmdPctPwr(0.0));
 
-            /* === Intake & Hopper OUT ===
+            /* === Intake & Hopper Eject ===
             * The .repeatedly() decorator wraps around the cmdPctPwr() instant command so that
             * whenever incoming commands using the intake are sceduled, they are ignored.
             * This prevents the auto intake lightgate trigger command from being scheduled
             * when the balls being ejected. */ 
             operator.rightBumper().whileTrue(hopper.cmdBeltPct(-1))
                     .onFalse(hopper.cmdBeltPct(0));
-            operator.rightBumper().whileTrue(intake.cmdPctPwr(-0.65)
+            operator.rightBumper().whileTrue(intake.cmdPctPwr(-0.95)
                                             .repeatedly()
                                             .withInterruptBehavior(InterruptionBehavior.kCancelIncoming))
                     .onFalse(intake.cmdPctPwr(0.0));
@@ -158,23 +159,11 @@ public final class BindingsCompetition {
                         .onFalse(indexer_left.cmdSetPct(0))
                         .onFalse(indexer_right.cmdSetPct(0));   
 
-            // agitate back and forth
+            // agitate back and forth, uses intake trigger to not lose fuel
             operator.a().whileTrue(new RepeatCommand(
-                new SequentialCommandGroup(
-                    hopper.cmdBeltPct(0.65),
-                    intake.cmdPctPwr(0.65),
-                    new WaitCommand(0.5),
-                    hopper.cmdBeltPct(-0.65),
-                    intake.cmdPctPwr(-0.65),
-                    new WaitCommand(0.5),
-                    hopper.cmdBeltPct(0.65),
-                    intake.cmdPctPwr(-0.65),
-                    new WaitCommand(0.5),
-                    hopper.cmdBeltPct(-0.65),
-                    intake.cmdPctPwr(0.65),
-                    new WaitCommand(0.5)).withInterruptBehavior(InterruptionBehavior.kCancelIncoming)
-                ) //repeat
-            ) //whileTrue
+                new Agitator().withInterruptBehavior(InterruptionBehavior.kCancelIncoming)
+                )
+            ) 
             .onFalse(hopper.cmdBeltPct(0))
             .onFalse(intake.cmdPctPwr(0));
 
