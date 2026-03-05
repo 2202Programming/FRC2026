@@ -34,14 +34,14 @@ public class RegisteredCommands {
           new ParallelCommandGroup(
             new PrintCommand("Shooting lots of fuel ... nothing but net."),
             new FaceToTag(10, 26, 2.0),
-            new AutoShoot(shooter_left, indexer_left, targeter::getTargetSpeed, 1),
-            new AutoShoot(shooter_right, indexer_right, targeter::getTargetSpeed, 1),
+            new AutoShoot(shooter_left, indexer_left, targeter::getTargetSpeed,targeter::getTolerance, 1),
+            new AutoShoot(shooter_right, indexer_right, targeter::getTargetSpeed,targeter::getTolerance, 1),
             hopper.cmdBeltPct(1)).withTimeout(3.0).withName("ShootGroup1")
         .andThen(
             new ParallelCommandGroup(
                 new Burp(0.5, 20.0).withTimeout(3.0),
-                new AutoShoot(shooter_left, indexer_left, targeter::getTargetSpeed, 1),
-                new AutoShoot(shooter_right, indexer_right, targeter::getTargetSpeed, 1)
+                new AutoShoot(shooter_left, indexer_left, targeter::getTargetSpeed,targeter::getTolerance, 1),
+                new AutoShoot(shooter_right, indexer_right, targeter::getTargetSpeed,targeter::getTolerance, 1)
                 ).withName("shootGroup2").withTimeout(3.0)
             )
         .andThen(new PrintCommand("Ending ncShoot") )            
