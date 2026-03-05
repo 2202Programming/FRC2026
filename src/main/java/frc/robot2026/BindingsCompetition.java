@@ -135,14 +135,14 @@ public final class BindingsCompetition {
             operator.leftBumper().whileTrue(intake.cmdPctPwr(0.65))
                     .onFalse(intake.cmdPctPwr(0.0));
 
-            /* === Intake & Hopper OUT ===
+            /* === Intake & Hopper Eject ===
             * The .repeatedly() decorator wraps around the cmdPctPwr() instant command so that
             * whenever incoming commands using the intake are sceduled, they are ignored.
             * This prevents the auto intake lightgate trigger command from being scheduled
             * when the balls being ejected. */ 
             operator.rightBumper().whileTrue(hopper.cmdBeltPct(-1))
                     .onFalse(hopper.cmdBeltPct(0));
-            operator.rightBumper().whileTrue(intake.cmdPctPwr(-0.65)
+            operator.rightBumper().whileTrue(intake.cmdPctPwr(-0.95)
                                             .repeatedly()
                                             .withInterruptBehavior(InterruptionBehavior.kCancelIncoming))
                     .onFalse(intake.cmdPctPwr(0.0));
@@ -158,7 +158,7 @@ public final class BindingsCompetition {
                         .onFalse(indexer_left.cmdSetPct(0))
                         .onFalse(indexer_right.cmdSetPct(0));   
 
-            // agitate back and forth
+            // agitate back and forth, uses intake trigger to not lose fuel
             operator.a().whileTrue(new RepeatCommand(
                 new SequentialCommandGroup(
                     hopper.cmdBeltPct(0.65),
@@ -172,7 +172,7 @@ public final class BindingsCompetition {
                     new WaitCommand(0.5),
                     hopper.cmdBeltPct(-0.65),
                     intake.cmdPctPwr(0.65),
-                    new WaitCommand(0.5)).withInterruptBehavior(InterruptionBehavior.kCancelIncoming)
+                    new WaitCommand(0.5))
                 ) //repeat
             ) //whileTrue
             .onFalse(hopper.cmdBeltPct(0))
