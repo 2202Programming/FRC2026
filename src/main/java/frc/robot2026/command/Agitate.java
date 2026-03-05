@@ -10,30 +10,40 @@ import frc.lib2202.builder.RobotContainer;
 import frc.robot2026.subsystems.Hopper;
 import frc.robot2026.subsystems.Intake;
 
-// NOTE:  Consider using this command inline, rather than writing a subclass.  For more
-// information, see:
-// https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class Agitator extends SequentialCommandGroup {
+public class Agitate extends SequentialCommandGroup {
 
-  public Agitator() {
+  public Agitate() {
+    this(false);
+  }
 
+  public Agitate(boolean hopperForward) {
     Intake intake = RobotContainer.getSubsystem("intake");
     Hopper hopper = RobotContainer.getSubsystem(Hopper.class);
-    addCommands(
-        hopper.cmdBeltPct(0.65),
-        intake.cmdPctPwr(0.65),
-        new WaitCommand(0.5),
-        hopper.cmdBeltPct(-0.65),
-        intake.cmdPctPwr(-0.65),
-        new WaitCommand(0.5),
-        hopper.cmdBeltPct(0.65),
-        intake.cmdPctPwr(-0.65),
-        new WaitCommand(0.5),
-        hopper.cmdBeltPct(-0.65),
-        intake.cmdPctPwr(0.65),
-        new WaitCommand(0.5));
 
     addRequirements(intake, hopper);
+
+    double hopper_fwd = 0.65; //[%pwr]
+    // optionally, keep hopperbelt moving forward for shooting
+    double hopper_rev = hopperForward ? hopper_fwd : -0.65; //[%pwr]
+    setName("Agitate");
+    addCommands(
+        hopper.cmdBeltPct(hopper_fwd),
+        intake.cmdPctPwr(0.65),
+        new WaitCommand(0.5),
+        hopper.cmdBeltPct(hopper_rev),
+        intake.cmdPctPwr(-0.65),
+        new WaitCommand(0.5),
+        hopper.cmdBeltPct(hopper_fwd),
+        intake.cmdPctPwr(-0.65),
+        new WaitCommand(0.5),
+        hopper.cmdBeltPct(hopper_rev),
+        intake.cmdPctPwr(0.65),
+        new WaitCommand(0.5)
+    );
+    // add a final step to stop everything
+    finallyDo( interrupted ->{
+        hopper.setBeltPct(0.0);
+        intake.setPercent(0.0); 
+    });
   }
-  
 }
