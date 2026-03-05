@@ -161,7 +161,7 @@ public final class BindingsCompetition {
 
             // agitate back and forth, uses intake trigger to not lose fuel
             operator.a().whileTrue(new RepeatCommand(
-                new Agitator().withInterruptBehavior(InterruptionBehavior.kCancelIncoming)
+                new Agitator()   //.withInterruptBehavior(InterruptionBehavior.kCancelIncoming)
                 )
             ) 
             .onFalse(hopper.cmdBeltPct(0))

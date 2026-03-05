@@ -16,21 +16,24 @@ import frc.robot2026.subsystems.Intake;
 public class Agitator extends SequentialCommandGroup {
 
   public Agitator() {
-  
-    Intake intake = RobotContainer.getSubsystem("intake");
-    Hopper hopper = RobotContainer.getSubsystem(Hopper.class); 
 
-    hopper.cmdBeltPct(0.65);
-    intake.cmdPctPwr(0.65);
-    new WaitCommand(0.5);
-    hopper.cmdBeltPct(-0.65);
-    intake.cmdPctPwr(-0.65);
-    new WaitCommand(0.5);
-    hopper.cmdBeltPct(0.65);
-    intake.cmdPctPwr(-0.65);
-    new WaitCommand(0.5);
-    hopper.cmdBeltPct(-0.65);
-    intake.cmdPctPwr(0.65);
-    new WaitCommand(0.5);
+    Intake intake = RobotContainer.getSubsystem("intake");
+    Hopper hopper = RobotContainer.getSubsystem(Hopper.class);
+    addCommands(
+        hopper.cmdBeltPct(0.65),
+        intake.cmdPctPwr(0.65),
+        new WaitCommand(0.5),
+        hopper.cmdBeltPct(-0.65),
+        intake.cmdPctPwr(-0.65),
+        new WaitCommand(0.5),
+        hopper.cmdBeltPct(0.65),
+        intake.cmdPctPwr(-0.65),
+        new WaitCommand(0.5),
+        hopper.cmdBeltPct(-0.65),
+        intake.cmdPctPwr(0.65),
+        new WaitCommand(0.5));
+
+    addRequirements(intake, hopper);
   }
+  
 }
