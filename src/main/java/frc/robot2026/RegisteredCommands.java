@@ -41,7 +41,7 @@ public class RegisteredCommands {
         var cmd = new SequentialCommandGroup(
                 new PrintCommand("Shooting lots of fuel ..."),                            
                 // not working consistently, needs more testing   
-                new RotateTo(targeter.getRedHub(), targeter.getBlueHub(), face_timeout).setP(5.0),
+                new RotateTo(targeter.getRedHub(), targeter.getBlueHub(), face_timeout).setP(8.0),
                 
                 // the commands in this parallel group DO NOT FINISH ...
                 new ParallelCommandGroup(
