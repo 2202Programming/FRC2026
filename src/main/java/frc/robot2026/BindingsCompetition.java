@@ -28,6 +28,8 @@ import frc.robot2026.subsystems.Shooter.Indexer;
 import frc.robot2026.subsystems.Shooter.Shooter;
 import frc.robot2026.subsystems.Shooter.Targeter; 
 
+import frc.robot2026.RegisteredCommands;
+
 /*
  * Please don't edit this without leads/mentor/driveteam review
  */
@@ -162,6 +164,10 @@ public final class BindingsCompetition {
             operator.a().whileTrue(new RepeatCommand(new Agitate()) ) 
                         .onFalse(hopper.cmdBeltPct(0)) 
                         .onFalse(intake.cmdPctPwr(0));
+
+            //TESTING REMOVE FOR COMP
+            operator.b().whileTrue(RegisteredCommands.ncShoot());
+
 
             // Calibration Commands
             Cal.and(sideboard.sw12()).whileTrue(climber.setVelocityCmd(Climber.ClimbCalibrateVel))
