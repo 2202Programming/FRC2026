@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.command.swerve.FaceToTag;
+import frc.lib2202.command.swerve.RotateTo;
 import frc.robot2026.command.Agitate;
 import frc.robot2026.command.intake.Burp;
 import frc.robot2026.command.pathing.runPath;
@@ -38,7 +39,10 @@ public class RegisteredCommands {
 
         var cmd = new SequentialCommandGroup(
                 new PrintCommand("Shooting lots of fuel ... nothing but net."),
-                new FaceToTag(10, 26, face_timeout),
+                //FaceToTag() isn't great, better to use hub center and not tag
+                //new FaceToTag(10, 26, face_timeout),
+                // should rotate to hub center
+                new RotateTo(targeter.getRedHub(), targeter.getBlueHub(), face_timeout),
                 // the commands in this parallel group DO NOT FINISH ...
                 new ParallelCommandGroup(
                         new Agitate(true).repeatedly(),

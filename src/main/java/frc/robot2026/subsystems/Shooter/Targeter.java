@@ -36,8 +36,8 @@ public class Targeter extends SubsystemBase {
 
     final OdometryInterface odo;
     // Hub targets
-    final Translation2d blueHubTarget;
-    final Translation2d redHubTarget;
+    public final Translation2d blueHubTarget;
+    public final Translation2d redHubTarget;
 
     final InverseInterpolator<Double> distance = InverseInterpolator.forDouble();
     final Interpolator<Double> vel_mps = Interpolator.forDouble();
@@ -103,6 +103,16 @@ public class Targeter extends SubsystemBase {
 
     }
 
+    // Expose hub locations for commands   
+    public Translation2d getRedHub(){
+        return redHubTarget;
+    }
+    
+    public Translation2d getBlueHub(){
+        return blueHubTarget;
+    }
+
+
     public double getManualSpeed() {
         return manual_speed;
     }
@@ -155,25 +165,24 @@ public class Targeter extends SubsystemBase {
 
     @Override
     public void initSendable(SendableBuilder builder) {
-        builder.addDoubleProperty("target_dist-ft", () -> {
-            return this.target_dist / MperFT;
-        }, null);
-        builder.addDoubleProperty("target_speed", () -> {
-            return this.target_speed;
-        }, null);
-        builder.addDoubleProperty("manual_speed", () -> {
-            return this.manual_speed;
-        }, null);
+        // if no setters, prefer watcher
+        // builder.addDoubleProperty("target_dist-ft", () -> {
+        //     return this.target_dist / MperFT;
+        // }, null);
+        // builder.addDoubleProperty("target_speed", () -> {
+        //     return this.target_speed;
+        // }, null);
+        // builder.addDoubleProperty("manual_speed", () -> {
+        //     return this.manual_speed;
+        // }, null);
     }
 
     class TargeterWatcher extends WatcherCmd {
         TargeterWatcher() {
-            addEntry("isLowSpeed", () -> {
-                return Targeter.this.getManualSpeed() == Targeter.this.LOW_SPEED;
-            });
-            addEntry("target_dist-ft", () -> {
-                return Targeter.this.target_dist / MperFT;
-            });
+            addEntry("isLowSpeed", ()-> {return Targeter.this.getManualSpeed() == Targeter.this.LOW_SPEED; }, 2);
+            addEntry("manual_speed", Targeter.this::getManualSpeed, 2 );
+            addEntry("target_dist-ft", ()-> {return Targeter.this.target_dist / MperFT; }, 2 );
+            addEntry("target_speed", () -> {return Targeter.this.target_speed;  }, 2 );
         }
     }
 }
