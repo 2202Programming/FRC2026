@@ -13,6 +13,7 @@ import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.command.swerve.FaceToTag;
 import frc.lib2202.command.swerve.RotateTo;
 import frc.robot2026.command.Agitate;
+import frc.robot2026.command.AgitateOS;
 import frc.robot2026.command.intake.Burp;
 import frc.robot2026.command.pathing.runPath;
 import frc.robot2026.command.shooter.AutoShoot;
@@ -28,6 +29,8 @@ public class RegisteredCommands {
     public static Command ncShoot() {
         final double face_timeout = 1.0;   //pathing should leave use close
         final double shoot_timeout = 4.0;
+        final double agitate_period = 0.4;
+        final double agitate_in_spd = 0.4;
 
         // grab the subsystem refs setup in bindings, to use for these cmds
         var shooter_left = BindingsCompetition.shooter_left;
@@ -42,11 +45,13 @@ public class RegisteredCommands {
                 new PrintCommand("Shooting lots of fuel ... nothing but net."),
                 //FaceToTag() isn't great, better to use hub center and not tag
                 //new FaceToTag(10, 26, face_timeout),
-                // should rotate to hub center
-             // not working consistently   new RotateTo(targeter.getRedHub(), targeter.getBlueHub(), face_timeout),
+               
+                // not working consistently, needs more testing   
+                //new RotateTo(targeter.getRedHub(), targeter.getBlueHub(), face_timeout),
+                
                 // the commands in this parallel group DO NOT FINISH ...
                 new ParallelCommandGroup(
-                       // new RepeatCommand(new Agitate(true)),
+                        new AgitateOS(true, agitate_period, agitate_in_spd),
                         new AutoShoot("left", targeter::getTargetSpeed, targeter::getTolerance, 1),
                         new AutoShoot("right", targeter::getTargetSpeed, targeter::getTolerance, 1)
                 ).withTimeout(shoot_timeout) // ... so we need this timeout.
