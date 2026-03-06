@@ -13,8 +13,8 @@ import com.revrobotics.spark.SparkFlex;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation3d;
+//import edu.wpi.first.math.geometry.Transform3d;
+//import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -57,7 +57,8 @@ import frc.robot2026.subsystems.Shooter.Targeter;
 public class RobotSpec_AlphaBot implements IRobotSpec {
   // Subsystem objects for use at other cut points
   Targeter targeter;   // auto/tele init
-  static Photonvision pv;
+  static Photonvision pv = null;
+
   // 2026 Robot rev Alpha
   // io sheet
   // https://docs.google.com/spreadsheets/d/1eZ89R4oWHoCDpM9nOMC420o4i6Zx-Fgi8y4tpiL58a4/edit?gid=2120414614#gid=2120414614
@@ -115,6 +116,9 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
       .add(Climber.class, "climber", () -> {
          return new Climber(true);
        })
+       /****************************
+        * Removing PV until more testing. 
+
       .add(Photonvision.class, "photonvision", () -> {
         // create config object with our cameras and their positions
         // Photonvision uses WPI coordinates: https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html
@@ -137,6 +141,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
         pv = new Photonvision(pvConfig);
         return pv;
       })
+        *************************/
       .add(Hopper.class)
       .add(Targeter.class)
       ;
