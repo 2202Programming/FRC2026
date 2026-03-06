@@ -42,7 +42,7 @@ public class RegisteredCommands {
                 //FaceToTag() isn't great, better to use hub center and not tag
                 //new FaceToTag(10, 26, face_timeout),
                 // should rotate to hub center
-                new RotateTo(targeter.getRedHub(), targeter.getBlueHub(), face_timeout),
+                //new RotateTo(targeter.getRedHub(), targeter.getBlueHub(), face_timeout),
                 // the commands in this parallel group DO NOT FINISH ...
                 new ParallelCommandGroup(
                         new Agitate(true).repeatedly(),
