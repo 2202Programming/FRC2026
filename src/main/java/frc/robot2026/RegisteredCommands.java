@@ -43,10 +43,10 @@ public class RegisteredCommands {
                 //FaceToTag() isn't great, better to use hub center and not tag
                 //new FaceToTag(10, 26, face_timeout),
                 // should rotate to hub center
-                //new RotateTo(targeter.getRedHub(), targeter.getBlueHub(), face_timeout),
+             // not working consistently   new RotateTo(targeter.getRedHub(), targeter.getBlueHub(), face_timeout),
                 // the commands in this parallel group DO NOT FINISH ...
                 new ParallelCommandGroup(
-                        new RepeatCommand(new Agitate(true)),
+                       // new RepeatCommand(new Agitate(true)),
                         new AutoShoot("left", targeter::getTargetSpeed, targeter::getTolerance, 1),
                         new AutoShoot("right", targeter::getTargetSpeed, targeter::getTolerance, 1)
                 ).withTimeout(shoot_timeout) // ... so we need this timeout.

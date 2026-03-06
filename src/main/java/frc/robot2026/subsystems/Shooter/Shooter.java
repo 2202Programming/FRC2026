@@ -17,7 +17,7 @@ public class Shooter extends SubsystemBase {
     final public IFlyWheel flywheel;
     final FlyWheelConfig cfg;
     final boolean inverted;
-
+    final String side; 
     int shots_taken=0;
 
     public Shooter() {
@@ -30,7 +30,7 @@ public class Shooter extends SubsystemBase {
 
     public Shooter(String controllerType, int ShooterID, boolean inverted) {
         this.inverted = inverted;
-        String side = (ShooterID == CAN.ShooterIDLeft) ? "left" : "right";
+        side = (ShooterID == CAN.ShooterIDLeft) ? "left" : "right";
         setName("Shooter_" + side);
         
         // pick which controller we are using
@@ -239,7 +239,7 @@ public class Shooter extends SubsystemBase {
     // watcher will put values on the network tables for viewing elastic
     class ShooterWatcher extends WatcherCmd {
         ShooterWatcher() {
-            addEntry("_shots_", Shooter.this::getShotsTaken, 2);
+            addEntry("_shots_", Shooter.this::getShotsTaken);
             addEntry("velocity", Shooter.this.flywheel::getVelocity, 2);
             addEntry("at_setpoint", Shooter.this::atSetpoint);
             addEntry("position", Shooter.this.flywheel::getPosition);
