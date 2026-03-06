@@ -166,8 +166,7 @@ public final class BindingsCompetition {
                         .onFalse(intake.cmdPctPwr(0));
 
             //TESTING REMOVE FOR COMP
-            operator.b().whileTrue(RegisteredCommands.ncShoot());
-
+            //operator.b().whileTrue(RegisteredCommands.ncShoot());
 
             // Calibration Commands
             Cal.and(sideboard.sw12()).whileTrue(climber.setVelocityCmd(Climber.ClimbCalibrateVel))
