@@ -3,19 +3,16 @@ package frc.robot2026;
 import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.command.swerve.FaceToTag;
 import frc.lib2202.command.swerve.RotateTo;
-import frc.robot2026.command.Agitate;
 import frc.robot2026.command.AgitateOS;
-import frc.robot2026.command.intake.Burp;
-import frc.robot2026.command.pathing.runPath;
 import frc.robot2026.command.shooter.AutoShoot;
 
 /*
@@ -42,10 +39,7 @@ public class RegisteredCommands {
         var intake = BindingsCompetition.intake;
 
         var cmd = new SequentialCommandGroup(
-                new PrintCommand("Shooting lots of fuel ... nothing but net."),
-                //FaceToTag() isn't great, better to use hub center and not tag
-                //new FaceToTag(10, 26, face_timeout),
-               
+                new PrintCommand("Shooting lots of fuel ... nothing but net."),                            
                 // not working consistently, needs more testing   
                 //new RotateTo(targeter.getRedHub(), targeter.getBlueHub(), face_timeout),
                 
@@ -55,11 +49,8 @@ public class RegisteredCommands {
                         new AutoShoot("left", targeter::getTargetSpeed, targeter::getTolerance, 1),
                         new AutoShoot("right", targeter::getTargetSpeed, targeter::getTolerance, 1)
                 ).withTimeout(shoot_timeout) // ... so we need this timeout.
-        ).finallyDo(interrupted -> {
-            hopper.setBeltPct(0.0);
-            intake.setPercent(0.0); 
-            System.out.println("ncShoot finalyDo lambda executed.");
-        });
+        ) //.withInterruptBehavior(InterruptionBehavior.kCancelIncoming) // uncomment if testing fails
+        ;
 
         cmd.addRequirements(shooter_left, shooter_right, indexer_left, indexer_right, hopper, intake);
         cmd.setName("ncShoot");
