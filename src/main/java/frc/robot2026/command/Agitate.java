@@ -21,9 +21,7 @@ public class Agitate extends SequentialCommandGroup {
     Hopper hopper = RobotContainer.getSubsystem(Hopper.class);
 
     setName("Agitate");
-    //this is a hack for use in auto - agitate is interferring with shoot
-    if (!hopperForward)
-      addRequirements(intake, hopper);
+    addRequirements(intake, hopper);
 
     double hopper_fwd = 0.65; //[%pwr]
     // optionally, keep hopperbelt moving forward for shooting
