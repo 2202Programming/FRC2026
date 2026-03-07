@@ -307,6 +307,7 @@ public class Photonvision extends SubsystemBase {
       // targets.
       // Add the simulated camera to view the targets on this simulated field.
       for (int i = 0; i < config.CAMERA_NAMES.length; i++) {
+        System.out.println("***Creating PV Sim camera: " + config.CAMERA_NAMES[i]);
         PhotonCameraSim cameraSim = new PhotonCameraSim(camerasList.get(i).camera, cameraProp);
         visionSim.addCamera(cameraSim, config.kRobotToCam[i]);
         cameraSim.enableDrawWireframe(true);

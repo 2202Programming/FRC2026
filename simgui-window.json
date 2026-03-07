@@ -6,13 +6,13 @@
     "GLOBAL": {
       "font": "Proggy Dotted",
       "fps": "120",
-      "height": "1302",
+      "height": "692",
       "maximized": "0",
       "style": "0",
       "userScale": "2",
-      "width": "1600",
-      "xpos": "1080",
-      "ypos": "633"
+      "width": "1760",
+      "xpos": "569",
+      "ypos": "1352"
     }
   },
   "Table": {
@@ -31,12 +31,12 @@
   "Window": {
     "###FMS": {
       "Collapsed": "0",
-      "Pos": "6,675",
+      "Pos": "6,514",
       "Size": "202,214"
     },
     "###Joysticks": {
       "Collapsed": "0",
-      "Pos": "304,595",
+      "Pos": "255,382",
       "Size": "976,239"
     },
     "###Keyboard 0 Settings": {
