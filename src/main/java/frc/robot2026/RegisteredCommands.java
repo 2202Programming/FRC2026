@@ -25,7 +25,7 @@ public class RegisteredCommands {
 
     public static Command ncShoot() {
         final double face_timeout = 2.0;   //pathing should leave use close
-        final double shoot_timeout = 4.0;
+        final double shoot_timeout = 6.0;
         final double agitate_period = 0.4;
         final double agitate_in_spd = 0.4;
 
@@ -41,19 +41,16 @@ public class RegisteredCommands {
         var cmd = new SequentialCommandGroup(
                 new PrintCommand("Shooting lots of fuel ..."),                            
                 // not working consistently, needs more testing   
-                //new RotateTo(targeter.getRedHub(), targeter.getBlueHub(), face_timeout).setP(8.0),
-                
+                // new RotateTo(targeter.getRedHub(), targeter.getBlueHub(), face_timeout).setP(8.0),
                 // the commands in this parallel group DO NOT FINISH ...
                 new ParallelCommandGroup(
                         new AgitateOS(true, agitate_period, agitate_in_spd),
                         new AutoShoot("left", targeter::getTargetSpeed, targeter::getTolerance, 1),
                         new AutoShoot("right", targeter::getTargetSpeed, targeter::getTolerance, 1)
-                ).withTimeout(shoot_timeout),  // ... so we need this timeout.
+                ).withTimeout(shoot_timeout), // ... so we need this timeout.
                 new PrintCommand("                     ... nothing but net.")
-        ) //.withInterruptBehavior(InterruptionBehavior.kCancelIncoming) // uncomment if testing fails
-        ;
-
-        cmd.addRequirements(shooter_left, shooter_right, indexer_left, indexer_right, hopper, intake);
+        ).withInterruptBehavior(InterruptionBehavior.kCancelIncoming) ;
+        cmd.addRequirements(shooter_left, shooter_right, indexer_left, indexer_right, intake, hopper);
         cmd.setName("ncShoot");
         return cmd;
     }

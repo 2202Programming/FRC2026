@@ -82,7 +82,8 @@ public class AgitateOS extends Command {
     @Override
     public void end(boolean interrupted) {
         intake.setPercent(0.0);
-        hopper.setBeltPct(0.0);        
+        hopper.setBeltPct(0.0);    
+        System.out.println("AgitateOS end "+ interrupted);    
     }
 
     // this command NEVER finishes, it will be unscheduled, interrupted when done.

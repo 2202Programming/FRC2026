@@ -75,9 +75,9 @@ public final class BindingsCompetition {
             OperatorBindings();     
 
         //Auto intake, works well if lightgate stays aligned.
-        Trigger HasFuel = new Trigger(intake::hasFuel);
-        HasFuel.onTrue(intake.cmdRunWhileFuel(.45, 0.5) );  //changed from .8 to 0.65 by drive team on 2/28
-
+        //This seems to ignore kCancelIncomming - converted to default Command for intake
+        //Trigger HasFuel = new Trigger(intake::hasFuel);
+        //HasFuel.onTrue(intake.cmdRunWhileFuel(.45, 0.5) );  //changed from .8 to 0.65 by drive team on 2/28
     }
 
     private static void DriverBinding() {

@@ -94,7 +94,8 @@ public class Intake extends SubsystemBase {
           .kS(kS, slot).kV(kV, slot);
 
     controller.configure(config, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
-
+    //don't use Trigger, changed to be a default command
+    this.setDefaultCommand(cmdRunWhileFuel(.45, 0.5) );
   }
 
   /**
@@ -270,17 +271,23 @@ public class Intake extends SubsystemBase {
     @Override
     public void execute() {
       // keep resetting timer as long as we see fuel
-      if (Intake.this.hasFuel() ) 
+      if (Intake.this.hasFuel() ) { 
         no_fuel_timer.restart();
+        Intake.this.setPercent(pct);
+      }
+
+      //Stop running after no fuel seen for elapsed seconds
+      if (no_fuel_timer.hasElapsed(seconds))
+         Intake.this.setPercent(0.0);
     }
 
     public void end(boolean interrupted) {
       Intake.this.setPercent(0.0);
     }
 
+    // this is a default command, it never finishes, but may be canceled
     public boolean isFinished(){
-      var x =  no_fuel_timer.hasElapsed(seconds);
-      return x;
+     return false;
     }
 
   }
