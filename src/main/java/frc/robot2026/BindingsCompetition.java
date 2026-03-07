@@ -20,6 +20,7 @@ import frc.lib2202.subsystem.hid.HID_Subsystem;
 import frc.lib2202.subsystem.hid.TMJoystickController;
 import frc.lib2202.subsystem.swerve.DriveTrainInterface;
 import frc.robot2026.command.Agitate;
+import frc.robot2026.command.AgitateOS;
 import frc.robot2026.command.shooter.AutoShoot;
 import frc.robot2026.subsystems.Climber;
 import frc.robot2026.subsystems.Hopper;
@@ -161,9 +162,11 @@ public final class BindingsCompetition {
                         .onFalse(indexer_right.cmdSetPct(0));   
 
             // agitate back and forth, uses intake trigger to not lose fuel
-            operator.a().whileTrue(new RepeatCommand(new Agitate()) ) 
-                        .onFalse(hopper.cmdBeltPct(0)) 
-                        .onFalse(intake.cmdPctPwr(0));
+            // operator.a().whileTrue(new RepeatCommand(new Agitate()) ) 
+            //             .onFalse(hopper.cmdBeltPct(0)) 
+            //             .onFalse(intake.cmdPctPwr(0));
+            operator.a().whileTrue(new AgitateOS(false, 0.4, .6));
+
 
             //TESTING REMOVE FOR COMP
             //operator.b().whileTrue(RegisteredCommands.ncShoot());
