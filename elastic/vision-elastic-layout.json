@@ -17,7 +17,7 @@
       }
     },
     {
-      "name": "Tab 3",
+      "name": "Vision/Loc",
       "grid_layout": {
         "layouts": [],
         "containers": [
@@ -342,18 +342,10 @@
               "true_icon": "None",
               "false_icon": "None"
             }
-          }
-        ]
-      }
-    },
-    {
-      "name": "Tab 4",
-      "grid_layout": {
-        "layouts": [],
-        "containers": [
+          },
           {
             "title": "Auto Chooser",
-            "x": 512.0,
+            "x": 1152.0,
             "y": 0.0,
             "width": 256.0,
             "height": 128.0,
@@ -362,6 +354,74 @@
               "topic": "/SmartDashboard/Auto Chooser",
               "period": 0.06,
               "sort_options": false
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Simulation",
+      "grid_layout": {
+        "layouts": [],
+        "containers": [
+          {
+            "title": "Sim Field",
+            "x": 1024.0,
+            "y": 0.0,
+            "width": 640.0,
+            "height": 512.0,
+            "type": "Field",
+            "properties": {
+              "topic": "/SmartDashboard/VisionSystemSim-main/Sim Field",
+              "period": 0.06,
+              "field_game": "Rebuilt",
+              "robot_width": 0.85,
+              "robot_length": 0.85,
+              "show_other_objects": true,
+              "show_trajectories": false,
+              "field_rotation": 180.0,
+              "robot_color": 4294198070,
+              "trajectory_color": 4294967295,
+              "show_robot_outside_widget": true
+            }
+          },
+          {
+            "title": "Right_Camera-processed",
+            "x": 512.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Camera Stream",
+            "properties": {
+              "topic": "/CameraPublisher/Right_Camera-processed",
+              "period": 0.06,
+              "rotation_turns": 0
+            }
+          },
+          {
+            "title": "Right_Camera-raw",
+            "x": 768.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Camera Stream",
+            "properties": {
+              "topic": "/CameraPublisher/Right_Camera-raw",
+              "period": 0.06,
+              "rotation_turns": 0
+            }
+          },
+          {
+            "title": "Left_Camera-processed",
+            "x": 512.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Camera Stream",
+            "properties": {
+              "topic": "/CameraPublisher/Left_Camera-processed",
+              "period": 0.06,
+              "rotation_turns": 0
             }
           }
         ]
