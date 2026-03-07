@@ -147,7 +147,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
       ;
 
   // Robot Speed Limits
-  RobotLimits robotLimits = new RobotLimits(FeetPerSecond.of(15.0), DegreesPerSecond.of(360.0));
+  RobotLimits robotLimits = new RobotLimits(FeetPerSecond.of(15.0), DegreesPerSecond.of(315.0));
 
   // Chassis
   double kWheelCorrectionFactor = 1.008;
