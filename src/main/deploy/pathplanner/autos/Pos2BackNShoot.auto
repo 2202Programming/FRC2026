@@ -7,13 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Pos1toLeftClimb"
+            "pathName": "Pos2 to Climber"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot"
           }
         }
       ]
     }
   },
-  "resetOdom": false,
+  "resetOdom": true,
   "folder": null,
   "choreoAuto": false
 }
