@@ -84,9 +84,9 @@ public class Targeter extends SubsystemBase {
         vel_table.put(17.0 * MperFT, 34.5);
         vel_table.put(25.0 * MperFT, 34.5); // set a max
 
-        tolerance_table.put(0.0 * MperFT, .8);
-        tolerance_table.put(5.0 * MperFT, .8);
-        tolerance_table.put(6.0 * MperFT, .8);
+        tolerance_table.put(0.0 * MperFT, 1.6);
+        tolerance_table.put(5.0 * MperFT, 1.4);
+        tolerance_table.put(6.0 * MperFT, 1.2 );
         tolerance_table.put(10.0 * MperFT, .8);
         tolerance_table.put(17.0 * MperFT, .8);
         tolerance_table.put(25.0 * MperFT, .8);
