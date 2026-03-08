@@ -55,7 +55,7 @@ public class AutoShoot extends Command {
   @Override
   public void execute() {
     double idxCmd = 0.0;
-    shooter.flywheel.setSetpoint(speedProvider.getAsDouble());
+    shooter.flywheel.setSetpoint(speedProvider.getAsDouble() * shooter.getSpeedFactor() );
     shooter.flywheel.setVelocityTolerance(toleranceProvider.getAsDouble());
     gate = indexer.hasFuel();
 
