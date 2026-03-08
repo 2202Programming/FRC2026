@@ -13,6 +13,7 @@ import frc.robot2026.subsystems.Shooter.Indexer;
 import frc.robot2026.subsystems.Shooter.Shooter;
 
 public class AutoShoot extends Command {
+  static boolean left_active = true;    //default to left first
 
   final Shooter shooter;
   final Indexer indexer;
@@ -21,6 +22,7 @@ public class AutoShoot extends Command {
   final DoubleSupplier toleranceProvider;
   final double idxPct;
   final double idxLoad = 0.3; // loading speed, load to gate
+  final boolean is_left;
 
   // state vars
   boolean gate, gate_prev; // gate edge
@@ -35,6 +37,7 @@ public class AutoShoot extends Command {
     this.toleranceProvider = toleranceProvider;
     this.idxPct = idxPct;
 
+    this.is_left = side.startsWith("l");
     addRequirements(shooter, indexer);
     setName("AutoShoot_" + side);
   }
@@ -56,7 +59,9 @@ public class AutoShoot extends Command {
     shooter.flywheel.setVelocityTolerance(toleranceProvider.getAsDouble());
     gate = indexer.hasFuel();
 
-    if (shooter.atSetpoint()) {
+    boolean myturn = is_left  ?  AutoShoot.left_active : !AutoShoot.left_active;
+
+    if (shooter.atSetpoint() && myturn) {
       indexer.setPct(idxPct);
     } else {
       // roll indexer until we have fuel
@@ -68,6 +73,10 @@ public class AutoShoot extends Command {
     if (gate_prev && (gate != gate_prev)) {
       // should be fuel leaving the bot, count it
       shots_taken++;
+      AutoShoot.left_active = ! AutoShoot.left_active;
+    } else  //if we don't have fuel, switch turns
+    if (myturn && !gate){
+       AutoShoot.left_active = ! AutoShoot.left_active;
     }
 
     // low to high indicates loading/readying a shot
