@@ -1,0 +1,72 @@
+{
+  "NTProvider": {
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/SmartDashboard/Auto Chooser": "String Chooser",
+      "/SmartDashboard/FieldOdometry": "Field2d",
+      "/SmartDashboard/FieldVPE": "Field2d",
+      "/SmartDashboard/HID_Subsystem": "Subsystem",
+      "/SmartDashboard/Hopper": "Subsystem",
+      "/SmartDashboard/Intake-40": "Subsystem",
+      "/SmartDashboard/LimelightV2(limelight)": "Subsystem",
+      "/SmartDashboard/Odometry": "Subsystem",
+      "/SmartDashboard/PathPlanner": "Alerts",
+      "/SmartDashboard/PathWatcher": "Field2d",
+      "/SmartDashboard/PhotonAlerts": "Alerts",
+      "/SmartDashboard/Scheduler": "Scheduler",
+      "/SmartDashboard/Sensors": "Subsystem",
+      "/SmartDashboard/Shooter_left": "PIDController",
+      "/SmartDashboard/SwerveDrivetrain": "Subsystem",
+      "/SmartDashboard/SwerveDrivetrain/drive PIDF": "PIDController",
+      "/SmartDashboard/TrimTables": "Subsystem",
+      "/SmartDashboard/VisionPoseEstimator": "Subsystem",
+      "/SmartDashboard/VisionSystemSim-main/Sim Field": "Field2d",
+      "/SmartDashboard/arm-L-45/swPosPIDcfg": "PIDController",
+      "/SmartDashboard/arm-L-52/swPosPIDcfg": "PIDController",
+      "/SmartDashboard/climber": "PIDController",
+      "/SmartDashboard/photonvision": "Subsystem"
+    }
+  },
+  "NetworkTables": {
+    "Retained Values": {
+      "open": false
+    },
+    "retained": {
+      "SmartDashboard": {
+        "Auto Chooser": {
+          "open": true
+        },
+        "open": true
+      }
+    },
+    "transitory": {
+      "CameraPublisher": {
+        "Left_Camera-processed": {
+          "string[]##v_/CameraPublisher/Left_Camera-processed/modes": {
+            "open": true
+          },
+          "string[]##v_/CameraPublisher/Left_Camera-processed/streams": {
+            "open": true
+          }
+        },
+        "Left_Camera-raw": {
+          "string[]##v_/CameraPublisher/Left_Camera-raw/streams": {
+            "open": true
+          }
+        },
+        "open": true
+      },
+      "SmartDashboard": {
+        "VisionSystemSim-main": {
+          "Sim Field": {
+            "open": true
+          }
+        },
+        "open": true
+      }
+    }
+  },
+  "NetworkTables Info": {
+    "visible": true
+  }
+}
