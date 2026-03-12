@@ -2,12 +2,15 @@ package frc.robot2026.subsystems.Shooter;
 
 import static frc.lib2202.Constants.MperFT;
 
+import com.ctre.phoenix6.signals.Led1OnColorValue;
+
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.LEDReader;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib2202.command.WatcherCmd;
 import frc.lib2202.util.PIDFController;
@@ -172,6 +175,10 @@ public class Shooter extends SubsystemBase {
     public void periodic() {
         // update hw, only needed if changes to HW_PID - TODO test mode?
         flywheel.update_hardware();
+        
+        //if (flywheel.atSetpoint()) {
+            //If shooter is at its setpoint, turn on LED lights
+        //}
     }
 
     // Add a watcher so we can see stuff on network tables

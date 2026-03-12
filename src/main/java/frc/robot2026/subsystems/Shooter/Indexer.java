@@ -38,11 +38,11 @@ public class Indexer extends SubsystemBase {
 
   final ClosedLoopSlot PositionSlot = ClosedLoopSlot.kSlot0;
 
-  double posCF = 1.0 / 9.0; // [ROT]
-  double velCF = 1.0 / (9.0 * 60.0); // [RPS] of the INDEXER, not the MOTOR
+  final double posCF = 1.0 / 9.0; // [ROT]
+  final double velCF = 1.0 / (9.0 * 60.0); // [RPS] of the INDEXER, not the MOTOR
 
-  double cruiseVel = 5767.0;
-  double maxAccel = 10000.0;
+  final double cruiseVel = 5767.0; // In [rotations/minute]. Highest RPM of the motor
+  final double maxAccel = 10000.0; // Unknown units
 
   double P = 0.3;
   double I = 0.0;
@@ -63,6 +63,7 @@ public class Indexer extends SubsystemBase {
   boolean m_changes = false;
 
   public Indexer(int CanID, boolean inverted, int dio_gate) {
+    // If indexer is inverted, name = indexer_left, if it is not, name = indexer_right
     setName(inverted ? "indexer_left" : "indexer_right");
     indexGate = new DigitalInput(dio_gate);
     controller = new SparkFlex(CanID, MotorType.kBrushless);
@@ -114,10 +115,12 @@ public class Indexer extends SubsystemBase {
   public double getPosSetPoint() {
     return pos_setpoint;
   }
-
+  // gets the error of the position, where the indexer is relative to what it needs to be at.
   public double getPositionError() {
     return Math.abs(encoder.getPosition() - pos_setpoint);
   }
+
+  
 
   public void zeroPos() {
     encoder.setPosition(0.0);
@@ -177,6 +180,7 @@ public class Indexer extends SubsystemBase {
   }
 
   public void setTestBindings(CommandXboxController xbox) {
+    //TestBindings, b resets the position to 0
     xbox.b().onTrue(new InstantCommand(() -> { zeroPos(); }));
   }
 
