@@ -1,5 +1,7 @@
 package frc.robot2026;
 
+import javax.net.ssl.TrustManager;
+
 import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.wpilibj2.command.Command;
@@ -13,6 +15,7 @@ import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.command.swerve.FaceToTag;
 import frc.lib2202.command.swerve.RotateTo;
 import frc.robot2026.command.AgitateOS;
+import frc.robot2026.command.autoClimberCommand;
 import frc.robot2026.command.shooter.AutoShoot;
 
 /*
@@ -22,10 +25,9 @@ import frc.robot2026.command.shooter.AutoShoot;
 public class RegisteredCommands {
 
     // Named Command Factories
-
     public static Command ncShoot() {
         final double face_timeout = 2.0;   //pathing should leave use close
-        final double shoot_timeout = 6.0;
+        final double shoot_timeout = 4.0;
         final double agitate_period = 0.4;
         final double agitate_in_spd = 0.4;
 
@@ -37,6 +39,7 @@ public class RegisteredCommands {
         var targeter = BindingsCompetition.targeter;
         var hopper = BindingsCompetition.hopper;
         var intake = BindingsCompetition.intake;
+        
 
         var cmd = new SequentialCommandGroup(
                 new PrintCommand("Shooting lots of fuel ..."),                            
@@ -49,8 +52,8 @@ public class RegisteredCommands {
                         new AutoShoot("right", targeter::getTargetSpeed, targeter::getTolerance, 1)
                 ).withTimeout(shoot_timeout), // ... so we need this timeout.
                 new PrintCommand("                     ... nothing but net.")
-        ).withInterruptBehavior(InterruptionBehavior.kCancelIncoming) ;
-        cmd.addRequirements(shooter_left, shooter_right, indexer_left, indexer_right, intake, hopper);
+        ); //.withInterruptBehavior(InterruptionBehavior.kCancelIncoming) ;
+        cmd.addRequirements(shooter_left, shooter_right, indexer_left, indexer_right, hopper);
         cmd.setName("ncShoot");
         return cmd;
     }
@@ -59,11 +62,12 @@ public class RegisteredCommands {
         // Construct all the commands and register them to NamedCommands for PathPlanner
         NamedCommands.registerCommand("shoot", ncShoot());
 
-        NamedCommands.registerCommand("climb_right",
-                new PrintCommand("Climbing from right side."));
+        NamedCommands.registerCommand("climb_right", new autoClimberCommand(false));
 
-        NamedCommands.registerCommand("climb_left",
-                new PrintCommand("Climbing from left side."));
+        NamedCommands.registerCommand("climb_left", new autoClimberCommand(true));
+
+        NamedCommands.registerCommand("noise",
+                new PrintCommand("noise ... --- ..."));
 
     }
 }
