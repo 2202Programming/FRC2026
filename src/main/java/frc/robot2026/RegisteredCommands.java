@@ -15,6 +15,7 @@ import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.command.swerve.FaceToTag;
 import frc.lib2202.command.swerve.RotateTo;
 import frc.robot2026.command.AgitateOS;
+import frc.robot2026.command.autoClimberCommand;
 import frc.robot2026.command.shooter.AutoShoot;
 
 /*
