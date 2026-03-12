@@ -119,6 +119,10 @@ public class Indexer extends SubsystemBase {
     return Math.abs(encoder.getPosition() - pos_setpoint);
   }
 
+  public double getAmps() {
+    return controller.getOutputCurrent();
+  }
+
   public void zeroPos() {
     encoder.setPosition(0.0);
   }
@@ -186,6 +190,8 @@ public class Indexer extends SubsystemBase {
     builder.addDoubleProperty("pos_cmd", this::getPosSetPoint, this::setPosSetpoint);
     builder.addDoubleProperty("pos_err", this::getPosSetPoint, null);
 
+    builder.addDoubleProperty("amps", this::getAmps, null);
+
     builder.addDoubleProperty("kS", () -> {
       return kS;
     }, this::setkS);
@@ -218,7 +224,7 @@ public class Indexer extends SubsystemBase {
 
 
   public class Load extends Command {
-    final static double DEFAULT_SPEED = 0.3;  //pct power
+    final static double DEFAULT_SPEED = 1.0;  //pct power
     final static double BackupSpeed = -0.3;
 
     final double speed;
