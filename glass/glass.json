@@ -42,11 +42,15 @@
       "/SmartDashboard/PhotonAlerts": "Alerts",
       "/SmartDashboard/Scheduler": "Scheduler",
       "/SmartDashboard/Sensors": "Subsystem",
+      "/SmartDashboard/Shooter_left": "Subsystem",
       "/SmartDashboard/SwerveDrivetrain": "Subsystem",
       "/SmartDashboard/SwerveDrivetrain/angle PIDF": "PIDController",
+      "/SmartDashboard/SwerveDrivetrain/drive PIDF": "PIDController",
       "/SmartDashboard/VisionPoseEstimator": "Subsystem",
+      "/SmartDashboard/arm-L-45/hwVelPIDcfg": "PIDController",
       "/SmartDashboard/arm-L-45/swPosPIDcfg": "PIDController",
-      "/SmartDashboard/climber": "PIDController"
+      "/SmartDashboard/climber": "PIDController",
+      "/SmartDashboard/photonvision": "Subsystem"
     }
   },
   "NetworkTables Info": {
@@ -78,7 +82,7 @@
             0.0,
             0.8500000238418579
           ],
-          "height": 446,
+          "height": 341,
           "legendLocation": 10,
           "series": [
             {
@@ -122,56 +126,21 @@
             },
             {
               "color": [
-                0.45588237047195435,
-                0.16760380566120148,
-                0.17737612128257751,
+                0.21568626165390015,
+                0.15013454854488373,
+                0.15235666930675507,
                 1.0
               ],
               "id": "NT:/SmartDashboard/indexer_right/hasFuel"
             },
             {
               "color": [
-                0.2321222573518753,
-                0.45098036527633667,
-                0.28222230076789856,
+                0.13321800529956818,
+                0.20588237047195435,
+                0.14985202252864838,
                 1.0
               ],
               "id": "NT:/SmartDashboard/indexer_left/hasFuel"
-            }
-          ]
-        },
-        {
-          "axis": [
-            {
-              "autoFit": true,
-              "gridLines": false
-            }
-          ],
-          "backgroundColor": [
-            0.0,
-            0.0,
-            0.0,
-            0.8500000238418579
-          ],
-          "height": 446,
-          "series": [
-            {
-              "color": [
-                0.7686274647712708,
-                0.30588236451148987,
-                0.32156863808631897,
-                1.0
-              ],
-              "id": "NT:/Shooter_right/mtr_OutputAmps"
-            },
-            {
-              "color": [
-                0.3333333432674408,
-                0.658823549747467,
-                0.40784314274787903,
-                1.0
-              ],
-              "id": "NT:/Shooter_left/mtr_OutputAmps"
             }
           ]
         }
@@ -182,71 +151,9 @@
         {
           "axis": [
             {
-              "autoFit": true
-            }
-          ],
-          "backgroundColor": [
-            0.0,
-            0.0,
-            0.0,
-            0.8500000238418579
-          ],
-          "height": 704,
-          "series": [
-            {
-              "color": [
-                0.2980392277240753,
-                0.44705885648727417,
-                0.6901960968971252,
-                1.0
-              ],
-              "id": "NT:/Shooter_right/mtr_RPM"
+              "autoFit": true,
+              "gridLines": false
             },
-            {
-              "color": [
-                0.8666667342185974,
-                0.5176470875740051,
-                0.32156863808631897,
-                1.0
-              ],
-              "id": "NT:/Shooter_left/mtr_RPM"
-            }
-          ]
-        }
-      ],
-      "window": {
-        "visible": false
-      }
-    },
-    "Plot <2>": {
-      "plots": [
-        {
-          "backgroundColor": [
-            0.0,
-            0.0,
-            0.0,
-            0.8500000238418579
-          ],
-          "height": 155
-        },
-        {
-          "backgroundColor": [
-            0.0,
-            0.0,
-            0.0,
-            0.8500000238418579
-          ],
-          "height": 155
-        }
-      ],
-      "window": {
-        "visible": false
-      }
-    },
-    "Plot <3>": {
-      "plots": [
-        {
-          "axis": [
             {
               "autoFit": true
             }
@@ -257,17 +164,10 @@
             0.0,
             0.8500000238418579
           ],
-          "height": 344,
+          "crosshairs": true,
+          "height": 447,
+          "legendLocation": 10,
           "series": [
-            {
-              "color": [
-                0.7686274647712708,
-                0.30588236451148987,
-                0.32156863808631897,
-                1.0
-              ],
-              "id": "NT:/Shooter_right/mtr_RPM"
-            },
             {
               "color": [
                 0.3333333432674408,
@@ -275,11 +175,76 @@
                 0.40784314274787903,
                 1.0
               ],
-              "id": "NT:/Shooter_left/mtr_RPM"
+              "id": "NT:/Shooter_left/mtr_RPM",
+              "weight": 2.499999523162842,
+              "yAxis": 1
+            },
+            {
+              "color": [
+                0.32156869769096375,
+                0.6903114318847656,
+                0.8666667342185974,
+                1.0
+              ],
+              "id": "NT:/Shooter_left/mtr_OutputAmps"
             }
-          ]
+          ],
+          "yaxis2": true
+        },
+        {
+          "axis": [
+            {
+              "autoFit": true
+            },
+            {
+              "autoFit": true
+            }
+          ],
+          "backgroundColor": [
+            0.0,
+            0.0,
+            0.0,
+            0.8500000238418579
+          ],
+          "crosshairs": true,
+          "height": 447,
+          "legendLocation": 10,
+          "series": [
+            {
+              "color": [
+                0.7892156839370728,
+                0.29789024591445923,
+                0.314545601606369,
+                1.0
+              ],
+              "id": "NT:/Shooter_right/mtr_RPM",
+              "weight": 2.499999523162842
+            },
+            {
+              "color": [
+                0.32156863808631897,
+                0.6901960968971252,
+                0.8666666746139526,
+                1.0
+              ],
+              "id": "NT:/Shooter_right/mtr_OutputAmps",
+              "marker": "None",
+              "yAxis": 1
+            }
+          ],
+          "yaxis2": true
         }
       ]
+    },
+    "Plot <2>": {
+      "window": {
+        "visible": false
+      }
+    },
+    "Plot <3>": {
+      "window": {
+        "visible": false
+      }
     }
   }
 }
