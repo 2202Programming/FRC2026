@@ -7,7 +7,6 @@ package frc.robot2026.command.shooter;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.lib2202.builder.RobotContainer;
 import frc.robot2026.subsystems.Shooter.Indexer;
 import frc.robot2026.subsystems.Shooter.Shooter;
@@ -90,17 +89,19 @@ public class AutoShoot extends Command {
   public void end(boolean interrupted) {
     indexer.setPct(0.0);
     shooter.addShots(shots_taken);
-    // leave shooter running for 300ms after indexer is off
-    // to make sure it is cleared
-    double spd = speedProvider.getAsDouble();
-    // create cmd and schedule it before we leave, 0.0 set at end
-    var cmd = shooter.cmdVelocityDuration(spd, 0.300);
-    CommandScheduler.getInstance().schedule(cmd);
-  }
+    shooter.flywheel.setSetpoint(0.0);
+    /* NOTE: scheduling a cmd like this during Auto breaks the
+           rest of the auto because of the conflict in requirements.
+           Nice find JasonR,
+      double spd = speedProvider.getAsDouble();
+      var cmd = shooter.cmdVelocityDuration(spd, 0.300);
+      CommandScheduler.getInstance().schedule(cmd);  // bad - will cancel auto running
+      CommandScheduler.getInstance().schedule(new PrintCommand("Hello from AutoShoot")); // works fine
+    */
+    }
 
-  // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return false;  //never ends, expect to use with a timeout or button release
   }
 }

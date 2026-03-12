@@ -32,7 +32,8 @@ public class AgitateOS extends Command {
         this.hopperForward = hopperForward;
         this.intake_spd = Math.abs(intake_spd);  // always start going in.
         this.timer = new Timer();
-        addRequirements(intake, hopper);
+        //addRequirements(intake, hopper);
+        addRequirements(hopper);
     }
     
     // a few shortcut options
@@ -56,6 +57,7 @@ public class AgitateOS extends Command {
         intake.setPercent(in_spd);
         hopper.setBeltPct(hop_spd);
         timer.restart();
+        System.out.println("AgitateOS start ");    
     }
     @Override
     public void execute() {

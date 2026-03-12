@@ -14,33 +14,56 @@ import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.command.swerve.FaceToTag;
 import frc.lib2202.command.swerve.RotateTo;
+import frc.lib2202.subsystem.hid.HID_Subsystem;
+import frc.lib2202.subsystem.swerve.DriveTrainInterface;
 import frc.robot2026.command.AgitateOS;
 import frc.robot2026.command.autoClimberCommand;
 import frc.robot2026.command.shooter.AutoShoot;
+import frc.robot2026.subsystems.Climber;
+import frc.robot2026.subsystems.Hopper;
+import frc.robot2026.subsystems.Intake;
+import frc.robot2026.subsystems.Shooter.Indexer;
+import frc.robot2026.subsystems.Shooter.Shooter;
+import frc.robot2026.subsystems.Shooter.Targeter;
 
 /*
  * Place commands named in PathPlaner autos here.
  */
 @SuppressWarnings("unused")
 public class RegisteredCommands {
+    static DriveTrainInterface drivetrain;
+    static HID_Subsystem dc;
+    static Climber climber;
+    static Shooter shooter_left;
+    static Shooter shooter_right;
+    static Indexer indexer_left;
+    static Indexer indexer_right;
+    static Hopper hopper;
+    static Intake intake;
+    static Targeter targeter;
+    
+    static void get_references(){
+        //subsystem refs for building registerd commands
+        shooter_left = RobotContainer.getSubsystem("shooter_left");
+        shooter_right = RobotContainer.getSubsystem("shooter_right");
+        drivetrain = RobotContainer.getSubsystem("drivetrain");  
+        indexer_left = RobotContainer.getSubsystem("indexer_left");
+        indexer_right = RobotContainer.getSubsystem("indexer_right");
+        intake = RobotContainer.getSubsystem("intake");
+        climber = RobotContainer.getSubsystem("climber");
+        hopper = RobotContainer.getSubsystem(Hopper.class); 
+        targeter = RobotContainer.getSubsystem(Targeter.class);
+    }
+
 
     // Named Command Factories
     public static Command ncShoot() {
-        final double face_timeout = 2.0;   //pathing should leave use close
+        get_references();
+        
+        final double face_timeout = 2.0;   //pathing should leave us close
         final double shoot_timeout = 4.0;
         final double agitate_period = 0.4;
         final double agitate_in_spd = 0.4;
-
-        // grab the subsystem refs setup in bindings, to use for these cmds
-        var shooter_left = BindingsCompetition.shooter_left;
-        var shooter_right = BindingsCompetition.shooter_right;
-        var indexer_left = BindingsCompetition.indexer_left;
-        var indexer_right = BindingsCompetition.indexer_right;
-        var targeter = BindingsCompetition.targeter;
-        var hopper = BindingsCompetition.hopper;
-        var intake = BindingsCompetition.intake;
-        
-
         var cmd = new SequentialCommandGroup(
                 new PrintCommand("Shooting lots of fuel ..."),                            
                 // not working consistently, needs more testing   
@@ -51,16 +74,20 @@ public class RegisteredCommands {
                         new AutoShoot("left", targeter::getTargetSpeed, targeter::getTolerance, 1),
                         new AutoShoot("right", targeter::getTargetSpeed, targeter::getTolerance, 1)
                 ).withTimeout(shoot_timeout), // ... so we need this timeout.
-                new PrintCommand("                     ... nothing but net.")
-        ); //.withInterruptBehavior(InterruptionBehavior.kCancelIncoming) ;
-        cmd.addRequirements(shooter_left, shooter_right, indexer_left, indexer_right, hopper);
+                new PrintCommand("                     ... nothing but net."),
+                new PrintCommand("                     ... nothing but net2."),
+                new PrintCommand("                     ... nothing but net3.")
+        );         
         cmd.setName("ncShoot");
         return cmd;
     }
 
-    public static void RegisterCommands() {
+    public static void RegisterCommands() {    
+        get_references();
+
         // Construct all the commands and register them to NamedCommands for PathPlanner
         NamedCommands.registerCommand("shoot", ncShoot());
+        NamedCommands.registerCommand("intake_on", intake.cmdRunWhileFuel(.45, .5));
 
         NamedCommands.registerCommand("climb_right", new autoClimberCommand(false));
 
