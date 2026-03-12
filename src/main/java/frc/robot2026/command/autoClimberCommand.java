@@ -52,6 +52,7 @@ public class autoClimberCommand extends Command {
     //Assuming our bot is symmetric
   final static double chassisWidthBumper = 0.86;
   final static double chassisLengthBumper = 0.81;
+
   
   public autoClimberCommand(boolean leftSide) {
     this.leftSide = leftSide;
@@ -80,18 +81,18 @@ public class autoClimberCommand extends Command {
         realCenter.toPose2d().transformBy(new Transform2d(new Translation2d(1.15 + chassisLengthBumper*0.5, -1.0*(chassisWidthBumper*.5 +.45)), realCenter.toPose2d().getRotation().plus(Rotation2d.fromDegrees(180.0))));
     
     var cmd = new SequentialCommandGroup(
-      new PrintCommand("climb pose"+pose.toString() + " dist=" + PoseMath.poseDistance(currentPose, pose)),
-      (dontCrashTM() && ((PoseMath.poseDistance(currentPose, pose) < 1.0)) ? 
+      new PrintCommand("climb pose "+pose.toString() + " dist=" + PoseMath.poseDistance(currentPose, pose)),
+      (DriverStation.isAutonomous()||(dontCrashTM() && ((PoseMath.poseDistance(currentPose, pose) < 1.0))) ? 
             new MoveToPose("vision_odo", constraints, pose)
             : new PrintCommand("Climber is close enough")),
-        climber.armsToPoint(Climber.ExtendPosition),
+        climber.armsToPoint(Climber.ExtendPosition).withTimeout(2.0),
         new WaitCommand(2.0),
         new climberManuver(leftSide),
-        climber.armsToPoint(Climber.ClimbPositon));
+        climber.armsToPoint(Climber.ClimbPositon).withTimeout(2.0));
     
     cmd.addRequirements(climber, sdt);
     cmd.setName("autoClimb-"+ pose.toString());
-    cmd.andThen(new PrintCommand("autoClimb DONE!!"));
+    cmd = cmd.andThen(new PrintCommand("autoClimb DONE!!"));
     
     // run what we built
     CommandScheduler.getInstance().schedule(cmd);

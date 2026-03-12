@@ -126,9 +126,18 @@ public class climberManuver extends Command {
     // Prevent the path from being flipped if the coordinates are already correct
     path.preventFlipping = true;
     runPath = AutoBuilder.followPath(path);
+    runPath.initialize();
+  }
+
+  public void execute() {
+    runPath.execute();
   }
 
   public boolean isFinished() {
     return runPath.isFinished();
+  }
+
+  public void end(boolean interrupted) {
+    runPath.end(interrupted);
   }
 }
