@@ -23,6 +23,12 @@
           }
         },
         {
+          "type": "path",
+          "data": {
+            "pathName": "Climb to fuel"
+          }
+        },
+        {
           "type": "named",
           "data": {
             "name": "noise"
@@ -37,19 +43,7 @@
         {
           "type": "named",
           "data": {
-            "name": "noise"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "noise"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Climb to fuel"
+            "name": "shoot"
           }
         }
       ]

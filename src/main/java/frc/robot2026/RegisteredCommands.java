@@ -50,7 +50,7 @@ public class RegisteredCommands {
                 ).withTimeout(shoot_timeout), // ... so we need this timeout.
                 new PrintCommand("                     ... nothing but net.")
         ); //.withInterruptBehavior(InterruptionBehavior.kCancelIncoming) ;
-        cmd.addRequirements(shooter_left, shooter_right, indexer_left, indexer_right, intake, hopper);
+        cmd.addRequirements(shooter_left, shooter_right, indexer_left, indexer_right, hopper);
         cmd.setName("ncShoot");
         return cmd;
     }
