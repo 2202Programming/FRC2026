@@ -25,7 +25,7 @@ public class RegisteredCommands {
 
     public static Command ncShoot() {
         final double face_timeout = 2.0;   //pathing should leave use close
-        final double shoot_timeout = 6.0;
+        final double shoot_timeout = 4.0;
         final double agitate_period = 0.4;
         final double agitate_in_spd = 0.4;
 
@@ -49,7 +49,7 @@ public class RegisteredCommands {
                         new AutoShoot("right", targeter::getTargetSpeed, targeter::getTolerance, 1)
                 ).withTimeout(shoot_timeout), // ... so we need this timeout.
                 new PrintCommand("                     ... nothing but net.")
-        ).withInterruptBehavior(InterruptionBehavior.kCancelIncoming) ;
+        ); //.withInterruptBehavior(InterruptionBehavior.kCancelIncoming) ;
         cmd.addRequirements(shooter_left, shooter_right, indexer_left, indexer_right, intake, hopper);
         cmd.setName("ncShoot");
         return cmd;
