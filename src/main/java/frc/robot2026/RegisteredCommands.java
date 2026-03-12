@@ -1,5 +1,7 @@
 package frc.robot2026;
 
+import javax.net.ssl.TrustManager;
+
 import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.wpilibj2.command.Command;
@@ -22,7 +24,6 @@ import frc.robot2026.command.shooter.AutoShoot;
 public class RegisteredCommands {
 
     // Named Command Factories
-
     public static Command ncShoot() {
         final double face_timeout = 2.0;   //pathing should leave use close
         final double shoot_timeout = 4.0;
@@ -37,6 +38,7 @@ public class RegisteredCommands {
         var targeter = BindingsCompetition.targeter;
         var hopper = BindingsCompetition.hopper;
         var intake = BindingsCompetition.intake;
+        
 
         var cmd = new SequentialCommandGroup(
                 new PrintCommand("Shooting lots of fuel ..."),                            
@@ -59,11 +61,9 @@ public class RegisteredCommands {
         // Construct all the commands and register them to NamedCommands for PathPlanner
         NamedCommands.registerCommand("shoot", ncShoot());
 
-        NamedCommands.registerCommand("climb_right",
-                new PrintCommand("Climbing from right side."));
+        NamedCommands.registerCommand("climb_right", new autoClimberCommand(false));
 
-        NamedCommands.registerCommand("climb_left",
-                new PrintCommand("Climbing from left side."));
+        NamedCommands.registerCommand("climb_left", new autoClimberCommand(true));
 
         NamedCommands.registerCommand("noise",
                 new PrintCommand("noise ... --- ..."));
