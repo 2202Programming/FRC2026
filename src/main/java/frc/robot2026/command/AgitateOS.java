@@ -8,7 +8,7 @@ import frc.robot2026.subsystems.Hopper;
 import frc.robot2026.subsystems.Intake;
 
 public class AgitateOS extends Command {
-    final double HopperSpeedDefault = 0.5;
+    final double HopperSpeedDefault = 0.25;
     final Intake intake;
     final Hopper hopper;
     final Timer timer;
