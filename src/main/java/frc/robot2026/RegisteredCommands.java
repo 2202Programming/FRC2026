@@ -65,5 +65,8 @@ public class RegisteredCommands {
         NamedCommands.registerCommand("climb_left",
                 new PrintCommand("Climbing from left side."));
 
+        NamedCommands.registerCommand("noise",
+                new PrintCommand("noise ... --- ..."));
+
     }
 }

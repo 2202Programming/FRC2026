@@ -23,9 +23,21 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "noise"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Fuel to shoot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "noise"
           }
         },
         {
