@@ -5,6 +5,12 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "noise"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Pos3 to climb"
@@ -13,13 +19,7 @@
         {
           "type": "named",
           "data": {
-            "name": "shoot"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Climb to fuel"
+            "name": "noise"
           }
         },
         {
@@ -43,7 +43,13 @@
         {
           "type": "named",
           "data": {
-            "name": "shoot"
+            "name": "noise"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Climb to fuel"
           }
         }
       ]
