@@ -1,0 +1,285 @@
+{
+  "NetworkTables": {
+    "retained": {
+      "SmartDashboard": {
+        "Auto Chooser": {
+          "open": true
+        }
+      }
+    },
+    "transitory": {
+      "Climber": {
+        "open": true
+      },
+      "Shooter_left": {
+        "open": true
+      },
+      "Shooter_right": {
+        "open": true
+      },
+      "SmartDashboard": {
+        "indexer_left": {
+          "open": true
+        },
+        "indexer_right": {
+          "open": true
+        },
+        "open": true
+      }
+    },
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/SmartDashboard/Auto Chooser": "String Chooser",
+      "/SmartDashboard/FieldOdometry": "Field2d",
+      "/SmartDashboard/FieldVPE": "Field2d",
+      "/SmartDashboard/HID_Subsystem": "Subsystem",
+      "/SmartDashboard/Hopper": "Subsystem",
+      "/SmartDashboard/Intake-40": "Subsystem",
+      "/SmartDashboard/LimelightV2(limelight)": "Subsystem",
+      "/SmartDashboard/Odometry": "Subsystem",
+      "/SmartDashboard/PathPlanner": "Alerts",
+      "/SmartDashboard/PathWatcher": "Field2d",
+      "/SmartDashboard/PhotonAlerts": "Alerts",
+      "/SmartDashboard/Scheduler": "Scheduler",
+      "/SmartDashboard/Sensors": "Subsystem",
+      "/SmartDashboard/SwerveDrivetrain": "Subsystem",
+      "/SmartDashboard/SwerveDrivetrain/angle PIDF": "PIDController",
+      "/SmartDashboard/VisionPoseEstimator": "Subsystem",
+      "/SmartDashboard/arm-L-45/swPosPIDcfg": "PIDController",
+      "/SmartDashboard/climber": "PIDController"
+    }
+  },
+  "NetworkTables Info": {
+    "Clients": {
+      "open": true
+    },
+    "Server": {
+      "open": true
+    },
+    "visible": true
+  },
+  "NetworkTables Settings": {
+    "clientName": "glass2",
+    "mode": "Client (NT4)",
+    "serverTeam": "2202"
+  },
+  "Plots": {
+    "Plot <0>": {
+      "plots": [
+        {
+          "axis": [
+            {
+              "autoFit": true
+            }
+          ],
+          "backgroundColor": [
+            0.0,
+            0.0,
+            0.0,
+            0.8500000238418579
+          ],
+          "height": 446,
+          "legendLocation": 10,
+          "series": [
+            {
+              "color": [
+                0.7686274647712708,
+                0.30588236451148987,
+                0.32156863808631897,
+                1.0
+              ],
+              "id": "NT:/Shooter_right/velocity",
+              "marker": "None"
+            },
+            {
+              "color": [
+                0.3333333432674408,
+                0.658823549747467,
+                0.40784314274787903,
+                1.0
+              ],
+              "digital": "Auto",
+              "id": "NT:/Shooter_left/velocity",
+              "marker": "None"
+            },
+            {
+              "color": [
+                0.7686275243759155,
+                0.30588236451148987,
+                0.32156863808631897,
+                1.0
+              ],
+              "id": "NT:/Shooter_right/at_setpoint"
+            },
+            {
+              "color": [
+                0.3333333432674408,
+                0.658823549747467,
+                0.4078431725502014,
+                1.0
+              ],
+              "id": "NT:/Shooter_left/at_setpoint"
+            },
+            {
+              "color": [
+                0.45588237047195435,
+                0.16760380566120148,
+                0.17737612128257751,
+                1.0
+              ],
+              "id": "NT:/SmartDashboard/indexer_right/hasFuel"
+            },
+            {
+              "color": [
+                0.2321222573518753,
+                0.45098036527633667,
+                0.28222230076789856,
+                1.0
+              ],
+              "id": "NT:/SmartDashboard/indexer_left/hasFuel"
+            }
+          ]
+        },
+        {
+          "axis": [
+            {
+              "autoFit": true,
+              "gridLines": false
+            }
+          ],
+          "backgroundColor": [
+            0.0,
+            0.0,
+            0.0,
+            0.8500000238418579
+          ],
+          "height": 446,
+          "series": [
+            {
+              "color": [
+                0.7686274647712708,
+                0.30588236451148987,
+                0.32156863808631897,
+                1.0
+              ],
+              "id": "NT:/Shooter_right/mtr_OutputAmps"
+            },
+            {
+              "color": [
+                0.3333333432674408,
+                0.658823549747467,
+                0.40784314274787903,
+                1.0
+              ],
+              "id": "NT:/Shooter_left/mtr_OutputAmps"
+            }
+          ]
+        }
+      ]
+    },
+    "Plot <1>": {
+      "plots": [
+        {
+          "axis": [
+            {
+              "autoFit": true
+            }
+          ],
+          "backgroundColor": [
+            0.0,
+            0.0,
+            0.0,
+            0.8500000238418579
+          ],
+          "height": 704,
+          "series": [
+            {
+              "color": [
+                0.2980392277240753,
+                0.44705885648727417,
+                0.6901960968971252,
+                1.0
+              ],
+              "id": "NT:/Shooter_right/mtr_RPM"
+            },
+            {
+              "color": [
+                0.8666667342185974,
+                0.5176470875740051,
+                0.32156863808631897,
+                1.0
+              ],
+              "id": "NT:/Shooter_left/mtr_RPM"
+            }
+          ]
+        }
+      ],
+      "window": {
+        "visible": false
+      }
+    },
+    "Plot <2>": {
+      "plots": [
+        {
+          "backgroundColor": [
+            0.0,
+            0.0,
+            0.0,
+            0.8500000238418579
+          ],
+          "height": 155
+        },
+        {
+          "backgroundColor": [
+            0.0,
+            0.0,
+            0.0,
+            0.8500000238418579
+          ],
+          "height": 155
+        }
+      ],
+      "window": {
+        "visible": false
+      }
+    },
+    "Plot <3>": {
+      "plots": [
+        {
+          "axis": [
+            {
+              "autoFit": true
+            }
+          ],
+          "backgroundColor": [
+            0.0,
+            0.0,
+            0.0,
+            0.8500000238418579
+          ],
+          "height": 344,
+          "series": [
+            {
+              "color": [
+                0.7686274647712708,
+                0.30588236451148987,
+                0.32156863808631897,
+                1.0
+              ],
+              "id": "NT:/Shooter_right/mtr_RPM"
+            },
+            {
+              "color": [
+                0.3333333432674408,
+                0.658823549747467,
+                0.40784314274787903,
+                1.0
+              ],
+              "id": "NT:/Shooter_left/mtr_RPM"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
