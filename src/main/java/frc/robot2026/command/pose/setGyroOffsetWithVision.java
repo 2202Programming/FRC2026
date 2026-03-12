@@ -35,8 +35,6 @@ public class setGyroOffsetWithVision extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    multiResetDone = false;
-    singleResetDone = false;
     if (ll != null) {
       ll.setUse_MT1(true); //MT1 should be used if no gyro offset done yet.
       ll.setUse_MT2(false);
@@ -46,10 +44,14 @@ public class setGyroOffsetWithVision extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    //if this command has run before successfully, don't run again
+    multiResetDone = vpe.hasGryoResetMultiTagHappened();
+    singleResetDone = vpe.hasGryoResetSingleTagHappened();
     if (pv == null  && ll == null) {
       multiResetDone = true;
-      return;
     }
+    //dont update if already done or no vision
+    if (multiResetDone) return;
 
     /*
      * Check each PV camera for one with multiple-tags, if found use it and declare
