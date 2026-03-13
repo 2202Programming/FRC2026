@@ -20,7 +20,7 @@ public class AutoShoot extends Command {
   final DoubleSupplier speedProvider;
   final DoubleSupplier toleranceProvider;
   final double idxPct;
-  final double idxLoad = 0.3; // loading speed, load to gate
+  final double idxLoad = 1.0; // loading speed, load to gate
   final boolean is_left;
 
   // state vars

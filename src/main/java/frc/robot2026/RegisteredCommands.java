@@ -62,21 +62,20 @@ public class RegisteredCommands {
         
         final double face_timeout = 2.0;   //pathing should leave us close
         final double shoot_timeout = 4.0;
-        final double agitate_period = 0.4;
-        final double agitate_in_spd = 0.4;
+        final double agitate_period = 1.0;
+        final double agitate_delay = 0.5;
+        final double agitate_in_spd = 0.6;
         var cmd = new SequentialCommandGroup(
                 new PrintCommand("Shooting lots of fuel ..."),                            
                 // not working consistently, needs more testing   
                 // new RotateTo(targeter.getRedHub(), targeter.getBlueHub(), face_timeout).setP(8.0),
                 // the commands in this parallel group DO NOT FINISH ...
                 new ParallelCommandGroup(
-                        new AgitateOS(true, agitate_period, agitate_in_spd),
-                        new AutoShoot("left", targeter::getTargetSpeed, targeter::getTolerance, 1),
-                        new AutoShoot("right", targeter::getTargetSpeed, targeter::getTolerance, 1)
-                ).withTimeout(shoot_timeout), // ... so we need this timeout.
-                new PrintCommand("                     ... nothing but net."),
-                new PrintCommand("                     ... nothing but net2."),
-                new PrintCommand("                     ... nothing but net3.")
+                        new AgitateOS(true, agitate_period, agitate_delay, agitate_in_spd),
+                        new AutoShoot("left", targeter::getTargetSpeed, targeter::getTolerance, 1.0),
+                        new AutoShoot("right", targeter::getTargetSpeed, targeter::getTolerance, 1.0)
+                ),
+                new PrintCommand("                     ... nothing but net.")
         );         
         cmd.setName("ncShoot");
         return cmd;

@@ -11,8 +11,10 @@ public class AgitateOS extends Command {
     final double HopperSpeedDefault = 0.25;
     final Intake intake;
     final Hopper hopper;
-    final Timer timer;
+    final Timer periodTimer;
+    final Timer delayTimer;
     final double period;
+    final double delay;
     final boolean hopperForward;
     final double intake_spd;        
 
@@ -25,24 +27,25 @@ public class AgitateOS extends Command {
      * @param period        time to wait for switching dir
      * @param intake_spd    pct to drive intake 
      */
-    public AgitateOS(boolean hopperForward, double period, double intake_spd) {
+    public AgitateOS(boolean hopperForward, double period, double delay, double intake_spd) {
         this.intake = RobotContainer.getSubsystem("intake");
         this.hopper = RobotContainer.getSubsystem(Hopper.class);
         this.period = period;
+        this.delay = delay;
         this.hopperForward = hopperForward;
         this.intake_spd = Math.abs(intake_spd);  // always start going in.
-        this.timer = new Timer();
-        //addRequirements(intake, hopper);
-        addRequirements(hopper);
+        this.periodTimer = new Timer();
+        this.delayTimer = new Timer();
+        addRequirements(intake, hopper);
     }
     
     // a few shortcut options
-    public AgitateOS(double period, double intake_spd) {
-        this(false, period, intake_spd);
+    public AgitateOS(double period, double delay, double intake_spd) {
+        this(false, period, delay, intake_spd);
     }
     
     public AgitateOS(double period) {
-        this(false, period, 0.65);
+        this(false, period, 0.35, 0.65);
     }
 
     /**
@@ -56,20 +59,31 @@ public class AgitateOS extends Command {
         //set the hardware to start speeds
         intake.setPercent(in_spd);
         hopper.setBeltPct(hop_spd);
-        timer.restart();
+        periodTimer.restart();
+        delayTimer.reset();
         System.out.println("AgitateOS start ");    
     }
     @Override
     public void execute() {
-        // check timer for direction flip time
-        if (timer.hasElapsed(period)) {
-            in_spd = in_spd * -1.0;
-            hop_spd = (hopperForward) ? HopperSpeedDefault : hop_spd * -1.0;
-        
+        if(delayTimer.isRunning() && !delayTimer.hasElapsed(delay)) {
+            return;
+        } else if (delayTimer.hasElapsed(delay) && delayTimer.isRunning()) {
             //set the hardware to new speeds
             intake.setPercent(in_spd);
             hopper.setBeltPct(hop_spd);
-            timer.restart();
+            delayTimer.stop();
+            periodTimer.restart();
+        }
+
+        // check timer for direction flip time
+        if (periodTimer.hasElapsed(period)) {
+            in_spd = in_spd * -1.0;
+            hop_spd = (hopperForward) ? HopperSpeedDefault : hop_spd * -1.0;
+
+            intake.setPercent(0.0);
+            hopper.setBeltPct(0.0);
+            
+            delayTimer.restart();
         }
         // this is the part that was breaking the original implementation
         // needed to take over watching light gate, see getInterruptionBehavior().

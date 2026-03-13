@@ -100,14 +100,14 @@ public final class BindingsCompetition {
                     new RobotCentricDrive(drivetrain, dc)));
 
             // Shoot with targetSpeed based on distance to hub
-            driver.leftTrigger(0.7).whileTrue(new AutoShoot("left", targeter::getTargetSpeed, targeter::getTolerance, 1));
-            driver.leftTrigger(0.7).whileTrue(new AutoShoot("right", targeter::getTargetSpeed, targeter::getTolerance, 1));
+            driver.leftTrigger(0.7).whileTrue(new AutoShoot("left", targeter::getTargetSpeed, targeter::getTolerance, 1.0));
+            driver.leftTrigger(0.7).whileTrue(new AutoShoot("right", targeter::getTargetSpeed, targeter::getTolerance, 1.0));
             driver.leftTrigger(0.1).whileTrue(hopper.cmdBeltPct(1))
                     .onFalse(hopper.cmdBeltPct(0));
 
             // Driver wants to manually fire/pass
-            driver.rightTrigger(0.7).whileTrue(new AutoShoot("left", targeter::getManualSpeed, targeter::getManualTolerance, 1));
-            driver.rightTrigger(0.7).whileTrue(new AutoShoot("right", targeter::getManualSpeed, targeter::getManualTolerance, 1));
+            driver.rightTrigger(0.7).whileTrue(new AutoShoot("left", targeter::getManualSpeed, targeter::getManualTolerance, 1.0));
+            driver.rightTrigger(0.7).whileTrue(new AutoShoot("right", targeter::getManualSpeed, targeter::getManualTolerance, 1.0));
             driver.rightTrigger(0.1).whileTrue(hopper.cmdBeltPct(1))
                     .onFalse(hopper.cmdBeltPct(0));
 
@@ -165,7 +165,7 @@ public final class BindingsCompetition {
             // operator.a().whileTrue(new RepeatCommand(new Agitate()) ) 
             //             .onFalse(hopper.cmdBeltPct(0)) 
             //             .onFalse(intake.cmdPctPwr(0));
-            operator.a().whileTrue(new AgitateOS(false, 0.4, .6));
+            operator.a().whileTrue(new AgitateOS(false, 1.0, 0.5, .65));
 
 
             //TESTING REMOVE FOR COMP
