@@ -53,7 +53,7 @@ import frc.robot2026.subsystems.VisionPoseEstimator;
 import frc.robot2026.subsystems.Shooter.Indexer;
 import frc.robot2026.subsystems.Shooter.Shooter;
 import frc.robot2026.subsystems.Shooter.Targeter;
-import frc.robot2026.testBindings.DpltestBinding;
+//import frc.robot2026.testBindings.DpltestBinding;
 
 public class RobotSpec_AlphaBot implements IRobotSpec {
   // Subsystem objects for use at other cut points
@@ -241,9 +241,9 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
     }
 
     // Competition bindings
-    BindingsCompetition.ConfigureCompetition(dc, false); //TODO TRUE for COMPETITION
+    BindingsCompetition.ConfigureCompetition(dc, true); //TODO TRUE for COMPETITION
 
-    DpltestBinding.calbrate(operator);
+    //DpltestBinding.calbrate(operator);
 
     // Place your test binding in ./testBinding/<yourFile>.java and call it here
     // comment out any conflicting bindings. Try not to push with your bindings
