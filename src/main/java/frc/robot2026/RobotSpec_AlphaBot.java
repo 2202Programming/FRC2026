@@ -53,6 +53,7 @@ import frc.robot2026.subsystems.VisionPoseEstimator;
 import frc.robot2026.subsystems.Shooter.Indexer;
 import frc.robot2026.subsystems.Shooter.Shooter;
 import frc.robot2026.subsystems.Shooter.Targeter;
+import frc.robot2026.subsystems.Shooter.Targeter.driveMode;
 import frc.robot2026.testBindings.DpltestBinding;
 
 public class RobotSpec_AlphaBot implements IRobotSpec {
@@ -290,6 +291,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
     DriveTrainInterface drivetrain = RobotContainer.getSubsystemOrNull("drivetrain");
     if (drivetrain != null) {
       drivetrain.setDefaultCommand(new FieldCentricDrive());
+      targeter.currentDriveMode = driveMode.FieldCentric;
     }
   }
 

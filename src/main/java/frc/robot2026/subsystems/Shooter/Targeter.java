@@ -25,6 +25,21 @@ manage shooter speeds for different command use
     heading to  hub 
  */
 public class Targeter extends SubsystemBase {
+
+  public enum driveMode {
+    FieldCentric("FieldCentric"),
+    TargetCentric("TargetCentric");
+    private String name;
+
+    private driveMode(String name) {
+      this.name = name;
+    }
+
+    public String toString() {
+      return name;
+    }
+  }
+    public driveMode currentDriveMode;
     final double HIGH_SPEED = 32.5; // [M/S]
     final double LOW_SPEED = 26.3; // [M/S]
     final double LOW_TOLERANCE = 0.5; // [M/S]
@@ -132,6 +147,10 @@ public class Targeter extends SubsystemBase {
         return target_speed;
     }
 
+    public String getDriveModeString(){
+        return currentDriveMode.toString();
+    }
+
     // Call this on autoInit and teleInit to make sure alliance target is set
     public void setTarget() {
         var optAlliance = DriverStation.getAlliance(); // make sure this is accurate :)
@@ -186,6 +205,7 @@ public class Targeter extends SubsystemBase {
             addEntry("manual_speed", Targeter.this::getManualSpeed, 2 );
             addEntry("target_dist-ft", ()-> {return Targeter.this.target_dist / MperFT; }, 2 );
             addEntry("target_speed", () -> {return Targeter.this.target_speed;  }, 2 );
+            addEntry("Current Drive Mode", Targeter.this::getDriveModeString);
         }
     }
 }
