@@ -16,6 +16,7 @@ import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.command.ScaleDriver;
 import frc.lib2202.command.pathing.AllianceAwareGyroReset;
 import frc.lib2202.command.swerve.RobotCentricDrive;
+import frc.lib2202.command.swerve.TargetCentricDrive;
 import frc.lib2202.subsystem.hid.HID_Subsystem;
 import frc.lib2202.subsystem.hid.TMJoystickController;
 import frc.lib2202.subsystem.swerve.DriveTrainInterface;
@@ -92,6 +93,7 @@ public final class BindingsCompetition {
             // XBox
             CommandXboxController driver = (CommandXboxController) generic_driver;
             driver.rightBumper().whileTrue(new RobotCentricDrive(drivetrain, dc));
+            driver.back().whileTrue(new TargetCentricDrive(targeter.getRedHub(), targeter.getBlueHub()));
             driver.y().onTrue(new AllianceAwareGyroReset());
 
             // Driver will wants precision robot-centric throttle drive on left bumper
