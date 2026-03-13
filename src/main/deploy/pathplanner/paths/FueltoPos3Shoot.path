@@ -9,7 +9,7 @@
       "prevControl": null,
       "nextControl": {
         "x": 6.861572847682119,
-        "y": 0.6373509933774834
+        "y": 0.6373509933774832
       },
       "isLocked": false,
       "linkedName": "FuelToFuelEnd"
@@ -88,8 +88,8 @@
   "reversed": false,
   "folder": null,
   "idealStartingState": {
-    "velocity": 0,
-    "rotation": -88.53119928561412
+    "velocity": 1.0,
+    "rotation": -88.531
   },
   "useDefaultConstraints": true
 }
