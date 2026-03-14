@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.command.WatcherCmd;
 import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
@@ -22,9 +21,9 @@ public class Shooter extends SubsystemBase {
     final boolean inverted;
     final String side; 
     int shots_taken=0;
-    double speed_factor = 1.0;  // Simple factor to apply to requested speed, may be set in elastic
-    LightRequest red = LightRequest.getRed();
-    LightRequest green = LightRequest.getDefault().color(LightRequest.GREEN);
+    double speed_factor = 1.0; // Simple factor to apply to requested speed, may be set in elastic
+    LightRequest red;
+    LightRequest green;
 
     public Shooter() {
         this("rev", 0, true);
@@ -61,11 +60,16 @@ public class Shooter extends SubsystemBase {
             flywheel = new FlyWheelRev(ShooterID, cfg);
         }
 
+        red = LightRequest.getRed();
+        green = LightRequest.getDefault().color(LightRequest.GREEN);
+
+        int deviceIndex = (ShooterID == CAN.ShooterIDLeft) ? 3 : 2;
+        red.onDevice(deviceIndex);
+        green.onDevice(deviceIndex);
+
+        red.setSeconds(0.5);
+        green.setSeconds(0.5);
         
-        
-        int startID = (ShooterID == CAN.ShooterIDLeft) ? 3 : 22;
-        red.range(startID, 1);
-        green.range(startID, 1);
         //new BlinkyLights((ShooterID == CAN.ShooterIDLeft) ? CAN.CANDLE1 : CAN.CANDLE2);
         this.getWatcherCmd();
         
@@ -88,6 +92,7 @@ public class Shooter extends SubsystemBase {
         cfg.maxOpenLoopRPM = 5800.0; // Measure at full power or motor spec
         cfg.flywheelRadius = (2.0 / 12.0) * MperFT; // [m] 2 [inch] converted [m]
         cfg.iMaxAccum = 0.25;
+        
         // PIDF constant holder for hw
         cfg.hw_pid = new PIDFController(kP, kI, kD, kF, "flywheelPIDF");
         cfg.hw_pid.setIZone(iZone);
@@ -134,6 +139,7 @@ public class Shooter extends SubsystemBase {
         cfg.maxOpenLoopRPM = 5800.0; // Measure at full power or motor spec
         cfg.flywheelRadius = (2.0 / 12.0) * MperFT; // [m] 2 [inch] converted [m]
         cfg.iMaxAccum = 0.25;
+        
         // PIDF constant holder for hw
         cfg.hw_pid = new PIDFController(kP, kI, kD, kF, "flywheelPIDF");
         cfg.hw_pid.setIZone(iZone);
@@ -159,6 +165,7 @@ public class Shooter extends SubsystemBase {
         cfg.maxOpenLoopRPM = 5800.0; // Measure at full power or motor spec
         cfg.flywheelRadius = (2.0 / 12.0) * MperFT; // [m] 2 [inch] converted [m]
         cfg.iMaxAccum = 0.25;
+        
         // PIDF constant holder for hw
         cfg.hw_pid = new PIDFController(kP, kI, kD, kF, "flywheelPIDF");
         cfg.hw_pid.setIZone(iZone);
@@ -183,6 +190,7 @@ public class Shooter extends SubsystemBase {
         cfg.maxOpenLoopRPM = 5800.0; // Measure at full power or motor spec
         cfg.flywheelRadius = (2.0 / 12.0) * MperFT; // [m] 2 [inch] converted [m]
         cfg.iMaxAccum = 0.0; // unused in ctre
+        
         // PIDF constant holder for hw
         cfg.hw_pid = new PIDFController(kP, kI, kD, kF, "flywheelPIDF");
         cfg.hw_pid.setIZone(iZone);
@@ -218,13 +226,9 @@ public class Shooter extends SubsystemBase {
 
         // Set lights to green if at setpoint, else set lights to red.
         if(atSetpoint())
-        {
             LightStack.request(green);
-        }
         else
-        {
             LightStack.request(red);
-        }
     }
 
     // Add a watcher so we can see stuff on network tables
