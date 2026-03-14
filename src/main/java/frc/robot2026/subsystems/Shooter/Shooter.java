@@ -35,6 +35,8 @@ public class Shooter extends SubsystemBase {
 
     public Shooter(String controllerType, int ShooterID, boolean inverted) {
         this.inverted = inverted;
+
+        //set side to left or right based on which shooter
         side = (ShooterID == CAN.ShooterIDLeft) ? "left" : "right";
         setName("Shooter_" + side);
         
@@ -57,6 +59,7 @@ public class Shooter extends SubsystemBase {
         light = RobotContainer.getSubsystem("light_" + side);
         //new BlinkyLights((ShooterID == CAN.ShooterIDLeft) ? CAN.CANDLE1 : CAN.CANDLE2);
         this.getWatcherCmd();
+        
     }
 
     // Setup using NEO1
@@ -179,12 +182,19 @@ public class Shooter extends SubsystemBase {
     public void periodic() {
         // update hw, only needed if changes to HW_PID - TODO test mode?
         flywheel.update_hardware();
-        if(atSetpoint())
-        {
-            light.setColor(BlinkyLights.GREEN);
-        }
-        else{
-            light.setColor(BlinkyLights.RED);
+
+        //set lights to green if at setpoint, else set lights to red.
+        if (light != null){
+
+            if(atSetpoint())
+            {
+                light.setColor(BlinkyLights.GREEN);
+            }
+            else
+            {
+                light.setColor(BlinkyLights.RED);
+            }
+
         }
     }
 

@@ -105,6 +105,12 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
       .add(Indexer.class, "indexer_right", () -> {
         return new Indexer(CAN.RIndexerID, false, DigitalIO.IndexerGateRight);
       })
+      .add(BlinkyLights.class, "light_left", () -> {
+        return new BlinkyLights(Constants.CAN.CANDLE1);
+      })
+      .add(BlinkyLights.class, "light_right", () -> {
+        return new BlinkyLights(Constants.CAN.CANDLE2);
+      })
       .addAlias(VisionPoseEstimator.class, "vision_odo")
       .add(Shooter.class, "shooter_left", () -> {
         return new Shooter("flex", Constants.CAN.ShooterIDLeft, false);
@@ -114,12 +120,6 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
       })
       .add(Intake.class, "intake", () -> {
         return new Intake();
-      })
-      .add(BlinkyLights.class, "light_left", () -> {
-        return new BlinkyLights(Constants.CAN.CANDLE1);
-      })
-      .add(BlinkyLights.class, "light_right", () -> {
-        return new BlinkyLights(Constants.CAN.CANDLE2);
       })
       .add(Climber.class, "climber", () -> {
          return new Climber(true);
