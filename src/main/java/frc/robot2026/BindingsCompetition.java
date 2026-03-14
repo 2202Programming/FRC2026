@@ -3,6 +3,7 @@ package frc.robot2026;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
@@ -16,6 +17,8 @@ import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.command.ScaleDriver;
 import frc.lib2202.command.pathing.AllianceAwareGyroReset;
 import frc.lib2202.command.swerve.RobotCentricDrive;
+import frc.lib2202.command.swerve.RotateTo;
+import frc.lib2202.command.swerve.TargetCentricDrive;
 import frc.lib2202.subsystem.hid.HID_Subsystem;
 import frc.lib2202.subsystem.hid.TMJoystickController;
 import frc.lib2202.subsystem.swerve.DriveTrainInterface;
@@ -92,6 +95,13 @@ public final class BindingsCompetition {
             // XBox
             CommandXboxController driver = (CommandXboxController) generic_driver;
             driver.rightBumper().whileTrue(new RobotCentricDrive(drivetrain, dc));
+            driver.back().whileTrue(new TargetCentricDrive(targeter.getRedHub(), targeter.getBlueHub()) 
+                                    .setP(4.0));
+            // testing on rotate to target
+            driver.start().onTrue(new RotateTo(BindingsCompetition.targeter.getRedHub(),
+                                               BindingsCompetition.targeter.getBlueHub(),1.0)
+                                               .setP(4.0));
+
             driver.y().onTrue(new AllianceAwareGyroReset());
 
             // Driver will wants precision robot-centric throttle drive on left bumper
@@ -100,14 +110,14 @@ public final class BindingsCompetition {
                     new RobotCentricDrive(drivetrain, dc)));
 
             // Shoot with targetSpeed based on distance to hub
-            driver.leftTrigger(0.7).whileTrue(new AutoShoot("left", targeter::getTargetSpeed, targeter::getTolerance, 1));
-            driver.leftTrigger(0.7).whileTrue(new AutoShoot("right", targeter::getTargetSpeed, targeter::getTolerance, 1));
+            driver.leftTrigger(0.7).whileTrue(new AutoShoot("left", targeter::getTargetSpeed, targeter::getTolerance, 1.0));
+            driver.leftTrigger(0.7).whileTrue(new AutoShoot("right", targeter::getTargetSpeed, targeter::getTolerance, 1.0));
             driver.leftTrigger(0.1).whileTrue(hopper.cmdBeltPct(1))
                     .onFalse(hopper.cmdBeltPct(0));
 
             // Driver wants to manually fire/pass
-            driver.rightTrigger(0.7).whileTrue(new AutoShoot("left", targeter::getManualSpeed, targeter::getManualTolerance, 1));
-            driver.rightTrigger(0.7).whileTrue(new AutoShoot("right", targeter::getManualSpeed, targeter::getManualTolerance, 1));
+            driver.rightTrigger(0.7).whileTrue(new AutoShoot("left", targeter::getManualSpeed, targeter::getManualTolerance, 1.0));
+            driver.rightTrigger(0.7).whileTrue(new AutoShoot("right", targeter::getManualSpeed, targeter::getManualTolerance, 1.0));
             driver.rightTrigger(0.1).whileTrue(hopper.cmdBeltPct(1))
                     .onFalse(hopper.cmdBeltPct(0));
 
@@ -165,7 +175,7 @@ public final class BindingsCompetition {
             // operator.a().whileTrue(new RepeatCommand(new Agitate()) ) 
             //             .onFalse(hopper.cmdBeltPct(0)) 
             //             .onFalse(intake.cmdPctPwr(0));
-            operator.a().whileTrue(new AgitateOS(false, 0.4, .6));
+            operator.a().whileTrue(new AgitateOS(false, 1.0, 0.5, .65));
 
 
             //TESTING REMOVE FOR COMP
@@ -176,6 +186,10 @@ public final class BindingsCompetition {
                     .onFalse(climber.setVelocityCmd(0.0));
             Cal.and(sideboard.sw13()).whileTrue(climber.setVelocityCmd(-Climber.ClimbCalibrateVel))
                     .onFalse(climber.setVelocityCmd(0.0));
+            //Leaving cal, set any cal
+            Cal.onFalse(Commands.runOnce(() -> {
+                climber.setPosition(Climber.PowerUpPosition);
+            }));
 
             // climber arm extend to max
             operator.povUp().onTrue(climber.armsToPoint(Climber.ExtendPosition));

@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.396,
-        "y": 0.705
+        "x": 2.3168543046357617,
+        "y": 2.118377483443709
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.804244365361803,
-        "y": 2.243564650059312
+        "x": 1.5182615894039735,
+        "y": 2.517673841059603
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "FueltoPos3ShootEnd"
     },
     {
       "anchor": {
-        "x": 3.3422894424673792,
-        "y": 4.008
+        "x": 1.2496440397350992,
+        "y": 2.8153311258278144
       },
       "prevControl": {
-        "x": 2.836607354685648,
-        "y": 2.9643582443653624
+        "x": 1.9611175496688742,
+        "y": 2.292615894039735
       },
       "nextControl": null,
       "isLocked": false,
@@ -48,7 +48,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 39.80557109226522
   },
   "useDefaultConstraints": true
 }

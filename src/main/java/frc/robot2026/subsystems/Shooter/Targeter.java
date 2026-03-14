@@ -30,6 +30,8 @@ public class Targeter extends SubsystemBase {
     final double LOW_TOLERANCE = 0.5; // [M/S]
     final double UNBLOCK_SPEED = -15.0; // [M/S]
 
+    final double dist_err = 4.0 / 12.0;  //testing tape measure seemed like we were 6" short 
+
     // Provided by vince as angle between the center of the motor and the trailing
     // edge of the ball exit ramp
     final double Shooter_Angle = 65.0; // [deg]
@@ -84,12 +86,12 @@ public class Targeter extends SubsystemBase {
         vel_table.put(17.0 * MperFT, 34.5);
         vel_table.put(25.0 * MperFT, 34.5); // set a max
 
-        tolerance_table.put(0.0 * MperFT, 1.2);
-        tolerance_table.put(5.0 * MperFT, 1.2);
-        tolerance_table.put(6.0 * MperFT, 1.1);
-        tolerance_table.put(10.0 * MperFT, 1.0);
-        tolerance_table.put(17.0 * MperFT, .8);
-        tolerance_table.put(25.0 * MperFT, .8);
+        tolerance_table.put(0.0 * MperFT, 0.3); //1.6);
+        tolerance_table.put(5.0 * MperFT, 0.3); //1.4);
+        tolerance_table.put(6.0 * MperFT, 0.3); //1.2 );
+        tolerance_table.put(10.0 * MperFT, .5); //0.8);
+        tolerance_table.put(17.0 * MperFT, .5);
+        tolerance_table.put(25.0 * MperFT, .5);
     }
 
     @Override
@@ -98,6 +100,7 @@ public class Targeter extends SubsystemBase {
         targetTranslation2d = (alliance == Alliance.Blue) ? blueHubTarget : redHubTarget;
 
         target_dist = (override_dist == 0.0) ? odo.getDistanceToTranslation(targetTranslation2d) : override_dist;
+        target_dist += dist_err; 
         target_speed = vel_table.get(target_dist);
         target_tolerance = tolerance_table.get(target_dist);
 

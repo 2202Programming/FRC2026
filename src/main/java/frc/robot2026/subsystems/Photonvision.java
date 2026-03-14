@@ -16,6 +16,9 @@ import java.util.Optional;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.simulation.PhotonCameraSim;
+import org.photonvision.simulation.SimCameraProperties;
+import org.photonvision.simulation.VisionSystemSim;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
@@ -26,9 +29,13 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.lib2202.builder.Robot;
+import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.command.WatcherCmd;
+import frc.lib2202.subsystem.OdometryInterface;
 //import frc.lib2202.command.pathing.runPathResetStart;
 import frc.robot2026.command.pathing.goDistance;
 import frc.robot2026.command.pathing.runPath;
@@ -55,9 +62,9 @@ public class Photonvision extends SubsystemBase {
       camera = new PhotonCamera(name);
       photonEstimator = new PhotonPoseEstimator(kTagLayout, kRobotToCam);
       poseUpdateList = new ArrayDeque<PoseUpdate>();
-      
+
       // Quiet the spam on missing Processors - comment out when debugging PV.
-      PhotonCamera.setVersionCheckEnabled(false);  
+      PhotonCamera.setVersionCheckEnabled(false);
     }
 
     public void update() {
@@ -90,14 +97,16 @@ public class Photonvision extends SubsystemBase {
         visionEst = photonEstimator.estimateCoprocMultiTagPose(result); // multag if available
         if (visionEst.isEmpty()) { // less than 2 tags, no multitag available
           multiTag = false;
-          // Single tag gives a bad pose est. 
+          // Single tag gives a bad pose est.
           // if (result.hasTargets()) {
-          //   if (result.getBestTarget().getPoseAmbiguity() < 0.1) { // reject single target estimates with high ambiguity
-          //     visionEst = photonEstimator.estimateLowestAmbiguityPose(result); // use single tag estimator
-          //   }
+          // if (result.getBestTarget().getPoseAmbiguity() < 0.1) { // reject single
+          // target estimates with high ambiguity
+          // visionEst = photonEstimator.estimateLowestAmbiguityPose(result); // use
+          // single tag estimator
+          // }
           // }
         }
-        
+
         // this section for updating std dev of results - probably not useful without
         // experimental confirmation of error matrix in constants.
         updateEstimationStdDevs(visionEst, result.getTargets());
@@ -108,7 +117,7 @@ public class Photonvision extends SubsystemBase {
             est -> {
               currentPose = est.estimatedPose.toPose2d();
               var meta = result.metadata.getLatencyMillis();
-              timeStamp = est.timestampSeconds-meta/1000.0;
+              timeStamp = est.timestampSeconds - meta / 1000.0;
               poseUpdateList.add(new PoseUpdate(currentPose, timeStamp));
 
               @SuppressWarnings("unused")
@@ -121,7 +130,7 @@ public class Photonvision extends SubsystemBase {
       return timeStamp;
     }
 
-    public boolean hasATarget(){
+    public boolean hasATarget() {
       return hasTargets;
     }
 
@@ -218,7 +227,8 @@ public class Photonvision extends SubsystemBase {
               .getTranslation()
               .getDistance(estimatedPose.get().estimatedPose.toPose2d().getTranslation());
         }
-        //TODO if we use the stdev from here, they should get passed along with its PoseUpdate
+        // TODO if we use the stdev from here, they should get passed along with its
+        // PoseUpdate
         if (numTags == 0) {
           // No tags visible. Default to single-tag std devs
           curStdDevs = kSingleTagStdDevs;
@@ -258,8 +268,13 @@ public class Photonvision extends SubsystemBase {
   /** Creates a new Photonvision. */
   final List<RobotCamera> camerasList = new ArrayList<RobotCamera>();
   final Photonvision.Config config;
-
   List<PoseUpdate> latest_updates; // keep pointer to last collected updates
+
+  // Simulation
+  private PhotonCameraSim cameraSim;
+  private VisionSystemSim visionSim;
+  private Optional<EstimatedRobotPose> visionEstSim = Optional.empty();
+  private final OdometryInterface odo;
 
   public Photonvision(Config specs) {
     setName("photonvision");
@@ -269,6 +284,36 @@ public class Photonvision extends SubsystemBase {
       camerasList.add(new RobotCamera(config.CAMERA_NAMES[i], config.kRobotToCam[i]));
     }
     getWatcherCmd();
+    odo = RobotContainer.getSubsystemOrNull("odometry");
+    // ----- Simulation
+    if (Robot.isSimulation()) {
+      // Create the vision system simulation which handles cameras and targets on the
+      // field.
+      visionSim = new VisionSystemSim("main");
+      // Add all the AprilTags inside the tag layout as visible targets to this
+      // simulated field.
+      visionSim.addAprilTags(kTagLayout);
+      // Create simulated camera properties. These can be set to mimic your actual
+      // camera.
+      var cameraProp = new SimCameraProperties();
+      cameraProp.setCalibration(960, 720, Rotation2d.fromDegrees(90));
+      cameraProp.setCalibError(0.35, 0.10);
+      cameraProp.setFPS(15);
+      cameraProp.setAvgLatencyMs(50);
+      cameraProp.setLatencyStdDevMs(15);
+      // Create a PhotonCameraSim which will update the linked PhotonCamera's values
+      // with visible
+      // targets.
+      // Add the simulated camera to view the targets on this simulated field.
+      for (int i = 0; i < config.CAMERA_NAMES.length; i++) {
+        System.out.println("***Creating PV Sim camera: " + config.CAMERA_NAMES[i]);
+        PhotonCameraSim cameraSim = new PhotonCameraSim(camerasList.get(i).camera, cameraProp);
+        visionSim.addCamera(cameraSim, config.kRobotToCam[i]);
+        cameraSim.enableDrawWireframe(true);
+        cameraSim.enableRawStream(true);
+        cameraSim.enableProcessedStream(true);
+      }
+    }
   }
 
   @Override
@@ -276,6 +321,22 @@ public class Photonvision extends SubsystemBase {
     for (RobotCamera currentCamera : camerasList) {
       currentCamera.update(); // run each camera's periodic
     }
+    if (Robot.isSimulation()) {
+      // visionEstSim.ifPresentOrElse(
+      // est -> getSimDebugField()
+      // .getObject("VisionEstimation")
+      // .setPose(est.estimatedPose.toPose2d()),
+      // () -> {
+      // getSimDebugField().getObject("VisionEstimation").setPoses();
+      // });
+      // Update with the simulated drivetrain pose. This should be called every loop
+      // in simulation.
+      visionSim.update(odo.getPose());
+      // Get the built-in Field2d used by this VisionSystemSim
+      visionSim.getDebugField();
+
+    }
+
   }
 
   // build list of all the updates we have, called by VPE or other estimator
@@ -322,6 +383,25 @@ public class Photonvision extends SubsystemBase {
     return anyMultiTags;
   }
 
+  // ----- Simulation
+
+  public void simulationPeriodic(Pose2d robotSimPose) {
+    visionSim.update(robotSimPose);
+  }
+
+  /** Reset pose history of the robot in the vision system simulation. */
+  public void resetSimPose(Pose2d pose) {
+    if (Robot.isSimulation())
+      visionSim.resetRobotPose(pose);
+  }
+
+  /** A Field2d for visualizing our robot and objects on the field. */
+  public Field2d getSimDebugField() {
+    if (!Robot.isSimulation())
+      return null;
+    return visionSim.getDebugField();
+  }
+
   // average rotation in mod180 math, vector/double-angle method
   public Rotation2d getAverageRot() {
     double sumSin = 0.0;
@@ -329,17 +409,20 @@ public class Photonvision extends SubsystemBase {
 
     for (RobotCamera cam : camerasList) {
       Pose2d pose = cam.getPose2d();
-      if (pose == null) continue;
+      if (pose == null)
+        continue;
       if (cam.howManyTargets() > 0) {
         double radians = pose.getRotation().getRadians();
-        double doubled = 2 * radians; // multiply each angle by 2 due to 180deg periodicity, makes opposite directions align
+        double doubled = 2 * radians; // multiply each angle by 2 due to 180deg periodicity, makes opposite directions
+                                      // align
         double x = Math.sin(doubled); // every angle becomes a point on unit circle
         double y = Math.cos(doubled);
         sumSin += x; // Add all vectors.
-        sumCos += y; 
+        sumCos += y;
       }
     }
-    double avgRadians = Math.atan2(sumSin, sumCos) / 2.0; //direction of single resultant vector, divide by two to get back to modulo 180 space.
+    double avgRadians = Math.atan2(sumSin, sumCos) / 2.0; // direction of single resultant vector, divide by two to get
+                                                          // back to modulo 180 space.
     double avgDegrees = Math.toDegrees(avgRadians);
 
     return new Rotation2d(Math.toRadians(avgDegrees));

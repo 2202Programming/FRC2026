@@ -7,12 +7,12 @@ package frc.robot2026.command.shooter;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.lib2202.builder.RobotContainer;
 import frc.robot2026.subsystems.Shooter.Indexer;
 import frc.robot2026.subsystems.Shooter.Shooter;
 
 public class AutoShoot extends Command {
+  static boolean left_active = true;    //default to left first
 
   final Shooter shooter;
   final Indexer indexer;
@@ -20,7 +20,8 @@ public class AutoShoot extends Command {
   final DoubleSupplier speedProvider;
   final DoubleSupplier toleranceProvider;
   final double idxPct;
-  final double idxLoad = 0.3; // loading speed, load to gate
+  final double idxLoad = 1.0; // loading speed, load to gate
+  final boolean is_left;
 
   // state vars
   boolean gate, gate_prev; // gate edge
@@ -35,6 +36,7 @@ public class AutoShoot extends Command {
     this.toleranceProvider = toleranceProvider;
     this.idxPct = idxPct;
 
+    this.is_left = side.startsWith("l");
     addRequirements(shooter, indexer);
     setName("AutoShoot_" + side);
   }
@@ -52,11 +54,13 @@ public class AutoShoot extends Command {
   @Override
   public void execute() {
     double idxCmd = 0.0;
-    shooter.flywheel.setSetpoint(speedProvider.getAsDouble());
+    shooter.flywheel.setSetpoint(speedProvider.getAsDouble() * shooter.getSpeedFactor() );
     shooter.flywheel.setVelocityTolerance(toleranceProvider.getAsDouble());
     gate = indexer.hasFuel();
 
-    if (shooter.atSetpoint()) {
+    boolean myturn = is_left  ?  AutoShoot.left_active : !AutoShoot.left_active;
+
+    if (shooter.atSetpoint() && myturn) {
       indexer.setPct(idxPct);
     } else {
       // roll indexer until we have fuel
@@ -68,6 +72,10 @@ public class AutoShoot extends Command {
     if (gate_prev && (gate != gate_prev)) {
       // should be fuel leaving the bot, count it
       shots_taken++;
+      AutoShoot.left_active = ! AutoShoot.left_active;
+    } else  //if we don't have fuel, switch turns
+    if (myturn && !gate){
+       AutoShoot.left_active = ! AutoShoot.left_active;
     }
 
     // low to high indicates loading/readying a shot
@@ -81,17 +89,19 @@ public class AutoShoot extends Command {
   public void end(boolean interrupted) {
     indexer.setPct(0.0);
     shooter.addShots(shots_taken);
-    // leave shooter running for 300ms after indexer is off
-    // to make sure it is cleared
-    double spd = speedProvider.getAsDouble();
-    // create cmd and schedule it before we leave, 0.0 set at end
-    var cmd = shooter.cmdVelocityDuration(spd, 0.300);
-    CommandScheduler.getInstance().schedule(cmd);
-  }
+    shooter.flywheel.setSetpoint(0.0);
+    /* NOTE: scheduling a cmd like this during Auto breaks the
+           rest of the auto because of the conflict in requirements.
+           Nice find JasonR,
+      double spd = speedProvider.getAsDouble();
+      var cmd = shooter.cmdVelocityDuration(spd, 0.300);
+      CommandScheduler.getInstance().schedule(cmd);  // bad - will cancel auto running
+      CommandScheduler.getInstance().schedule(new PrintCommand("Hello from AutoShoot")); // works fine
+    */
+    }
 
-  // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return false;  //never ends, expect to use with a timeout or button release
   }
 }

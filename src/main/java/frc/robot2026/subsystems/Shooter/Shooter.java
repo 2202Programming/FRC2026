@@ -19,6 +19,7 @@ public class Shooter extends SubsystemBase {
     final boolean inverted;
     final String side; 
     int shots_taken=0;
+    double speed_factor = 1.0;  // simple factor to apply to requested speed, may be set in elastic
 
     public Shooter() {
         this("rev", 0, true);
@@ -148,6 +149,7 @@ public class Shooter extends SubsystemBase {
     @Override
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
+        builder.addDoubleProperty("SPEED_FACTOR", this::getSpeedFactor, this::setSpeedFactor);
         builder.addBooleanProperty("atVelocity", this::atSetpoint, null);
         builder.addDoubleProperty("vel_cmd", flywheel::getSetpoint, flywheel::setSetpoint);
         builder.addDoubleProperty("vel_measured", flywheel::getVelocity, null);
@@ -175,6 +177,14 @@ public class Shooter extends SubsystemBase {
     // Add a watcher so we can see stuff on network tables
     public WatcherCmd getWatcherCmd() {
         return this.new ShooterWatcher();
+    }
+
+    public void setSpeedFactor(double value) {
+        this.speed_factor = value;
+    }
+
+    public double getSpeedFactor() {
+        return this.speed_factor;
     }
 
     public int getShotsTaken() {

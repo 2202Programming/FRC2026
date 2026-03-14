@@ -235,6 +235,15 @@ public class Climber extends SubsystemBase {
         return ExtendPosition;
     }
 
+    public void setPosition(double pos) {
+        if (r_arm != null) {
+            r_arm.setPosition(pos);
+        }
+        if (l_arm != null) {
+            l_arm.setPosition(pos);
+        }
+    }
+
     public Command getWatcher(){
         return this.new ClimberWatcher();
     }

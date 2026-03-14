@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.builder.RobotLimits;
+import frc.lib2202.subsystem.OdometryInterface;
 import frc.robot2026.Constants.TheField;
 
 // WARNING WARNING WARNING
@@ -30,10 +31,9 @@ import frc.robot2026.Constants.TheField;
 // Consider yourself warned
 
 public class climberManuver extends Command {
-
   // left and right defined from driver persepective to the tower @Gavin, how does red/blue change these? Robot Coords?
-  final Transform2d rightMove = new Transform2d(new Translation2d(1.0, 0.0), Rotation2d.fromDegrees(0.0));
-  final Transform2d leftMove = new Transform2d(new Translation2d(-1.0, 0.0), Rotation2d.fromDegrees(0.0));
+  final Transform2d rightMove = new Transform2d(new Translation2d(-1.0 * (autoClimberCommand.chassisLengthBumper*0.5 + 0.08), 0.0), Rotation2d.fromDegrees(0.0)); //These values are 0 as we do not rotate on the ending move
+  final Transform2d leftMove = new Transform2d(new Translation2d(autoClimberCommand.chassisLengthBumper*0.5 + 0.08, 0.0), Rotation2d.fromDegrees(0.0));
 
   final Pose3d blueCenter; //center of climber via tag
   final Pose3d redCenter;
@@ -46,12 +46,17 @@ public class climberManuver extends Command {
   PathPlannerPath path;
   Command runPath;
 
+  final OdometryInterface odo;
+
   public climberManuver(boolean leftSide) {
     // decode climber related tags to get coordinates
     Optional<Pose3d> BlueCenter = TheField.fieldLayout.getTagPose(31);
-    Optional<Pose3d> RedCenter = TheField.fieldLayout.getTagPose(16);
+    Optional<Pose3d> RedCenter = TheField.fieldLayout.getTagPose(15);
     blueCenter = (BlueCenter.isPresent()) ? BlueCenter.get() : null;
     redCenter = (RedCenter.isPresent()) ? RedCenter.get() : null;
+    OdometryInterface tempOdo = RobotContainer.getSubsystemOrNull("vision_odo");
+    this.odo = (tempOdo != null) ? tempOdo : RobotContainer.getSubsystem("odometry");
+
     this.leftSide = leftSide;
 
     //@Gavin - I don't think you need heading(), you will spec the endPose you want
@@ -75,22 +80,26 @@ public class climberManuver extends Command {
     Rotation2d sideRotation;  //for endRot based on tag & left/rt side
     Pose2d startPose;
     Pose2d endPose;
+    Pose2d odoPose = odo.getPose();
     
     // Create a list of waypoints from poses. Each pose represents one waypoint.
     // The rotation component of the pose should be the direction of travel. Do not
     // use holonomic rotation.
-    //lStartPose = realCenter.toPose2d().transformBy(new Transform2d(new Translation2d(0.5, 1.0), Rotation2d.fromDegrees(0.0)));
-    //rStartPose = realCenter.toPose2d().transformBy(new Transform2d(new Translation2d(1.5, -1.0), Rotation2d.fromDegrees(180.0)));
+
     if (leftSide) {
-      startPose = realCenter.toPose2d().transformBy(new Transform2d(new Translation2d(0.5, 1.0), Rotation2d.fromDegrees(0.0)));
+      sideRotation = realCenter.toPose2d().getRotation();
+      startPose = realCenter.toPose2d().transformBy(new Transform2d(new Translation2d(1.15 - autoClimberCommand.chassisLengthBumper*0.5, 
+                                                                                autoClimberCommand.chassisWidthBumper*.5+.45)
+                                                                                ,sideRotation));
       endPose = startPose.transformBy(leftMove);
-      sideRotation = Rotation2d.fromDegrees(0.0);   // TODO - is this correct?
-    } else {        
-      startPose = realCenter.toPose2d().transformBy(new Transform2d(new Translation2d(1.5, -1.0), Rotation2d.fromDegrees(180.0)));
+    } else { 
+      sideRotation = realCenter.toPose2d().getRotation().plus(Rotation2d.fromDegrees(180.0));       
+      startPose = realCenter.toPose2d().transformBy(new Transform2d(new Translation2d(1.15 + autoClimberCommand.chassisLengthBumper*0.5, 
+                                                                      -1.0*(autoClimberCommand.chassisWidthBumper*.5 +.45)), 
+                                                                      sideRotation));
       endPose = startPose.transformBy(rightMove);
-      sideRotation = Rotation2d.fromDegrees(180.0);   // TODO - is this correct?
     }
-    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses( startPose, endPose);
+    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(odoPose, startPose, endPose);
 
     //endRot can be based on the heading of the tag and the Left/right side
     var tagHeading = realCenter.getRotation().toRotation2d();
@@ -117,9 +126,18 @@ public class climberManuver extends Command {
     // Prevent the path from being flipped if the coordinates are already correct
     path.preventFlipping = true;
     runPath = AutoBuilder.followPath(path);
+    runPath.initialize();
+  }
+
+  public void execute() {
+    runPath.execute();
   }
 
   public boolean isFinished() {
     return runPath.isFinished();
+  }
+
+  public void end(boolean interrupted) {
+    runPath.end(interrupted);
   }
 }

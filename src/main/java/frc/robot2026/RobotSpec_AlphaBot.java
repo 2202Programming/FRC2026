@@ -53,6 +53,7 @@ import frc.robot2026.subsystems.VisionPoseEstimator;
 import frc.robot2026.subsystems.Shooter.Indexer;
 import frc.robot2026.subsystems.Shooter.Shooter;
 import frc.robot2026.subsystems.Shooter.Targeter;
+//import frc.robot2026.testBindings.DpltestBinding;
 
 public class RobotSpec_AlphaBot implements IRobotSpec {
   // Subsystem objects for use at other cut points
@@ -195,7 +196,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
   public ModuleConfig[] getModuleConfigs() {
     ModuleConfig[] modules = new ModuleConfig[4];
     modules[CornerID.FrontLeft.getIdx()] = new ModuleConfig(CornerID.FrontLeft,
-        CAN.FL_CANCoder, CAN.FL_Drive, CAN.FL_Angle, 71.9374)
+        CAN.FL_CANCoder, CAN.FL_Drive, CAN.FL_Angle, -20.74)
         .setInversions(false, true, true);
 
     modules[CornerID.FrontRight.getIdx()] = new ModuleConfig(CornerID.FrontRight,
@@ -203,11 +204,11 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
         .setInversions(true, true, true);
 
     modules[CornerID.BackLeft.getIdx()] = new ModuleConfig(CornerID.BackLeft,
-        CAN.BL_CANCoder, CAN.BL_Drive, CAN.BL_Angle, -127.7048)
+        CAN.BL_CANCoder, CAN.BL_Drive, CAN.BL_Angle, -127.54)
         .setInversions(false, true, true);
 
     modules[CornerID.BackRight.getIdx()] = new ModuleConfig(CornerID.BackRight,
-        CAN.BR_CANCoder, CAN.BR_Drive, CAN.BR_Angle, 100.4591)
+        CAN.BR_CANCoder, CAN.BR_Drive, CAN.BR_Angle, 103.61)
         .setInversions(true, true, true);
 
     return modules;
@@ -241,6 +242,8 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
 
     // Competition bindings
     BindingsCompetition.ConfigureCompetition(dc, true); //TODO TRUE for COMPETITION
+
+    //DpltestBinding.calbrate(operator);
 
     // Place your test binding in ./testBinding/<yourFile>.java and call it here
     // comment out any conflicting bindings. Try not to push with your bindings
