@@ -269,7 +269,7 @@ public class Shooter extends SubsystemBase {
                 .withName(getName() + ":cmdVelocityWait=" + cmd_vel);
     }
 
-    //use this to run the shooter for a short period of time to wind
+    //Use this to run the shooter for a short period of time to wind
     //down
     public Command cmdVelocityDuration(double cmd_vel, double seconds){
         return Commands.sequence(
@@ -299,7 +299,7 @@ public class Shooter extends SubsystemBase {
         }));
     }
 
-    // watcher will put values on the network tables for viewing elastic
+    // Watcher will put values on the network tables for viewing elastic
     class ShooterWatcher extends WatcherCmd {
         ShooterWatcher() {
             addEntry("_shots_", Shooter.this::getShotsTaken);
@@ -308,7 +308,7 @@ public class Shooter extends SubsystemBase {
             addEntry("position", Shooter.this.flywheel::getPosition);
             addEntry("get_pos_rot", Shooter.this.flywheel::getPosRot);
 
-            // other info about flywheel's motor
+            // Other info about flywheel's motor
             addEntry("mtr_appliedOutput", Shooter.this.flywheel::getAppliedOutput, 2);
             addEntry("mtr_OutputAmps", Shooter.this.flywheel::getOutputCurrent, 2);
             addEntry("mtr_RPM", Shooter.this.flywheel::getMotorRPM, 1);
