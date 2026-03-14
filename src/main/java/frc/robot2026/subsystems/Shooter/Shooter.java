@@ -42,7 +42,11 @@ public class Shooter extends SubsystemBase {
         } else if (controllerType.equalsIgnoreCase("multi")) {
             cfg = initMultiFlyWheelConfigREV();
             flywheel = new FlyWheelRev(ShooterID, cfg);
-        } else if (controllerType.equalsIgnoreCase("flex")) {
+        } else if (controllerType.equalsIgnoreCase("flex_2")) {
+            cfg = initFlyWheelConfigREVFlex2();
+            flywheel = new FlyWheelRevFlex(ShooterID, cfg);
+        } 
+        else if (controllerType.equalsIgnoreCase("flex")) {
             cfg = initFlyWheelConfigREVFlex();
             flywheel = new FlyWheelRevFlex(ShooterID, cfg);
         } else {
@@ -87,7 +91,7 @@ public class Shooter extends SubsystemBase {
         FlyWheelConfig cfg = new FlyWheelConfig();
         cfg.inverted = inverted;
         cfg.rampRate = 0.0; // try to soften the startup, zero disables
-        cfg.gearRatio = 50.0 / 24.0; //
+        cfg.gearRatio = 50.0 / 24.0; // mtr-side /fw-side
         cfg.stallAmp = 90; // [amp] Check motor specs for amps
         cfg.freeAmp = 15; // [amp]
         cfg.maxOpenLoopRPM = 5800.0; // measure at full power or motor spec
@@ -98,6 +102,30 @@ public class Shooter extends SubsystemBase {
         cfg.hw_pid.setIZone(iZone);
         return cfg;
     }
+ private FlyWheelConfig initFlyWheelConfigREVFlex2() {
+        // Tuned by XS and AN on production alpha bot shooter
+        double kP = 0.019;
+        double kI = 0.0003;
+        double kD = 7.0;
+        double kF = 0.171;
+        double iZone = 1.0; // setting it to 0.0 seems to 'unlock' it
+
+        FlyWheelConfig cfg = new FlyWheelConfig();
+        cfg.inverted = inverted;
+        cfg.rampRate = 0.0; // try to soften the startup, zero disables
+        cfg.gearRatio = 40.0 / 38.0; // mtr-side /fw-side
+        cfg.stallAmp = 90; // [amp] Check motor specs for amps
+        cfg.freeAmp = 15; // [amp]
+        cfg.maxOpenLoopRPM = 5800.0; // measure at full power or motor spec
+        cfg.flywheelRadius = (2.0 / 12.0) * MperFT; // [m] 2 [inch] converted [m]
+        cfg.iMaxAccum = 0.25;
+        // PIDF constant holder for hw
+        cfg.hw_pid = new PIDFController(kP, kI, kD, kF, "flywheelPIDF");
+        cfg.hw_pid.setIZone(iZone);
+        return cfg;
+    }
+
+
 
     // tuning from MultiShooter, also rev Neo
     private FlyWheelConfig initMultiFlyWheelConfigREV() {
