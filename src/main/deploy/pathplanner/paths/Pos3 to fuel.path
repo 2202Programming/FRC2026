@@ -116,8 +116,8 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0.0,
-    "rotation": 91.21887523513135
+    "velocity": 1.0,
+    "rotation": 91.219
   },
   "reversed": false,
   "folder": "Pos3ShootFuelBump",

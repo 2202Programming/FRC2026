@@ -118,7 +118,7 @@
   "reversed": false,
   "folder": "Pos3ShootFuelClimb",
   "idealStartingState": {
-    "velocity": 0.0,
+    "velocity": 1.0,
     "rotation": 92.219
   },
   "useDefaultConstraints": false
