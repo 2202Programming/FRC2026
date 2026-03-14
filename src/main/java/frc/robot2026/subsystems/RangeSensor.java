@@ -13,7 +13,7 @@ import frc.robot2026.Constants.CAN;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class RangeSensor extends SubsystemBase {
-  /** Creates a new Sensors. */
+  // Creates a new Sensors.
 
   private final CANrange canRange_L;
   private final CANrange canRange_R;
@@ -28,7 +28,7 @@ public class RangeSensor extends SubsystemBase {
   final CANBus kCANrangeCANbus = new CANBus("rio");
 
   public RangeSensor() {
-    this(.5);  // estimated default distance between Range sensors
+    this(.5);  // Estimated default distance between Range sensors
   }
 
   public RangeSensor(double sep_dist_m) {

@@ -39,10 +39,10 @@ public class Indexer extends SubsystemBase {
   final ClosedLoopSlot PositionSlot = ClosedLoopSlot.kSlot0;
 
   final double posCF = 1.0 / 9.0; // [ROT]
-  final double velCF = 1.0 / (9.0 * 60.0); // [RPS] of the INDEXER, not the MOTOR
+  final double velCF = 1.0 / (9.0 * 60.0); // [RPS] of the INDEXER, not the MOTOR.
 
-  final double cruiseVel = 5767.0; // In [rotations/minute]. Highest RPM of the motor
-  final double maxAccel = 10000.0; // Unknown units
+  final double cruiseVel = 5767.0; // In [rotations/minute]. Highest RPM of the motor.
+  final double maxAccel = 10000.0; // Unknown units.
 
   double P = 0.3;
   double I = 0.0;
@@ -51,10 +51,10 @@ public class Indexer extends SubsystemBase {
   double iMaxAccum = 0.015;
   double iZone = 20.0;
 
-  double kV = 1.12; // Volts / max RPM
-  double kS = 0.0; // amount of power required to overcome any mechanical slop and to make it
-                   // barely move
-  double kA = 0.0; // constant of acceleration - seems to increase acceleration
+  double kV = 1.12; // Volts / max RPM.
+  double kS = 0.0; // Amount of power required to overcome any mechanical slop and to make it
+                   // barely move.
+  double kA = 0.0; // Constant of acceleration - seems to increase acceleration.
 
   // Operational Variables
   double vel_setpoint;
@@ -73,9 +73,9 @@ public class Indexer extends SubsystemBase {
     ffObj = controllerCfg.closedLoop.feedForward;
     configure(PositionSlot, inverted);
     configureTuning(PositionSlot);
-    encoder.setPosition(0.0); // tells the motor it's at pos 0
+    encoder.setPosition(0.0); // Tells the motor it's at pos 0.
 
-    // Default command will keep indexer loaded but stops before flywheel
+    // Default command will keep indexer loaded but stops before flywheel.
     this.setDefaultCommand(this.new Load()); 
   }
 
@@ -115,7 +115,7 @@ public class Indexer extends SubsystemBase {
   public double getPosSetPoint() {
     return pos_setpoint;
   }
-  // gets the error of the position, where the indexer is relative to what it needs to be at.
+  // Gets the error of the position, where the indexer is relative to what it needs to be at.
   public double getPositionError() {
     return Math.abs(encoder.getPosition() - pos_setpoint);
   }
@@ -160,27 +160,27 @@ public class Indexer extends SubsystemBase {
    *                        values to
    * 
    *                        Updates values every frame for PID, kV, kS, iMaxAccum,
-   *                        iZone, rampRate,
+   *                        iZone, rampRate.
    */
   private void update(SparkBase motorController, SparkBaseConfig motorConfig, ClosedLoopSlot slot) {
-    // skip if no changes or no attached hw typical if use PIDF without calling
+    // Skip if no changes or no attached hw typical if use PIDF without calling
     if (!m_changes || motorConfig == null || motorController == null) return;
 
     motorConfig.closedLoop.pid(P, I, D, slot);
     motorConfig.closedLoop.feedForward.sva(kS, kV, kA, slot);
 
-    // send to HW if we have a pid change, use async so robot loop isn't delayed
+    // Send to HW if we have a pid change, use async so robot loop isn't delayed
     motorController.configureAsync(motorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
     m_changes = false;
   }
 
   @Override
   public void periodic() {
-    update(controller, controllerCfg, PositionSlot);  //changes only when actively tuning via Elastic
+    update(controller, controllerCfg, PositionSlot);  // Changes only when actively tuning via Elastic
   }
 
   public void setTestBindings(CommandXboxController xbox) {
-    //TestBindings, b resets the position to 0
+    // TestBindings, b resets the position to 0
     xbox.b().onTrue(new InstantCommand(() -> { zeroPos(); }));
   }
 
@@ -222,7 +222,7 @@ public class Indexer extends SubsystemBase {
 
 
   public class Load extends Command {
-    final static double DEFAULT_SPEED = 0.3;  //pct power
+    final static double DEFAULT_SPEED = 0.3;  // Pct power
     final static double BackupSpeed = -0.3;
 
     final double speed;
@@ -242,19 +242,19 @@ public class Indexer extends SubsystemBase {
       loaded = true;
       if (!hasFuel()) {
         Indexer.this.setPct(speed);
-        loaded = false;        // when done shooting, we should re-run init via reschedule
+        loaded = false;        // When done shooting, we should re-run init via reschedule
       }
     }
 
     @Override
     public void execute() {
       //stop on fuel
-      if (Indexer.this.hasFuel() ) { // just broke gate, backup until hasFuel is false
+      if (Indexer.this.hasFuel() ) { // Just broke gate, backup until hasFuel is false
         Indexer.this.setPct(BackupSpeed);
         loaded = true;
       }
       else if (!Indexer.this.hasFuel() && loaded ) {
-        Indexer.this.setPct(0.0);   // done backing up
+        Indexer.this.setPct(0.0);   // Done backing up
       }
       else if (!loaded) {
         Indexer.this.setPct(speed);
@@ -268,7 +268,7 @@ public class Indexer extends SubsystemBase {
 
     @Override
     public boolean isFinished() {
-      return false;    //used as default command, so never end...
+      return false; // Used as default command, so never end...
     }
 
 

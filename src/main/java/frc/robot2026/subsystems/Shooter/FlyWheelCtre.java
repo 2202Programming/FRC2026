@@ -34,7 +34,7 @@ public class FlyWheelCtre implements IFlyWheel {
         // ctre uses rot or rot-per-sec
         converionFactor = 2.0 * Math.PI * cfg.flywheelRadius * cfg.gearRatio; // [m/mtr-rot]
 
-        // configure the talonFX with our cfg
+        // Configure the talonFX with our cfg
         /*
          * Voltage-based velocity requires a velocity feed forward to account for the
          * back-emf of the motor

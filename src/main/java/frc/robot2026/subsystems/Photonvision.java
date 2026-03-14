@@ -27,7 +27,6 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.kinematics.Odometry;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -37,7 +36,6 @@ import frc.lib2202.builder.Robot;
 import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.command.WatcherCmd;
 import frc.lib2202.subsystem.OdometryInterface;
-//import frc.lib2202.command.pathing.runPathResetStart;
 import frc.robot2026.command.pathing.goDistance;
 import frc.robot2026.command.pathing.runPath;
 import frc.robot2026.command.pose.setGyroOffsetWithVision;
@@ -45,7 +43,7 @@ import frc.robot2026.util.PoseUpdate;
 
 public class Photonvision extends SubsystemBase {
 
-  // individual photonvision USB cameras
+  // Individual photonvision USB cameras
   public static class RobotCamera {
     final PhotonCamera camera;
     List<PhotonPipelineResult> results;
@@ -108,11 +106,11 @@ public class Photonvision extends SubsystemBase {
           // }
         }
 
-        // this section for updating std dev of results - probably not useful without
+        // This section for updating std dev of results - probably not useful without
         // experimental confirmation of error matrix in constants.
         updateEstimationStdDevs(visionEst, result.getTargets());
 
-        // if visionest is not empty it must mean there was at least one tag in the
+        // If visionest is not empty it must mean there was at least one tag in the
         // pipeline result so worth updating currentpose.
         visionEst.ifPresent(
             est -> {
@@ -137,7 +135,7 @@ public class Photonvision extends SubsystemBase {
 
     public int howManyTargets() {
       if (targets == null)
-        return -1; // targets seems like it can be null, protect - dpl
+        return -1; // Targets seems like it can be null, protect - dpl
       return targets.size();
     }
 
@@ -157,7 +155,7 @@ public class Photonvision extends SubsystemBase {
       return currentPose;
     }
 
-    // not sure if we should return -1 or 0 if currentPose is null, thoughts @JR
+    // Not sure if we should return -1 or 0 if currentPose is null, thoughts @JR
     // this sort of feels wrong to me, maybe use an defaulted Pose2d (zeros) and
     // skip the null test??
 
@@ -320,7 +318,7 @@ public class Photonvision extends SubsystemBase {
   @Override
   public void periodic() {
     for (RobotCamera currentCamera : camerasList) {
-      currentCamera.update(); // run each camera's periodic
+      currentCamera.update(); // Run each camera's periodic
     }
     if (Robot.isSimulation()) {
       // visionEstSim.ifPresentOrElse(
@@ -340,7 +338,7 @@ public class Photonvision extends SubsystemBase {
 
   }
 
-  // build list of all the updates we have, called by VPE or other estimator
+  // Build list of all the updates we have, called by VPE or other estimator
   public List<PoseUpdate> getAllUpdates() {
     List<PoseUpdate> updates = new ArrayList<PoseUpdate>();
     for (RobotCamera cam : camerasList) {
@@ -355,7 +353,7 @@ public class Photonvision extends SubsystemBase {
     return camerasList.size(); // config.CAMERA_NAMES.length;
   }
 
-  // some commands can work with the cameras directly
+  // Some commands can work with the cameras directly
   public List<RobotCamera> getCameras() {
     return camerasList;
   }
@@ -378,7 +376,7 @@ public class Photonvision extends SubsystemBase {
     for (RobotCamera c : camerasList) {
       if (c.hasMultitarget()) {
         anyMultiTags = true;
-        break; // finished, exit loop
+        break; // Finished, exit loop
       }
     }
     return anyMultiTags;
@@ -390,20 +388,20 @@ public class Photonvision extends SubsystemBase {
     visionSim.update(robotSimPose);
   }
 
-  /** Reset pose history of the robot in the vision system simulation. */
+  // Reset pose history of the robot in the vision system simulation.
   public void resetSimPose(Pose2d pose) {
     if (Robot.isSimulation())
       visionSim.resetRobotPose(pose);
   }
 
-  /** A Field2d for visualizing our robot and objects on the field. */
+  // A Field2d for visualizing our robot and objects on the field.
   public Field2d getSimDebugField() {
     if (!Robot.isSimulation())
       return null;
     return visionSim.getDebugField();
   }
 
-  // average rotation in mod180 math, vector/double-angle method
+  // Average rotation in mod180 math, vector/double-angle method
   public Rotation2d getAverageRot() {
     double sumSin = 0.0;
     double sumCos = 0.0;
@@ -414,7 +412,7 @@ public class Photonvision extends SubsystemBase {
         continue;
       if (cam.howManyTargets() > 0) {
         double radians = pose.getRotation().getRadians();
-        double doubled = 2 * radians; // multiply each angle by 2 due to 180deg periodicity, makes opposite directions
+        double doubled = 2 * radians; // Multiply each angle by 2 due to 180deg periodicity, makes opposite directions
                                       // align
         double x = Math.sin(doubled); // every angle becomes a point on unit circle
         double y = Math.cos(doubled);
@@ -422,7 +420,7 @@ public class Photonvision extends SubsystemBase {
         sumCos += y;
       }
     }
-    double avgRadians = Math.atan2(sumSin, sumCos) / 2.0; // direction of single resultant vector, divide by two to get
+    double avgRadians = Math.atan2(sumSin, sumCos) / 2.0; // Direction of single resultant vector, divide by two to get
                                                           // back to modulo 180 space.
     double avgDegrees = Math.toDegrees(avgRadians);
 
@@ -459,7 +457,7 @@ public class Photonvision extends SubsystemBase {
 
   class PhotonWatcher extends WatcherCmd {
     PhotonWatcher() {
-      // math is wrong on avg rot, must use modulo math, not simple averages
+      // Math is wrong on avg rot, must use modulo math, not simple averages
       // addEntry("Photon Average Rotation", Photonvision.this::getAverageRotDegrees);
       // use camera name/value
       for (RobotCamera cam : camerasList) {

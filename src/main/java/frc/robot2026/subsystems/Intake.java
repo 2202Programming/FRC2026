@@ -62,7 +62,7 @@ public class Intake extends SubsystemBase {
   double cmdPos;
   double cmdPct;
 
-  /** Creates a new Intake. */
+  // Creates a new Intake.
   public Intake() {
     setName("Intake-" + CAN.IntakeID);
     lightgate = new DigitalInput(DigitalIO.IntakeGate);
@@ -94,12 +94,11 @@ public class Intake extends SubsystemBase {
           .kS(kS, slot).kV(kV, slot);
 
     controller.configure(config, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
-    //don't use Trigger, changed to be a default command
+    // Don't use Trigger, changed to be a default command
     this.setDefaultCommand(cmdRunWhileFuel(.45, 0.5) );
   }
 
   /**
-   * 
    * @param motorController - The motor controller to apply the values to
    * @param motorConfig     - The cfg to send the values into
    * @param slot            - The slot (PositionSlot / VelocitySlot) to send the
@@ -109,14 +108,14 @@ public class Intake extends SubsystemBase {
    *                        iZone, rampRate,
    */
   private void update(SparkBase motorController, SparkBaseConfig motorConfig, ClosedLoopSlot slot) {
-    // skip if no changes or no attached hw typical if use PIDF without calling
+    // Skip if no changes or no attached hw typical if use PIDF without calling
     if (!m_changes || motorConfig == null || motorController == null)
       return;
 
     motorConfig.closedLoop.pid(P, I, D, slot);
     motorConfig.closedLoop.feedForward.sv(kS, kV, slot);
 
-    // send to HW if we have a pid change, use async so robot loop isn't delayed
+    // Send to HW if we have a pid change, use async so robot loop isn't delayed
     motorController.configureAsync(motorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
     m_changes = false;
   }
@@ -179,7 +178,7 @@ public class Intake extends SubsystemBase {
     encoder.setPosition(0.0);
   }
 
-  // velocity control only used for testing, normal cmds will use position
+  // Velocity control only used for testing, normal cmds will use position
   public void setPercent(double pct) {
     cmdPct = pct;
     controller.set(pct);
@@ -270,13 +269,13 @@ public class Intake extends SubsystemBase {
 
     @Override
     public void execute() {
-      // keep resetting timer as long as we see fuel
+      // Keep resetting timer as long as we see fuel
       if (Intake.this.hasFuel() ) { 
         no_fuel_timer.restart();
         Intake.this.setPercent(pct);
       }
 
-      //Stop running after no fuel seen for elapsed seconds
+      // Stop running after no fuel seen for elapsed seconds
       if (no_fuel_timer.hasElapsed(seconds))
          Intake.this.setPercent(0.0);
     }
@@ -285,7 +284,7 @@ public class Intake extends SubsystemBase {
       Intake.this.setPercent(0.0);
     }
 
-    // this is a default command, it never finishes, but may be canceled
+    // This is a default command, it never finishes, but may be canceled
     public boolean isFinished(){
      return false;
     }

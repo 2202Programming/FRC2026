@@ -16,7 +16,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot2026.Constants.CAN;
 
-/** Add your docs here. */
 public class Hopper extends SubsystemBase {
     final SparkFlex belts;
     final SparkFlexConfig beltsCfg;

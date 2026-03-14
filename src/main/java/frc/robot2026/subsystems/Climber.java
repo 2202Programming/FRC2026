@@ -19,7 +19,7 @@ import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
 
 public class Climber extends SubsystemBase {
-    /** Creates a new Climber. */
+    // Creates a new Climber.
     public final static double PowerUpPosition = 0.0; // [cm]
     public final static double ClimbPositon = 7.0;  // [cm]  go here when climbing
     public final static double ExtendPosition = 22.2; // [cm]  Was reading 28
@@ -92,7 +92,7 @@ public class Climber extends SubsystemBase {
         }
                 
         public void setPosition(double pos){
-            servo.setPosition(pos);  //doesn't move, just tells servo here you are.
+            servo.setPosition(pos);  // Doesn't move, just tells servo here you are.
         }
 
         public double getVelocityCmd() {
@@ -185,7 +185,7 @@ public class Climber extends SubsystemBase {
     // typical use at power up or after pitt calibration.
     public Command armsCalibrateCmd(double position) {
         return runOnce(() -> {
-            //no sequence needed, these can run in single cmd.
+            // No sequence needed, these can run in single cmd.
             if (r_arm != null) {
                 r_arm.setPosition(position);
             }
@@ -212,7 +212,8 @@ public class Climber extends SubsystemBase {
         ).withName("Arms - " + pos);
     }
 
-    //specify arm of choice if desired. Could cause issues if one of our arms is just flying around, but should still function OK
+    // Specify arm of choice if desired. 
+    // Could cause issues if one of our arms is just flying around, but should still function OK
     public Command armsToPoint(double pos, Arm arm) {
         if (arm == null) {
             return Commands.print("Arm Does not exist, cannot send to point");
@@ -240,11 +241,11 @@ public class Climber extends SubsystemBase {
     }
 
     public void setDemoBindings(CommandXboxController xbox) {
-        /**
-         * These are some basic test bindings for the climber, including a reset 0 position for when we do position testing.          
+        /*
+        These are some basic test bindings for the climber, including a reset 0 position for when we do position testing.          
+        velocity cmds while held it should spin, to test or align in pitt
+        Got about 70amps at 12cm/s, could hit 14 without issues
         */
-        //velocity cmds while held it should spin, to test or align in pitt
-        // Got about 70amps at 12cm/s, could hit 14 without issues
         xbox.povLeft().whileTrue(this.setVelocityCmd(-14.0, l_arm)).onFalse(this.setVelocityCmd(0.0, l_arm));
         xbox.povRight().whileTrue(this.setVelocityCmd(14.0, l_arm)).onFalse(this.setVelocityCmd(0.0, l_arm));
         xbox.povUp().whileTrue(this.setVelocityCmd(-14.0, r_arm)).onFalse(this.setVelocityCmd(0.0, r_arm));
