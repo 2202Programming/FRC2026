@@ -67,8 +67,8 @@ public class Shooter extends SubsystemBase {
         red.onDevice(deviceIndex);
         green.onDevice(deviceIndex);
 
-        red.setSeconds(0.5);
-        green.setSeconds(0.5);
+        red.setSeconds(0.001);
+        green.setSeconds(0.001);
         
         //new BlinkyLights((ShooterID == CAN.ShooterIDLeft) ? CAN.CANDLE1 : CAN.CANDLE2);
         this.getWatcherCmd();
@@ -225,10 +225,13 @@ public class Shooter extends SubsystemBase {
         flywheel.update_hardware();
 
         // Set lights to green if at setpoint, else set lights to red.
-        if(atSetpoint())
+        if(atSetpoint()) {
             LightStack.request(green);
-        else
+        }  
+        else {
             LightStack.request(red);
+        }
+            
     }
 
     // Add a watcher so we can see stuff on network tables
