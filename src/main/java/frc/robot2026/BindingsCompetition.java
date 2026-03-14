@@ -3,6 +3,7 @@ package frc.robot2026;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
@@ -185,6 +186,10 @@ public final class BindingsCompetition {
                     .onFalse(climber.setVelocityCmd(0.0));
             Cal.and(sideboard.sw13()).whileTrue(climber.setVelocityCmd(-Climber.ClimbCalibrateVel))
                     .onFalse(climber.setVelocityCmd(0.0));
+            //Leaving cal, set any cal
+            Cal.onFalse(Commands.runOnce(() -> {
+                climber.setPosition(Climber.PowerUpPosition);
+            }));
 
             // climber arm extend to max
             operator.povUp().onTrue(climber.armsToPoint(Climber.ExtendPosition));
