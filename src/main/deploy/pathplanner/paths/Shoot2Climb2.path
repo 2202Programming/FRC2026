@@ -16,12 +16,12 @@
     },
     {
       "anchor": {
-        "x": 1.3337272727272727,
-        "y": 2.864005681818181
+        "x": 1.144375,
+        "y": 2.893903409090909
       },
       "prevControl": {
-        "x": 1.174272727272727,
-        "y": 2.3158806818181823
+        "x": 0.9849204545454542,
+        "y": 2.34577840909091
       },
       "nextControl": null,
       "isLocked": false,
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 2.663000766067295
+    "rotation": 0.0
   },
   "reversed": false,
   "folder": "ShootOutpostShootClimb",
