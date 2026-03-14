@@ -18,6 +18,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -55,8 +56,8 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
     final Photonvision photon;
 
     // stddev based on distance/quality of tag
-    final Matrix<N3, N1> closeStdDevs = VecBuilder.fill(0.25, 0.25, Units.degreesToRadians(5.0));
-    // final Matrix<N3, N1> medStdDevs =VecBuilder.fill(0.25, 0.25, Units.degreesToRadians(5.0));
+    final Matrix<N3, N1> closeStdDevs = VecBuilder.fill(0.25, 0.25, Units.degreesToRadians(3.0));
+    final Matrix<N3, N1> medStdDevs =VecBuilder.fill(0.5, 0.5, Units.degreesToRadians(10.0));
     // final Matrix<N3, N1> farStdDevs =VecBuilder.fill(0.5, 0.5, Units.degreesToRadians(15.0));
     final Matrix<N3, N1> PVStdDevs = VecBuilder.fill(.5, .5, Units.degreesToRadians(10));
 
@@ -75,6 +76,9 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
     private Pose2d prev_llPose;
     private Pose2d rawLLPose;
     private boolean llHasMultitarget;
+
+    //parameters 
+    double pCloseDist = 2.0; // [m]  less than this use close std, otherwise use med.
 
     // field estimate based on vision estimate llPose
     final Field2d m_field;
@@ -351,6 +355,17 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
         return this.new VisionPoseEstimatorMonitorCmd();
     }
 
+    // parameters for tuning /w smart dashboard
+    double getCloseDistance() {return pCloseDist;}
+    void setCloseDistance(double value ) {pCloseDist = value;}
+
+
+    @Override
+    public void initSendable(SendableBuilder builder) {
+        super.initSendable(builder);
+        builder.addDoubleProperty("CloseDistance m", this::getCloseDistance, this::setCloseDistance);
+    }
+
     /*
      * Watcher for SwervePoseEstimator and its vision data.
      *
@@ -462,7 +477,11 @@ public class VisionPoseEstimator extends SubsystemBase implements OdometryInterf
     } // monitor cmd class
 
     Matrix<N3, N1> getStdDev(double botvel, double distance) {
-        return closeStdDevs;
+        if (distance < pCloseDist)
+            return closeStdDevs;
+
+        return medStdDevs;
+
         // not moving, rank this higher
         // if (botvel < 0.1)
         // return closeStdDevs;
