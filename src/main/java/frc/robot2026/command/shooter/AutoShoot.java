@@ -8,6 +8,7 @@ import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib2202.builder.RobotContainer;
+import frc.robot2026.subsystems.Hopper;
 import frc.robot2026.subsystems.Shooter.Indexer;
 import frc.robot2026.subsystems.Shooter.Shooter;
 
@@ -16,6 +17,9 @@ public class AutoShoot extends Command {
 
   final Shooter shooter;
   final Indexer indexer;
+  final Hopper hopper;
+
+  final double HopperNoCmdSpeed = 0.25;
 
   final DoubleSupplier speedProvider;
   final DoubleSupplier toleranceProvider;
@@ -32,6 +36,7 @@ public class AutoShoot extends Command {
     this.shooter = RobotContainer.getSubsystem("shooter_" + side);
     this.indexer = RobotContainer.getSubsystem("indexer_" + side);
     // Targeter targeter = RobotContainer.getSubsystem(Targeter.class);
+    this.hopper = RobotContainer.getSubsystem(Hopper.class);  // not on requriements
     this.speedProvider = speedProvider;
     this.toleranceProvider = toleranceProvider;
     this.idxPct = idxPct;
@@ -82,6 +87,12 @@ public class AutoShoot extends Command {
     // if (gate && (gate != gate_prev)) { }
 
     gate_prev = gate;
+
+    if (hopper.getCurrentCommand() == null) {
+      // run hopper forward if we are shooting and no hopper cmd is running
+      hopper.cmdBeltPct(HopperNoCmdSpeed);
+    }
+
   }
 
   // Called once the command ends or is interrupted.
