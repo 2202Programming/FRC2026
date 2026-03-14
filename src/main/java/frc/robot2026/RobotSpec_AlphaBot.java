@@ -31,6 +31,7 @@ import frc.lib2202.subsystem.BlinkyLights;
 import frc.lib2202.subsystem.Odometry;
 import frc.lib2202.subsystem.OdometryInterface;
 import frc.lib2202.subsystem.Sensors;
+import frc.lib2202.subsystem.LightStack;
 //import frc.lib2202.subsystem.UX.TrimTables;   
 import frc.lib2202.subsystem.hid.HID_Subsystem;
 import frc.lib2202.subsystem.swerve.AutoPPConfigure;
@@ -105,11 +106,8 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
       .add(Indexer.class, "indexer_right", () -> {
         return new Indexer(CAN.RIndexerID, false, DigitalIO.IndexerGateRight);
       })
-      .add(BlinkyLights.class, "light_left", () -> {
-        return new BlinkyLights(Constants.CAN.CANDLE1);
-      })
-      .add(BlinkyLights.class, "light_right", () -> {
-        return new BlinkyLights(Constants.CAN.CANDLE2);
+      .add(LightStack.class, "light", () -> {
+        return new LightStack(new int[] {Constants.CAN.CANDLE1,Constants.CAN.CANDLE2,Constants.CAN.CANDLE3,Constants.CAN.CANDLE4});
       })
       .addAlias(VisionPoseEstimator.class, "vision_odo")
       .add(Shooter.class, "shooter_left", () -> {

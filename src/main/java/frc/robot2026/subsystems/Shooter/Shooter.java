@@ -11,10 +11,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.command.WatcherCmd;
-import frc.lib2202.subsystem.BlinkyLights;
-import frc.lib2202.subsystem.BlinkyLights.BlinkyLightUser;
 import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
+import frc.lib2202.subsystem.LightStack;
+import frc.lib2202.subsystem.LightStack.LightRequest;
 
 public class Shooter extends SubsystemBase {
     final public IFlyWheel flywheel;
@@ -23,7 +23,8 @@ public class Shooter extends SubsystemBase {
     final String side; 
     int shots_taken=0;
     double speed_factor = 1.0;  // simple factor to apply to requested speed, may be set in elastic
-    BlinkyLights light;
+    LightRequest red = LightRequest.getRed();
+    LightRequest green = LightRequest.getDefault().color(LightRequest.GREEN);
 
     public Shooter() {
         this("rev", 0, true);
@@ -56,7 +57,11 @@ public class Shooter extends SubsystemBase {
             flywheel = new FlyWheelRev(ShooterID, cfg);
         }
 
-        light = RobotContainer.getSubsystem("light_" + side);
+        
+        
+        int startID = (ShooterID == CAN.ShooterIDLeft) ? CAN.CANDLE4 : CAN.CANDLE3;
+        red.range(startID, 1);
+        green.range(startID, 1);
         //new BlinkyLights((ShooterID == CAN.ShooterIDLeft) ? CAN.CANDLE1 : CAN.CANDLE2);
         this.getWatcherCmd();
         
@@ -184,17 +189,13 @@ public class Shooter extends SubsystemBase {
         flywheel.update_hardware();
 
         //set lights to green if at setpoint, else set lights to red.
-        if (light != null){
-
-            if(atSetpoint())
-            {
-                light.setColor(BlinkyLights.GREEN);
-            }
-            else
-            {
-                light.setColor(BlinkyLights.RED);
-            }
-
+        if(atSetpoint())
+        {
+            LightStack.request(green);
+        }
+        else
+        {
+            LightStack.request(red);
         }
     }
 
