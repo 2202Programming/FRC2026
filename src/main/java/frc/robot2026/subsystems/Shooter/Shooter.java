@@ -22,7 +22,7 @@ public class Shooter extends SubsystemBase {
     final boolean inverted;
     final String side; 
     int shots_taken=0;
-    double speed_factor = 1.0;  // simple factor to apply to requested speed, may be set in elastic
+    double speed_factor = 1.0;  // Simple factor to apply to requested speed, may be set in elastic
     LightRequest red = LightRequest.getRed();
     LightRequest green = LightRequest.getDefault().color(LightRequest.GREEN);
 
@@ -37,11 +37,11 @@ public class Shooter extends SubsystemBase {
     public Shooter(String controllerType, int ShooterID, boolean inverted) {
         this.inverted = inverted;
 
-        //set side to left or right based on which shooter
+        // Set side to left or right based on which shooter
         side = (ShooterID == CAN.ShooterIDLeft) ? "left" : "right";
         setName("Shooter_" + side);
         
-        // pick which controller we are using
+        // Pick which controller we are using
         if (controllerType.equalsIgnoreCase("ctre")) {
             cfg = initFlyWheelConfigCTRE();
 
@@ -63,7 +63,7 @@ public class Shooter extends SubsystemBase {
 
         
         
-        int startID = (ShooterID == CAN.ShooterIDLeft) ? CAN.CANDLE4 : CAN.CANDLE3;
+        int startID = (ShooterID == CAN.ShooterIDLeft) ? 3 : 22;
         red.range(startID, 1);
         green.range(startID, 1);
         //new BlinkyLights((ShooterID == CAN.ShooterIDLeft) ? CAN.CANDLE1 : CAN.CANDLE2);
@@ -74,18 +74,18 @@ public class Shooter extends SubsystemBase {
     // Setup using NEO1
     private FlyWheelConfig initFlyWheelConfigREV() {
         double kP = 0.01;// 0.005; // tune next
-        double kI = 0.00005; // finally stiffen speed with I/D
+        double kI = 0.00005; // Finally stiffen speed with I/D
         double kD = 2.0;// 10.0; // Seems innsensitive until you add an extremely large value
         double kF = 0.315;
-        double iZone = 1.0; // setting it to 0.0 seems to 'unlock' it
+        double iZone = 1.0; // Setting it to 0.0 seems to 'unlock' it
 
         FlyWheelConfig cfg = new FlyWheelConfig();
         cfg.inverted = inverted;
-        cfg.rampRate = 0.0; // try to soften the startup, zero disables
-        cfg.gearRatio = 24.0 / 18.0; // this was measured -- DPL + BG 1/19/26
+        cfg.rampRate = 0.0; // Try to soften the startup, zero disables
+        cfg.gearRatio = 24.0 / 18.0; // This was measured -- DPL + BG 1/19/26
         cfg.stallAmp = 60; // [amp] Check motor specs for amps
         cfg.freeAmp = 10; // [amp]
-        cfg.maxOpenLoopRPM = 5800.0; // measure at full power or motor spec
+        cfg.maxOpenLoopRPM = 5800.0; // Measure at full power or motor spec
         cfg.flywheelRadius = (2.0 / 12.0) * MperFT; // [m] 2 [inch] converted [m]
         cfg.iMaxAccum = 0.25;
         // PIDF constant holder for hw
@@ -101,15 +101,15 @@ public class Shooter extends SubsystemBase {
         double kI = 0.0003;
         double kD = 7.0;
         double kF = 0.171;
-        double iZone = 1.0; // setting it to 0.0 seems to 'unlock' it
+        double iZone = 1.0; // Setting it to 0.0 seems to 'unlock' it
 
         FlyWheelConfig cfg = new FlyWheelConfig();
         cfg.inverted = inverted;
-        cfg.rampRate = 0.0; // try to soften the startup, zero disables
+        cfg.rampRate = 0.0; // Try to soften the startup, zero disables
         cfg.gearRatio = 50.0 / 24.0; // mtr-side /fw-side
         cfg.stallAmp = 90; // [amp] Check motor specs for amps
         cfg.freeAmp = 15; // [amp]
-        cfg.maxOpenLoopRPM = 5800.0; // measure at full power or motor spec
+        cfg.maxOpenLoopRPM = 5800.0; // Measure at full power or motor spec
         cfg.flywheelRadius = (2.0 / 12.0) * MperFT; // [m] 2 [inch] converted [m]
         cfg.iMaxAccum = 0.25;
         // PIDF constant holder for hw
@@ -123,15 +123,15 @@ public class Shooter extends SubsystemBase {
         double kI = 0.0003;
         double kD = 5.0;
         double kF = 0.323;
-        double iZone = 1.0; // setting it to 0.0 seems to 'unlock' it
+        double iZone = 1.0; // Setting it to 0.0 seems to 'unlock' it
 
         FlyWheelConfig cfg = new FlyWheelConfig();
         cfg.inverted = inverted;
-        cfg.rampRate = 0.0; // try to soften the startup, zero disables
+        cfg.rampRate = 0.0; // Try to soften the startup, zero disables
         cfg.gearRatio = 40.0 / 38.0; // mtr-side /fw-side
         cfg.stallAmp = 90; // [amp] Check motor specs for amps
         cfg.freeAmp = 15; // [amp]
-        cfg.maxOpenLoopRPM = 5800.0; // measure at full power or motor spec
+        cfg.maxOpenLoopRPM = 5800.0; // Measure at full power or motor spec
         cfg.flywheelRadius = (2.0 / 12.0) * MperFT; // [m] 2 [inch] converted [m]
         cfg.iMaxAccum = 0.25;
         // PIDF constant holder for hw
@@ -142,21 +142,21 @@ public class Shooter extends SubsystemBase {
 
 
 
-    // tuning from MultiShooter, also rev Neo
+    // Tuning from MultiShooter, also rev Neo
     private FlyWheelConfig initMultiFlyWheelConfigREV() {
-        double kP = 0.06; // tune next
-        double kI = 0.0001; // finally stiffen speed with I/D
+        double kP = 0.06; // Tune next
+        double kI = 0.0001; // Finally stiffen speed with I/D
         double kD = 80; // Seems innsensitive until you add an extremely large value
         double kF = 0.57;
-        double iZone = 1.0; // setting it to 0.0 seems to 'unlock' it
+        double iZone = 1.0; // Setting it to 0.0 seems to 'unlock' it
 
         FlyWheelConfig cfg = new FlyWheelConfig();
         cfg.inverted = inverted;
-        cfg.rampRate = 0.0; // try to soften the startup, zero disables
+        cfg.rampRate = 0.0; // Try to soften the startup, zero disables
         cfg.gearRatio = 1.0;
         cfg.stallAmp = 80; // [amp] Check motor specs for amps TESTING 80 FOR MULTI DUE TO HIGH DROP
         cfg.freeAmp = 10; // [amp]
-        cfg.maxOpenLoopRPM = 5800.0; // measure at full power or motor spec
+        cfg.maxOpenLoopRPM = 5800.0; // Measure at full power or motor spec
         cfg.flywheelRadius = (2.0 / 12.0) * MperFT; // [m] 2 [inch] converted [m]
         cfg.iMaxAccum = 0.25;
         // PIDF constant holder for hw
@@ -165,22 +165,22 @@ public class Shooter extends SubsystemBase {
         return cfg;
     }
 
-    // for testing Kraken
+    // For testing Kraken
     private FlyWheelConfig initFlyWheelConfigCTRE() {
         double kP = 0.7; //
-        double kI = 4.0; // feels kind of bs
+        double kI = 4.0; // Feels kind of bs
         double kD = 0.01; // Seems innsensitive until you add an extremely large value
         double kF = 0.12; // Kraken X60 is a 500 kV motor, 500 rpm per V = 8.333 rps per V,
                           // 1/8.33 =// 0.12 volts / rotation per second
-        double iZone = 0.0; // unused in Talon CTRE controller
+        double iZone = 0.0; // Unused in Talon CTRE controller
 
         FlyWheelConfig cfg = new FlyWheelConfig();
         cfg.inverted = inverted;
-        cfg.rampRate = 0.0; // not implemented in ctre, but could be
-        cfg.gearRatio = 1.0 / 1.0; // new kraken pulleys
+        cfg.rampRate = 0.0; // Not implemented in ctre, but could be
+        cfg.gearRatio = 1.0 / 1.0; // New kraken pulleys
         cfg.stallAmp = 80; // [amp] Use as stator amps
-        cfg.freeAmp = 10; // [amp] //unused
-        cfg.maxOpenLoopRPM = 5800.0; // measure at full power or motor spec
+        cfg.freeAmp = 10; // [amp] // Unused
+        cfg.maxOpenLoopRPM = 5800.0; // Measure at full power or motor spec
         cfg.flywheelRadius = (2.0 / 12.0) * MperFT; // [m] 2 [inch] converted [m]
         cfg.iMaxAccum = 0.0; // unused in ctre
         // PIDF constant holder for hw
@@ -207,16 +207,16 @@ public class Shooter extends SubsystemBase {
             builder.addDoubleProperty("ramp_rate", revfw::getRampRate, revfw::setRampRate);
         }
 
-        // hook in the PID
+        // Hook in the PID
         cfg.hw_pid.initSendable(builder);
     }
 
     @Override
     public void periodic() {
-        // update hw, only needed if changes to HW_PID - TODO test mode?
+        // Update hw, only needed if changes to HW_PID - TODO test mode?
         flywheel.update_hardware();
 
-        //set lights to green if at setpoint, else set lights to red.
+        // Set lights to green if at setpoint, else set lights to red.
         if(atSetpoint())
         {
             LightStack.request(green);
