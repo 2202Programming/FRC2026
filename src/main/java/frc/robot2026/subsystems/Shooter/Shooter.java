@@ -9,7 +9,10 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.command.WatcherCmd;
+import frc.lib2202.subsystem.BlinkyLights;
+import frc.lib2202.subsystem.BlinkyLights.BlinkyLightUser;
 import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
 
@@ -20,6 +23,7 @@ public class Shooter extends SubsystemBase {
     final String side; 
     int shots_taken=0;
     double speed_factor = 1.0;  // simple factor to apply to requested speed, may be set in elastic
+    BlinkyLights light;
 
     public Shooter() {
         this("rev", 0, true);
@@ -49,6 +53,9 @@ public class Shooter extends SubsystemBase {
             cfg = initFlyWheelConfigREV();
             flywheel = new FlyWheelRev(ShooterID, cfg);
         }
+
+        light = RobotContainer.getSubsystem("light_" + side);
+        //new BlinkyLights((ShooterID == CAN.ShooterIDLeft) ? CAN.CANDLE1 : CAN.CANDLE2);
         this.getWatcherCmd();
     }
 
@@ -172,6 +179,13 @@ public class Shooter extends SubsystemBase {
     public void periodic() {
         // update hw, only needed if changes to HW_PID - TODO test mode?
         flywheel.update_hardware();
+        if(atSetpoint())
+        {
+            light.setColor(BlinkyLights.GREEN);
+        }
+        else{
+            light.setColor(BlinkyLights.RED);
+        }
     }
 
     // Add a watcher so we can see stuff on network tables

@@ -27,6 +27,7 @@ import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.builder.RobotLimits;
 import frc.lib2202.builder.SubsystemConfig;
 import frc.lib2202.command.swerve.FieldCentricDrive;
+import frc.lib2202.subsystem.BlinkyLights;
 import frc.lib2202.subsystem.Odometry;
 import frc.lib2202.subsystem.OdometryInterface;
 import frc.lib2202.subsystem.Sensors;
@@ -113,6 +114,12 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
       })
       .add(Intake.class, "intake", () -> {
         return new Intake();
+      })
+      .add(BlinkyLights.class, "light_left", () -> {
+        return new BlinkyLights(Constants.CAN.CANDLE1);
+      })
+      .add(BlinkyLights.class, "light_right", () -> {
+        return new BlinkyLights(Constants.CAN.CANDLE2);
       })
       .add(Climber.class, "climber", () -> {
          return new Climber(true);
