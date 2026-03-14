@@ -16,7 +16,7 @@ public class AgitateOS extends Command {
     final double period;
     final double delay;
     final boolean hopperForward;
-    final double intake_spd;        
+    final double intake_spd;      
 
     double in_spd, hop_spd;
     /**
@@ -27,11 +27,12 @@ public class AgitateOS extends Command {
      * @param period        time to wait for switching dir
      * @param intake_spd    pct to drive intake 
      */
-    public AgitateOS(boolean hopperForward, double period, double delay, double intake_spd) {
+    public AgitateOS(boolean hopperForward, double hop_spd, double period, double delay, double intake_spd) {
         this.intake = RobotContainer.getSubsystem("intake");
         this.hopper = RobotContainer.getSubsystem(Hopper.class);
         this.period = period;
         this.delay = delay;
+        this.hop_spd = hop_spd;
         this.hopperForward = hopperForward;
         this.intake_spd = Math.abs(intake_spd);  // always start going in.
         this.periodTimer = new Timer();
@@ -40,12 +41,12 @@ public class AgitateOS extends Command {
     }
     
     // a few shortcut options
-    public AgitateOS(double period, double delay, double intake_spd) {
-        this(false, period, delay, intake_spd);
+    public AgitateOS(double period, double hop_spd, double delay, double intake_spd) {
+        this(false, hop_spd, period, delay, intake_spd);
     }
     
     public AgitateOS(double period) {
-        this(false, period, 0.35, 0.65);
+        this(false, 0.25, period, 0.35, 0.65);
     }
 
     /**
@@ -55,7 +56,6 @@ public class AgitateOS extends Command {
     @Override
     public void initialize() {
         in_spd = intake_spd;
-        hop_spd = HopperSpeedDefault;
         //set the hardware to start speeds
         intake.setPercent(in_spd);
         hopper.setBeltPct(hop_spd);

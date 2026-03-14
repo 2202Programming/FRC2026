@@ -89,9 +89,9 @@ public class Targeter extends SubsystemBase {
         tolerance_table.put(0.0 * MperFT, 0.3); //1.6);
         tolerance_table.put(5.0 * MperFT, 0.3); //1.4);
         tolerance_table.put(6.0 * MperFT, 0.3); //1.2 );
-        tolerance_table.put(10.0 * MperFT, .5); //0.8);
-        tolerance_table.put(17.0 * MperFT, .5);
-        tolerance_table.put(25.0 * MperFT, .5);
+        tolerance_table.put(10.0 * MperFT, 0.3); //0.8);
+        tolerance_table.put(17.0 * MperFT, 0.3);
+        tolerance_table.put(25.0 * MperFT, 0.3);
     }
 
     @Override
