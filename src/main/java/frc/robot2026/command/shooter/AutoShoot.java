@@ -19,7 +19,7 @@ public class AutoShoot extends Command {
   final Indexer indexer;
   final Hopper hopper;
 
-  final double HopperNoCmdSpeed = 0.25;
+  final double HopperNoCmdSpeed = 0.706;
 
   final DoubleSupplier speedProvider;
   final DoubleSupplier toleranceProvider;
@@ -90,7 +90,8 @@ public class AutoShoot extends Command {
 
     if (hopper.getCurrentCommand() == null) {
       // run hopper forward if we are shooting and no hopper cmd is running
-      hopper.cmdBeltPct(HopperNoCmdSpeed);
+      // this is a minor violation of requirements and scheduling
+      hopper.setBeltPct(HopperNoCmdSpeed);
     }
 
   }

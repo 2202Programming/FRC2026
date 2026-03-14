@@ -119,7 +119,7 @@ public final class BindingsCompetition {
             driver.rightTrigger(0.7).whileTrue(new AutoShoot("left", targeter::getManualSpeed, targeter::getManualTolerance, 1.0));
             driver.rightTrigger(0.7).whileTrue(new AutoShoot("right", targeter::getManualSpeed, targeter::getManualTolerance, 1.0));
             driver.rightTrigger(0.1).whileTrue(hopper.cmdBeltPct(0.705))
-                    .onFalse(hopper.cmdBeltPct(0));
+                    .onFalse(hopper.cmdBeltPct(0).withName("rtTrig_hopperZero*****"));
 
         } else {
             DriverStation.reportError("Comp Bindings: No driver bindings set, check controllers.", false);
@@ -169,14 +169,14 @@ public final class BindingsCompetition {
             operator.y().whileTrue(indexer_left.cmdSetPct(-1))
                         .whileTrue(indexer_right.cmdSetPct(-1))
                         .onFalse(indexer_left.cmdSetPct(0))
-                        .onFalse(indexer_right.cmdSetPct(0));   
+                        .onFalse(indexer_right.cmdSetPct(0));
 
             // agitate back and forth, uses intake trigger to not lose fuel
             // operator.a().whileTrue(new RepeatCommand(new Agitate()) ) 
             //             .onFalse(hopper.cmdBeltPct(0)) 
             //             .onFalse(intake.cmdPctPwr(0));
             operator.a().whileTrue(new AgitateOS(true, 0.455, 1.0, 0.5, .65));
-            operator.b().whileTrue(new AgitateOS(true, 0.455, 0.25, 0.75, .65));
+            operator.b().whileTrue(new AgitateOS(false, 0.455, 0.25, 0.75, .65));
 
 
             //TESTING REMOVE FOR COMP
