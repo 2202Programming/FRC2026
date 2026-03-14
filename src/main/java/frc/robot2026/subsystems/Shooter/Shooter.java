@@ -95,7 +95,7 @@ public class Shooter extends SubsystemBase {
     }
 
     // Setup using Vortex
-    private FlyWheelConfig initFlyWheelConfigREVFlex() {
+    private FlyWheelConfig initFlyWheelConfigREVFlex() { // RIGHT SHOOTER
         // Tuned by XS and AN on production alpha bot shooter
         double kP = 0.019;
         double kI = 0.0003;
@@ -117,12 +117,12 @@ public class Shooter extends SubsystemBase {
         cfg.hw_pid.setIZone(iZone);
         return cfg;
     }
- private FlyWheelConfig initFlyWheelConfigREVFlex2() {
+ private FlyWheelConfig initFlyWheelConfigREVFlex2() { // LEFT SHOOTER
         // Tuned by XS and AN on production alpha bot shooter
-        double kP = 0.019;
+        double kP = 0.05;
         double kI = 0.0003;
-        double kD = 7.0;
-        double kF = 0.171;
+        double kD = 5.0;
+        double kF = 0.323;
         double iZone = 1.0; // setting it to 0.0 seems to 'unlock' it
 
         FlyWheelConfig cfg = new FlyWheelConfig();

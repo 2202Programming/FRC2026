@@ -21,6 +21,7 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -186,7 +187,7 @@ public class Intake extends SubsystemBase {
   }
 
   public Command cmdPctPwr(double cmd_pct) {
-    return runOnce(() -> {
+    return Commands.runOnce(() -> {
       this.setPercent(cmd_pct);
     });
   }
