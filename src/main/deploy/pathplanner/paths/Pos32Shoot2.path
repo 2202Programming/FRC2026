@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.3168543046357617,
-        "y": 2.118377483443709
+        "x": 3.5959886363636366,
+        "y": 1.1698011363636374
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.5182615894039735,
-        "y": 2.517673841059603
+        "x": 3.357757191360321,
+        "y": 1.2456020506828738
       },
       "isLocked": false,
-      "linkedName": "FueltoPos3ShootEnd"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 1.2496440397350992,
-        "y": 2.8153311258278144
+        "x": 3.1275909090909098,
+        "y": 1.3691193181818175
       },
       "prevControl": {
-        "x": 1.9611175496688742,
-        "y": 2.292615894039735
+        "x": 3.605954545454546,
+        "y": 1.1598352272727266
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Pos32ShootEnd"
     }
   ],
   "rotationTargets": [],
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 60.37625124882622
   },
   "reversed": false,
-  "folder": "ClockwiseRoundTheWorld",
+  "folder": "ShootOutpostShootClimb",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 39.80557109226522
+    "rotation": 90.71615994547044
   },
   "useDefaultConstraints": true
 }

@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Pos3 Shoot"
+            "pathName": "Pos2ToShoot"
           }
         },
         {
@@ -34,25 +34,30 @@
           "data": {
             "commands": [
               {
+                "type": "path",
+                "data": {
+                  "pathName": "Shootpos2toOutpost"
+                }
+              },
+              {
                 "type": "named",
                 "data": {
                   "name": "intake_on"
                 }
-              },
-              {
-                "type": "sequential",
-                "data": {
-                  "commands": [
-                    {
-                      "type": "path",
-                      "data": {
-                        "pathName": "ShootFuelShoot"
-                      }
-                    }
-                  ]
-                }
               }
             ]
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 3.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Outpost2Shoot"
           }
         },
         {
@@ -77,13 +82,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Shoot2ToClimb"
+            "pathName": "Shoot2Climb2"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "SoloNeturalAutos",
+  "folder": "NoNeutralAutos",
   "choreoAuto": false
 }
