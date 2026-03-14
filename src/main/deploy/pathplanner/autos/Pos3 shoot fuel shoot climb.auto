@@ -17,7 +17,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Pos3 to fuel"
+                  "pathName": "Pos3 to fuel2"
                 }
               }
             ]
@@ -64,13 +64,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "shoot to end climb"
+            "pathName": "shoot to end climb2"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "BuddyNeutralAutos",
   "choreoAuto": false
 }

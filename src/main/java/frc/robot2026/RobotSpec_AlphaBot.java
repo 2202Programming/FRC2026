@@ -111,7 +111,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
       })
       .addAlias(VisionPoseEstimator.class, "vision_odo")
       .add(Shooter.class, "shooter_left", () -> {
-        return new Shooter("flex", Constants.CAN.ShooterIDLeft, false);
+        return new Shooter("flex_2", Constants.CAN.ShooterIDLeft, false);
       })
       .add(Shooter.class, "shooter_right", () -> {
         return new Shooter("flex", Constants.CAN.ShooterIDRight, true);
