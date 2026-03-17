@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Pos3 Shoot"
+            "pathName": "Pos32Shoot"
           }
         },
         {
@@ -40,19 +40,18 @@
                 }
               },
               {
-                "type": "sequential",
+                "type": "path",
                 "data": {
-                  "commands": [
-                    {
-                      "type": "path",
-                      "data": {
-                        "pathName": "ShootFuelShoot"
-                      }
-                    }
-                  ]
+                  "pathName": "Pos3 to fuel"
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Fuel bump shoot"
           }
         },
         {
@@ -68,7 +67,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 3.0
+                  "waitTime": 4.0
                 }
               }
             ]
@@ -77,13 +76,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Shoot2ToClimb"
+            "pathName": "shoot to end climb"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "SoloNeturalAutos",
+  "folder": "BuddyNeutralAutos",
   "choreoAuto": false
 }

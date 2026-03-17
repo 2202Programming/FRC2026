@@ -45,7 +45,8 @@
       "/SmartDashboard/PhotonAlerts": "Alerts",
       "/SmartDashboard/Scheduler": "Scheduler",
       "/SmartDashboard/Sensors": "Subsystem",
-      "/SmartDashboard/Shooter_left": "Subsystem",
+      "/SmartDashboard/Shooter_left": "PIDController",
+      "/SmartDashboard/Shooter_right": "PIDController",
       "/SmartDashboard/SwerveDrivetrain": "Subsystem",
       "/SmartDashboard/SwerveDrivetrain/angle PIDF": "PIDController",
       "/SmartDashboard/SwerveDrivetrain/drive PIDF": "PIDController",
@@ -67,25 +68,20 @@
   },
   "NetworkTables Settings": {
     "clientName": "glass2",
-    "mode": "Client (NT4)",
+    "mode": "Client (NT3)",
     "serverTeam": "2202"
   },
   "Plots": {
     "Plot <0>": {
       "plots": [
         {
-          "axis": [
-            {
-              "autoFit": true
-            }
-          ],
           "backgroundColor": [
             0.0,
             0.0,
             0.0,
             0.8500000238418579
           ],
-          "height": 341,
+          "height": 410,
           "legendLocation": 10,
           "series": [
             {
@@ -171,7 +167,7 @@
             0.8500000238418579
           ],
           "crosshairs": true,
-          "height": 447,
+          "height": 442,
           "legendLocation": 10,
           "series": [
             {
@@ -200,10 +196,12 @@
         {
           "axis": [
             {
-              "autoFit": true
+              "autoFit": true,
+              "opposite": true
             },
             {
-              "autoFit": true
+              "autoFit": true,
+              "opposite": false
             }
           ],
           "backgroundColor": [
@@ -213,7 +211,7 @@
             0.8500000238418579
           ],
           "crosshairs": true,
-          "height": 447,
+          "height": 442,
           "legendLocation": 10,
           "series": [
             {

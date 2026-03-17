@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.3168543046357617,
-        "y": 2.118377483443709
+        "x": 1.144375,
+        "y": 2.0766988636363637
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.5182615894039735,
-        "y": 2.517673841059603
+        "x": 1.3038295454545454,
+        "y": 2.9437329545454554
       },
       "isLocked": false,
-      "linkedName": "FueltoPos3ShootEnd"
+      "linkedName": "Outpost2ShootEnd"
     },
     {
       "anchor": {
-        "x": 1.2496440397350992,
-        "y": 2.8153311258278144
+        "x": 1.144375,
+        "y": 2.893903409090909
       },
       "prevControl": {
-        "x": 1.9611175496688742,
-        "y": 2.292615894039735
+        "x": 0.9849204545454542,
+        "y": 2.34577840909091
       },
       "nextControl": null,
       "isLocked": false,
@@ -45,10 +45,10 @@
     "rotation": 0.0
   },
   "reversed": false,
-  "folder": "ClockwiseRoundTheWorld",
+  "folder": "ShootOutpostShootClimb",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 39.80557109226522
+    "rotation": 30.411081267125383
   },
   "useDefaultConstraints": true
 }

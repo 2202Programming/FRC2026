@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.4283629893238445,
-        "y": 0.77
+        "x": 2.420011363636364,
+        "y": 2.6746534090909098
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.416861523144428,
-        "y": 1.7699338559503452
+        "x": 1.7722272727272728,
+        "y": 2.714517045454545
       },
       "isLocked": false,
       "linkedName": "ShootPoint1"
@@ -59,10 +59,10 @@
     "rotation": 0.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Pos3ShootFuelBump",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 70.01689347810002
+    "rotation": 32.27564431457761
   },
   "useDefaultConstraints": false
 }

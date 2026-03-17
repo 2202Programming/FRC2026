@@ -2,8 +2,18 @@
   "robotWidth": 0.813,
   "robotLength": 0.863,
   "holonomicMode": true,
-  "pathFolders": [],
-  "autoFolders": [],
+  "pathFolders": [
+    "ClockwiseRoundTheWorld",
+    "Pos3ShootFuelBump",
+    "Pos3ShootFuelClimb",
+    "ShootOutpostShootClimb",
+    "RoundTheWorld"
+  ],
+  "autoFolders": [
+    "BuddyNeutralAutos",
+    "NoNeutralAutos",
+    "SoloNeturalAutos"
+  ],
   "defaultMaxVel": 3.0,
   "defaultMaxAccel": 1.5,
   "defaultMaxAngVel": 360.0,

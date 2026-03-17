@@ -5,34 +5,40 @@
     "data": {
       "commands": [
         {
+          "type": "path",
+          "data": {
+            "pathName": "Pos2ToShoot2"
+          }
+        },
+        {
           "type": "race",
           "data": {
             "commands": [
               {
-                "type": "path",
+                "type": "named",
                 "data": {
-                  "pathName": "Pos 3 to Shoot"
+                  "name": "shoot"
                 }
               },
               {
-                "type": "named",
+                "type": "wait",
                 "data": {
-                  "name": "intake_on"
+                  "waitTime": 5.0
                 }
               }
             ]
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "shoot"
+            "pathName": "Shoot2Climb"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "BuddyNeutralAutos",
+  "folder": "NoNeutralAutos",
   "choreoAuto": false
 }

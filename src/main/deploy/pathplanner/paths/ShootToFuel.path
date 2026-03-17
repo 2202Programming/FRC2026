@@ -45,7 +45,7 @@
     "rotation": -88.898
   },
   "reversed": false,
-  "folder": null,
+  "folder": "ClockwiseRoundTheWorld",
   "idealStartingState": {
     "velocity": 0,
     "rotation": -66.25050550713313
