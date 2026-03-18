@@ -30,7 +30,8 @@ public class Targeter extends SubsystemBase {
     final double LOW_TOLERANCE = 0.5; // [M/S]
     final double UNBLOCK_SPEED = -15.0; // [M/S]
 
-    final double dist_err = 4.0 / 12.0;  //testing tape measure seemed like we were 6" short 
+    //todo make this a trim entry
+    final double dist_err = MperFT * 0.0 / 12.0;  //[m] testing tape measure seemed like we were 6" short 
 
     // Provided by vince as angle between the center of the motor and the trailing
     // edge of the ball exit ramp
