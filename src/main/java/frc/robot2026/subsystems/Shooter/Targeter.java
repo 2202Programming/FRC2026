@@ -78,21 +78,21 @@ public class Targeter extends SubsystemBase {
 
         // Quick and dirty table measured on 2/21/26
         // distance[m] -> flywheel [m/s]
-        vel_table.put(0.0 * MperFT, 22.0); // set a min
-        vel_table.put(5.0 * MperFT, 22.0);
-        vel_table.put(6.0 * MperFT, 22.7);
-        vel_table.put(10.0 * MperFT, 24.4); // was26.8 this is ladder radius
-        vel_table.put(12.0 * MperFT, 26.5);
-        vel_table.put(15.0 * MperFT, 30.4);
-        vel_table.put(17.0 * MperFT, 34.5);
-        vel_table.put(25.0 * MperFT, 34.5); // set a max
+        vel_table.put(0.0 * MperFT, 19.0); // set a min
+        vel_table.put(5.4 * MperFT, 19.0);  //1:1
+        vel_table.put(6.0 * MperFT, 19.3);  //1:1
+        vel_table.put(10.0 * MperFT, 23.0); // 1:1 was26.8 this is ladder radius
+        //vel_table.put(12.0 * MperFT, 26.5);
+        vel_table.put(12.3 * MperFT, 26.2);  // 1:1
+        vel_table.put(14.0 * MperFT, 28.1);  // 1:1
+        vel_table.put(17.0 * MperFT, 31.0);  // 1:1
+        //vel_table.put(25.0 * MperFT, 31.0); // set a max
 
-        tolerance_table.put(0.0 * MperFT, 0.3); //1.6);
-        tolerance_table.put(5.0 * MperFT, 0.3); //1.4);
-        tolerance_table.put(6.0 * MperFT, 0.3); //1.2 );
+        tolerance_table.put(0.0 * MperFT, 0.5); //1.6);
+        tolerance_table.put(5.0 * MperFT, 0.5); //1.4);
+        tolerance_table.put(6.0 * MperFT, 0.5); //1.2 );
         tolerance_table.put(10.0 * MperFT, 0.3); //0.8);
-        tolerance_table.put(17.0 * MperFT, 0.3);
-        tolerance_table.put(25.0 * MperFT, 0.3);
+        tolerance_table.put(17.0 * MperFT, 0.3);        
     }
 
     @Override
@@ -114,6 +114,10 @@ public class Targeter extends SubsystemBase {
     
     public Translation2d getBlueHub(){
         return blueHubTarget;
+    }
+
+    public void setManualSpeed(double value) {
+        manual_speed = value;
     }
 
 
@@ -170,9 +174,8 @@ public class Targeter extends SubsystemBase {
     @Override
     public void initSendable(SendableBuilder builder) {
         // if no setters, prefer watcher
-        // builder.addDoubleProperty("target_dist-ft", () -> {
-        //     return this.target_dist / MperFT;
-        // }, null);
+        builder.addDoubleProperty("manual_speed_sb", this::getManualSpeed, this::setManualSpeed);        
+        
         // builder.addDoubleProperty("target_speed", () -> {
         //     return this.target_speed;
         // }, null);
@@ -186,6 +189,7 @@ public class Targeter extends SubsystemBase {
             addEntry("isLowSpeed", ()-> {return Targeter.this.getManualSpeed() == Targeter.this.LOW_SPEED; }, 2);
             addEntry("manual_speed", Targeter.this::getManualSpeed, 2 );
             addEntry("target_dist-ft", ()-> {return Targeter.this.target_dist / MperFT; }, 2 );
+            addEntry("target_dist-m", ()-> {return Targeter.this.target_dist; }, 2 );
             addEntry("target_speed", () -> {return Targeter.this.target_speed;  }, 2 );
         }
     }
