@@ -4,13 +4,15 @@
   "holonomicMode": true,
   "pathFolders": [
     "ClockwiseRoundTheWorld",
+    "_dpl",
     "Pos3ShootFuelBump",
     "Pos3ShootFuelClimb",
-    "ShootOutpostShootClimb",
-    "RoundTheWorld"
+    "RoundTheWorld",
+    "ShootOutpostShootClimb"
   ],
   "autoFolders": [
     "BuddyNeutralAutos",
+    "_dpl",
     "NoNeutralAutos",
     "SoloNeturalAutos"
   ],
