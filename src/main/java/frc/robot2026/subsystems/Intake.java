@@ -267,7 +267,7 @@ public class Intake extends SubsystemBase {
     public void initialize() {
       no_fuel_timer.restart();
       Intake.this.setPercent(pct);
-      System.out.println("Intake::RunWhileFuel init");
+      //System.out.println("Intake::RunWhileFuel init");
     }
 
     @Override
@@ -285,7 +285,7 @@ public class Intake extends SubsystemBase {
 
     public void end(boolean interrupted) {
       Intake.this.setPercent(0.0);
-      System.out.println("Intake::RunWhileFuel end");
+      //System.out.println("Intake::RunWhileFuel end");
     }
 
     // this is a default command, it never finishes, but may be canceled

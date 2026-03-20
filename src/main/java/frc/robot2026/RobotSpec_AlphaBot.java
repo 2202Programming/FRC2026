@@ -224,6 +224,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
 
     // quiet the phoenix 6 logger noise
     SignalLogger.enableAutoLogging(false);
+    SignalLogger.stop();
 
     @SuppressWarnings("unused")
     CommandXboxController operator = (CommandXboxController)dc.Operator();
