@@ -84,9 +84,9 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
       //.add(TrimTables.class)
       .add(LimelightV2.class, "limelight", () -> {
         // Limelight position in robot coords - this has LL in the front of bot
-        Pose3d LimelightPosition = new Pose3d(-0.03, 0.01, 0.507,
-            new Rotation3d(0.0, 11.0 / DEGperRAD, 0.0));
-        return new LimelightV2("limelight", LimelightPosition);  //single ll use "" for name
+        Pose3d LimelightPosition = new Pose3d(0.32, 0.00, 0.515,   //new position 3/20/26
+            new Rotation3d(0.0, 15.0 / DEGperRAD, 0.0));
+        return new LimelightV2("limelight", LimelightPosition);
       })
       .add(SwerveDrivetrain.class, "drivetrain", () -> {
         return new SwerveDrivetrain(SparkFlex.class);
@@ -109,7 +109,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
         return new Shooter("flex_2", Constants.CAN.ShooterIDLeft, false);
       })
       .add(Shooter.class, "shooter_right", () -> {
-        return new Shooter("flex", Constants.CAN.ShooterIDRight, true);
+        return new Shooter("flex_2", Constants.CAN.ShooterIDRight, true);
       })
       .add(Intake.class, "intake", () -> {
         return new Intake();
