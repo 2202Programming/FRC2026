@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.lib2202.command.WatcherCmd;
 
 public class Indexer extends SubsystemBase {
 
@@ -73,6 +74,8 @@ public class Indexer extends SubsystemBase {
     configure(PositionSlot, inverted);
     configureTuning(PositionSlot);
     encoder.setPosition(0.0); // tells the motor it's at pos 0
+
+    this.getWatcherCmd();  //todo remove for comp
 
     // Default command will keep indexer loaded but stops before flywheel
     this.setDefaultCommand(this.new Load()); 
@@ -130,7 +133,11 @@ public class Indexer extends SubsystemBase {
   public void setPct(double pct) {
     controller.set(pct);
   }
-
+  
+  public double getPct() {
+    return controller.get();
+  }
+  
   public boolean hasFuel(){
     return !indexGate.get();
   }
@@ -220,8 +227,19 @@ public class Indexer extends SubsystemBase {
       m_changes = true;
     });
   }
+  
+  // Add a watcher so we can see stuff on network tables
+  public WatcherCmd getWatcherCmd() {
+        return this.new IndexerWatcher();
+  }
 
-
+  // watcher will put values on the network tables for viewing in elastic
+  class IndexerWatcher extends WatcherCmd {
+    IndexerWatcher() {           
+        addEntry("pct", Indexer.this::getPct, 2);
+        addEntry("current", Indexer.this::getAmps, 2);       
+     }
+  }
 
   public class Load extends Command {
     final static double DEFAULT_SPEED = 1.0;  //pct power
