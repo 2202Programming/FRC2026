@@ -4,6 +4,8 @@
 
 package frc.robot2026.command;
 
+import static edu.wpi.first.units.Units.Rotation;
+
 import java.util.Optional;
 
 import com.pathplanner.lib.path.PathConstraints;
@@ -76,15 +78,18 @@ public class autoClimberCommand extends Command {
     realCenter = (DriverStation.getAlliance().get() == Alliance.Blue) ? blueCenter : redCenter;
     Pose2d currentPose = odo.getPose();
     Pose2d pose;
+    Rotation2d targetRot;
+    targetRot = (leftSide) ? (realCenter.toPose2d().getRotation()) : realCenter.toPose2d().getRotation().plus(Rotation2d.fromDegrees(180.0));
     pose =  (leftSide) ?    //Gives us our tranformation based on left or right side
-        realCenter.toPose2d().transformBy(new Transform2d(new Translation2d(1.15 - chassisLengthBumper*0.5, chassisWidthBumper*.5+.45), realCenter.toPose2d().getRotation()))  :
-        realCenter.toPose2d().transformBy(new Transform2d(new Translation2d(1.15 + chassisLengthBumper*0.5, -1.0*(chassisWidthBumper*.5 +.45)), realCenter.toPose2d().getRotation().plus(Rotation2d.fromDegrees(180.0))));
+        realCenter.toPose2d().transformBy(new Transform2d(new Translation2d(1.15 - chassisLengthBumper*0.5, chassisWidthBumper*.5+.45), targetRot))  :
+        realCenter.toPose2d().transformBy(new Transform2d(new Translation2d(1.15 + chassisLengthBumper*0.5, -1.0*(chassisWidthBumper*.5 +.45)), targetRot));
     
     var cmd = new SequentialCommandGroup(
       new PrintCommand("climb pose "+pose.toString() + " dist=" + PoseMath.poseDistance(currentPose, pose)),
-      ((dontCrashTM() && ((PoseMath.poseDistance(currentPose, pose) < 1.0))) ? 
+      ((dontCrashTM() || ((PoseMath.poseDistance(currentPose, pose) > 1.0))) ? //If we are on the wrong side OR we are greater than a meter away
             new MoveToPose("vision_odo", constraints, pose)
             : new PrintCommand("Climber is close enough")),
+        (!odo.getPose().getRotation().equals(targetRot) ? new MoveToPose("vision_odo",constraints, new Pose2d(odo.getPose().getX(),odo.getPose().getY(),targetRot)) : new PrintCommand("At Rotation")),
         climber.armsToPoint(Climber.ExtendPosition).withTimeout(2.0),
         new WaitCommand(2.0),
         new climberManuver(leftSide),
