@@ -167,7 +167,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
       kDriveGR,
       // DPL, AH, JW - 12.0 factor for rev 2026 firmware using Volts and not PCT-Pwr
       new PIDFController(0.085, 0.00055, 0.0, 12.0 * 0.21292), // drive
-      new PIDFController(0.01, 0.0, 0.0, 0.0) // angle
+      new PIDFController(0.03, 0.0, 0.0, 0.0) // angle
   );
 
   public RobotSpec_AlphaBot() {
