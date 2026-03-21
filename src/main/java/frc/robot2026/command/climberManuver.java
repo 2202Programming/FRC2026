@@ -31,9 +31,8 @@ import frc.robot2026.Constants.TheField;
 // Consider yourself warned
 
 public class climberManuver extends Command {
-  // left and right defined from driver persepective to the tower @Gavin, how does red/blue change these? Robot Coords?
-  final Transform2d rightMove = new Transform2d(new Translation2d(-1.0 * (autoClimberCommand.chassisLengthBumper*0.5 + 0.08), 0.0), Rotation2d.fromDegrees(0.0)); //These values are 0 as we do not rotate on the ending move
-  final Transform2d leftMove = new Transform2d(new Translation2d(autoClimberCommand.chassisLengthBumper*0.5 + 0.08, 0.0), Rotation2d.fromDegrees(0.0));
+  final Transform2d negMove = new Transform2d(new Translation2d(-1.0 * (autoClimberCommand.chassisLengthBumper*0.5 + 0.08), 0.0), Rotation2d.fromDegrees(0.0)); //These values are 0 as we do not rotate on the ending move
+  final Transform2d posMove = new Transform2d(new Translation2d(autoClimberCommand.chassisLengthBumper*0.5 + 0.08, 0.0), Rotation2d.fromDegrees(0.0));
 
   final Pose3d blueCenter; //center of climber via tag
   final Pose3d redCenter;
@@ -91,13 +90,14 @@ public class climberManuver extends Command {
       startPose = realCenter.toPose2d().transformBy(new Transform2d(new Translation2d(1.15 - autoClimberCommand.chassisLengthBumper*0.5, 
                                                                                 autoClimberCommand.chassisWidthBumper*.5+.45)
                                                                                 ,sideRotation));
-      endPose = startPose.transformBy(leftMove);
+                                                                                
+      endPose = startPose.transformBy(posMove); //TODO if we switch coordinates depending on alliance, then this is fine
     } else { 
       sideRotation = realCenter.toPose2d().getRotation().plus(Rotation2d.fromDegrees(180.0));       
       startPose = realCenter.toPose2d().transformBy(new Transform2d(new Translation2d(1.15 + autoClimberCommand.chassisLengthBumper*0.5, 
                                                                       -1.0*(autoClimberCommand.chassisWidthBumper*.5 +.45)), 
                                                                       sideRotation));
-      endPose = startPose.transformBy(rightMove);
+      endPose = startPose.transformBy(negMove); //TODO if we switch coordinates depending on alliance, then this is fine
     }
     List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(odoPose, startPose, endPose);
 

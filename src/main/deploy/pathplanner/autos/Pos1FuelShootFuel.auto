@@ -9,34 +9,15 @@
           "data": {
             "commands": [
               {
-                "type": "named",
-                "data": {
-                  "name": "intake_on"
-                }
-              },
-              {
                 "type": "path",
                 "data": {
-                  "pathName": "Pos3 to fuel2"
+                  "pathName": "Pos1FuelTunnelShoot"
                 }
-              }
-            ]
-          }
-        },
-        {
-          "type": "race",
-          "data": {
-            "commands": [
+              },
               {
                 "type": "named",
                 "data": {
                   "name": "intake_on"
-                }
-              },
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Fuel to shoot"
                 }
               }
             ]
@@ -55,16 +36,48 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 4.0
+                  "waitTime": 2.0
                 }
               }
             ]
           }
         },
         {
-          "type": "named",
+          "type": "race",
           "data": {
-            "name": "climb_right"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "BumpHubBumpShoot"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intake_on"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "shoot"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 2.0
+                }
+              }
+            ]
           }
         }
       ]
