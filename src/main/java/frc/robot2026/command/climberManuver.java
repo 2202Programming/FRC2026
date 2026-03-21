@@ -76,6 +76,7 @@ public class climberManuver extends Command {
     Alliance alliance = DriverStation.getAlliance().get();
     realCenter = (alliance == Alliance.Blue) ? blueCenter : redCenter;
     // our computed waypoints
+    double allienceOffset = (alliance == Alliance.Blue) ? 180.0 : 0.0;
     Rotation2d sideRotation;  //for endRot based on tag & left/rt side
     Pose2d startPose;
     Pose2d endPose;
@@ -86,18 +87,18 @@ public class climberManuver extends Command {
     // use holonomic rotation.
 
     if (leftSide) {
-      sideRotation = realCenter.toPose2d().getRotation();
+      sideRotation = realCenter.toPose2d().getRotation().plus(Rotation2d.fromDegrees(allienceOffset));
       startPose = realCenter.toPose2d().transformBy(new Transform2d(new Translation2d(1.15 - autoClimberCommand.chassisLengthBumper*0.5, 
                                                                                 autoClimberCommand.chassisWidthBumper*.5+.45)
                                                                                 ,sideRotation));
                                                                                 
-      endPose = startPose.transformBy((alliance == Alliance.Blue) ? posMove : negMove); 
+      endPose = startPose.transformBy(negMove); 
     } else { 
-      sideRotation = realCenter.toPose2d().getRotation().plus(Rotation2d.fromDegrees(180.0));       
+      sideRotation = realCenter.toPose2d().getRotation().plus(Rotation2d.fromDegrees(180.0-allienceOffset));       
       startPose = realCenter.toPose2d().transformBy(new Transform2d(new Translation2d(1.15 + autoClimberCommand.chassisLengthBumper*0.5, 
                                                                       -1.0*(autoClimberCommand.chassisWidthBumper*.5 +.45)), 
                                                                       sideRotation));
-      endPose = startPose.transformBy((alliance == Alliance.Blue) ? posMove : negMove);
+      endPose = startPose.transformBy(negMove);
     }
     List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(odoPose, startPose, endPose);
 

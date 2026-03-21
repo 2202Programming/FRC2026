@@ -94,9 +94,9 @@ public class autoClimberCommand extends Command {
         ((0.5 < Math.abs((odo.getPose().getRotation().minus(targetRot).getDegrees())))
             ? ((targetRot.getDegrees() == 180.0)
                 ? (new RotateTo(new Translation2d(odo.getPose().getX() - 1.0, odo.getPose().getY()),
-                    new Translation2d(odo.getPose().getX() + 1.0, odo.getPose().getY())))
+                    new Translation2d(odo.getPose().getX() - 1.0, odo.getPose().getY())))
                 : (new RotateTo(new Translation2d(odo.getPose().getX() + 1.0, odo.getPose().getY()),
-                    new Translation2d(odo.getPose().getX() - 1.0, odo.getPose().getY()))))
+                    new Translation2d(odo.getPose().getX() + 1.0, odo.getPose().getY()))))
             : new PrintCommand("At Rotation")),
         ((dontCrashTM() || ((PoseMath.poseDistance(currentPose, pose) > 1.0))) ? // If we are on the wrong side OR we
                                                                                  // are greater than a meter away
