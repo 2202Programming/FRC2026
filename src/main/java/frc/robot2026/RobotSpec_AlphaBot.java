@@ -73,7 +73,9 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
         return pdp;
       })
       .add(HID_Subsystem.class, "DC", () -> {
-        return new HID_Subsystem(0.3, 0.6, 0.05);
+        var hid =  new HID_Subsystem(0.3, 0.6, 0.05);
+        hid.new HIDMonitorCmd();
+        return hid;
       })
       // Sensors, limelight and drivetrain all use interfaces, so make sure their
       // alias names
