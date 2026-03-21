@@ -91,13 +91,13 @@ public class climberManuver extends Command {
                                                                                 autoClimberCommand.chassisWidthBumper*.5+.45)
                                                                                 ,sideRotation));
                                                                                 
-      endPose = startPose.transformBy(negMove); //TODO if we switch coordinates depending on alliance, then this is fine
+      endPose = startPose.transformBy(posMove); //TODO if we switch coordinates depending on alliance, then this is fine
     } else { 
       sideRotation = realCenter.toPose2d().getRotation().plus(Rotation2d.fromDegrees(180.0));       
       startPose = realCenter.toPose2d().transformBy(new Transform2d(new Translation2d(1.15 + autoClimberCommand.chassisLengthBumper*0.5, 
                                                                       -1.0*(autoClimberCommand.chassisWidthBumper*.5 +.45)), 
                                                                       sideRotation));
-      endPose = startPose.transformBy(posMove); //TODO if we switch coordinates depending on alliance, then this is fine
+      endPose = startPose.transformBy(negMove); //TODO if we switch coordinates depending on alliance, then this is fine
     }
     List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(odoPose, startPose, endPose);
 
