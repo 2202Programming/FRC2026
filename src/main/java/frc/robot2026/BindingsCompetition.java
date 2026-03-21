@@ -24,6 +24,7 @@ import frc.lib2202.subsystem.hid.TMJoystickController;
 import frc.lib2202.subsystem.swerve.DriveTrainInterface;
 import frc.robot2026.command.Agitate;
 import frc.robot2026.command.AgitateOS;
+import frc.robot2026.command.Climb2;
 import frc.robot2026.command.shooter.AutoShoot;
 import frc.robot2026.subsystems.Climber;
 import frc.robot2026.subsystems.Hopper;
@@ -178,7 +179,9 @@ public final class BindingsCompetition {
             operator.a().whileTrue(new AgitateOS(true, 0.455, 1.0, 0.5, .65));
             operator.b().whileTrue(new AgitateOS(false, 0.455, 0.25, 0.75, .65));
 
-
+            // TESTING for now
+            operator.back().onTrue(new Climb2('l'));
+            operator.start().onTrue(new Climb2('r'));
             //TESTING REMOVE FOR COMP
             //operator.b().whileTrue(RegisteredCommands.ncShoot());
 
