@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.builder.RobotLimits;
 import frc.lib2202.command.pathing.MoveToPose;
+import frc.lib2202.command.swerve.RotateTo;
 import frc.lib2202.subsystem.OdometryInterface;
 import frc.lib2202.subsystem.swerve.DriveTrainInterface;
 import frc.lib2202.util.PoseMath;
@@ -35,30 +36,30 @@ import frc.robot2026.subsystems.Climber;
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class autoClimberCommand extends Command {
-//SequentialCommandGroup {
+  // SequentialCommandGroup {
   /** Creates a new autoClimberCommand. */
   final Climber climber;
   final DriveTrainInterface sdt;
   final RobotLimits limits;
   final PathConstraints constraints;
 
-  //debugging use only
+  // debugging use only
   final OdometryInterface odo;
 
   final Pose3d blueCenter;
   final Pose3d redCenter;
   final boolean leftSide;
-  //computed in init based on Alliance and side...
+  // computed in init based on Alliance and side...
   Pose3d realCenter;
 
-    //Assuming our bot is symmetric
+  // Assuming our bot is symmetric
   final static double chassisWidthBumper = 0.86;
   final static double chassisLengthBumper = 0.81;
 
-  
   public autoClimberCommand(boolean leftSide) {
     this.leftSide = leftSide;
-    Optional<Pose3d> BlueCenter = TheField.fieldLayout.getTagPose(31); //If the field exists, give us the red and blue position
+    Optional<Pose3d> BlueCenter = TheField.fieldLayout.getTagPose(31); // If the field exists, give us the red and blue
+                                                                       // position
     Optional<Pose3d> RedCenter = TheField.fieldLayout.getTagPose(15);
     blueCenter = BlueCenter.isPresent() ? BlueCenter.get() : null;
     redCenter = RedCenter.isPresent() ? RedCenter.get() : null;
@@ -68,9 +69,9 @@ public class autoClimberCommand extends Command {
     climber = RobotContainer.getSubsystem("climber");
     sdt = RobotContainer.getSubsystem("drivetrain");
     constraints = new PathConstraints(limits.kMaxSpeed, limits.kMaxSpeed / 1.33,
-        limits.kMaxAngularSpeed, limits.kMaxAngularSpeed / 0.75);  
-        
-    // no requirements, we will add them to the cmd we build in initialize        
+        limits.kMaxAngularSpeed, limits.kMaxAngularSpeed / 0.75);
+
+    // no requirements, we will add them to the cmd we build in initialize
   }
 
   @Override
@@ -79,26 +80,37 @@ public class autoClimberCommand extends Command {
     Pose2d currentPose = odo.getPose();
     Pose2d pose;
     Rotation2d targetRot;
-    targetRot = (leftSide) ? (realCenter.toPose2d().getRotation()) : realCenter.toPose2d().getRotation().plus(Rotation2d.fromDegrees(180.0));
-    pose =  (leftSide) ?    //Gives us our tranformation based on left or right side
-        realCenter.toPose2d().transformBy(new Transform2d(new Translation2d(1.15 - chassisLengthBumper*0.5, chassisWidthBumper*.5+.45), targetRot))  :
-        realCenter.toPose2d().transformBy(new Transform2d(new Translation2d(1.15 + chassisLengthBumper*0.5, -1.0*(chassisWidthBumper*.5 +.45)), targetRot));
-    
+    targetRot = (leftSide) ? (realCenter.toPose2d().getRotation())
+        : realCenter.toPose2d().getRotation().plus(Rotation2d.fromDegrees(180.0));
+    pose = (leftSide) ? // Gives us our tranformation based on left or right side
+        realCenter.toPose2d()
+            .transformBy(new Transform2d(
+                new Translation2d(1.15 - chassisLengthBumper * 0.5, chassisWidthBumper * .5 + .45), targetRot))
+        : realCenter.toPose2d().transformBy(new Transform2d(
+            new Translation2d(1.15 + chassisLengthBumper * 0.5, -1.0 * (chassisWidthBumper * .5 + .45)), targetRot));
+
     var cmd = new SequentialCommandGroup(
-      new PrintCommand("climb pose "+pose.toString() + " dist=" + PoseMath.poseDistance(currentPose, pose)),
-      ((dontCrashTM() || ((PoseMath.poseDistance(currentPose, pose) > 1.0))) ? //If we are on the wrong side OR we are greater than a meter away
+        new PrintCommand("climb pose " + pose.toString() + " dist=" + PoseMath.poseDistance(currentPose, pose)),
+        ((dontCrashTM() || ((PoseMath.poseDistance(currentPose, pose) > 1.0))) ? // If we are on the wrong side OR we
+                                                                                 // are greater than a meter away
             new MoveToPose("vision_odo", constraints, pose)
             : new PrintCommand("Climber is close enough")),
-        (!odo.getPose().getRotation().equals(targetRot) ? new MoveToPose("vision_odo",constraints, new Pose2d(odo.getPose().getX(),odo.getPose().getY(),targetRot)) : new PrintCommand("At Rotation")),
+        (!odo.getPose().getRotation().equals(targetRot)
+            ? ((targetRot.getDegrees() == 180.0)
+                ? (new RotateTo(new Translation2d(odo.getPose().getX() - 1.0, odo.getPose().getY()),
+                    new Translation2d(odo.getPose().getX() + 1.0, odo.getPose().getY())))
+                : (new RotateTo(new Translation2d(odo.getPose().getX() + 1.0, odo.getPose().getY()),
+                    new Translation2d(odo.getPose().getX() - 1.0, odo.getPose().getY()))))
+            : new PrintCommand("At Rotation")),
         climber.armsToPoint(Climber.ExtendPosition).withTimeout(2.0),
         new WaitCommand(2.0),
         new climberManuver(leftSide),
         climber.armsToPoint(Climber.ClimbPositon).withTimeout(2.0));
-    
+
     cmd.addRequirements(climber, sdt);
-    cmd.setName("autoClimb-"+ pose.toString());
+    cmd.setName("autoClimb-" + pose.toString());
     cmd = cmd.andThen(new PrintCommand("autoClimb DONE!!"));
-    
+
     // run what we built
     CommandScheduler.getInstance().schedule(cmd);
   }
@@ -108,28 +120,29 @@ public class autoClimberCommand extends Command {
     return true;
   }
 
-  private boolean dontCrashTM() { //TODO check if this actually works
-    //Checks if we will run into the tower when using waypoints. May change in general
-    double LDC; //Line Dont Cross
-    double currentPoseY = odo.getPose().getY(); 
+  private boolean dontCrashTM() { // TODO check if this actually works
+    // Checks if we will run into the tower when using waypoints. May change in
+    // general
+    double LDC; // Line Dont Cross
+    double currentPoseY = odo.getPose().getY();
     if (DriverStation.getAlliance().get() == Alliance.Blue) {
       if (leftSide) {
-        LDC = blueCenter.getY() + (chassisWidthBumper*.5+.45);
+        LDC = blueCenter.getY() + (chassisWidthBumper * .5 + .45);
       } else {
-        LDC = blueCenter.getY() - (chassisWidthBumper*.5+.45);
+        LDC = blueCenter.getY() - (chassisWidthBumper * .5 + .45);
         currentPoseY = -currentPoseY;
         LDC = -LDC;
       }
     } else {
       if (leftSide) {
-        LDC = redCenter.getY() - (chassisWidthBumper*.5+.45);
+        LDC = redCenter.getY() - (chassisWidthBumper * .5 + .45);
         currentPoseY = -currentPoseY;
         LDC = -LDC;
       } else {
-        LDC = redCenter.getY() + (chassisWidthBumper*.5+.45);
+        LDC = redCenter.getY() + (chassisWidthBumper * .5 + .45);
       }
     }
-    return currentPoseY > LDC; 
+    return currentPoseY > LDC;
   }
-    
+
 }
