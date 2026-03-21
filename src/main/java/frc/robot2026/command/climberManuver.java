@@ -97,7 +97,7 @@ public class climberManuver extends Command {
       startPose = realCenter.toPose2d().transformBy(new Transform2d(new Translation2d(1.15 + autoClimberCommand.chassisLengthBumper*0.5, 
                                                                       -1.0*(autoClimberCommand.chassisWidthBumper*.5 +.45)), 
                                                                       sideRotation));
-      endPose = startPose.transformBy((alliance == Alliance.Blue) ? negMove : posMove);
+      endPose = startPose.transformBy((alliance == Alliance.Blue) ? posMove : negMove);
     }
     List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(odoPose, startPose, endPose);
 

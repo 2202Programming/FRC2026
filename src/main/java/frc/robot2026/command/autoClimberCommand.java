@@ -80,28 +80,28 @@ public class autoClimberCommand extends Command {
     Pose2d currentPose = odo.getPose();
     Pose2d pose;
     Rotation2d targetRot;
-    targetRot = (leftSide) ? (realCenter.toPose2d().getRotation())
+    targetRot = (!leftSide) ? (realCenter.toPose2d().getRotation())
         : realCenter.toPose2d().getRotation().plus(Rotation2d.fromDegrees(180.0));
     pose = (leftSide) ? // Gives us our tranformation based on left or right side
         realCenter.toPose2d()
             .transformBy(new Transform2d(
-                new Translation2d(1.15 - chassisLengthBumper * 0.5, chassisWidthBumper * .5 + .45), targetRot))
+                new Translation2d(1.15 - chassisLengthBumper * 0.5, chassisWidthBumper * .5 + .45), Rotation2d.fromDegrees(180.0)))
         : realCenter.toPose2d().transformBy(new Transform2d(
-            new Translation2d(1.15 + chassisLengthBumper * 0.5, -1.0 * (chassisWidthBumper * .5 + .45)), targetRot));
+            new Translation2d(1.15 + chassisLengthBumper * 0.5, -1.0 * (chassisWidthBumper * .5 + .45)), Rotation2d.fromDegrees(0.0)));
 
     var cmd = new SequentialCommandGroup(
         new PrintCommand("climb pose " + pose.toString() + " dist=" + PoseMath.poseDistance(currentPose, pose)),
-        ((dontCrashTM() || ((PoseMath.poseDistance(currentPose, pose) > 1.0))) ? // If we are on the wrong side OR we
-                                                                                 // are greater than a meter away
-            new MoveToPose("vision_odo", constraints, pose)
-            : new PrintCommand("Climber is close enough")),
-        (!odo.getPose().getRotation().equals(targetRot)
+        ((0.5 < Math.abs((odo.getPose().getRotation().minus(targetRot).getDegrees())))
             ? ((targetRot.getDegrees() == 180.0)
                 ? (new RotateTo(new Translation2d(odo.getPose().getX() - 1.0, odo.getPose().getY()),
                     new Translation2d(odo.getPose().getX() + 1.0, odo.getPose().getY())))
                 : (new RotateTo(new Translation2d(odo.getPose().getX() + 1.0, odo.getPose().getY()),
                     new Translation2d(odo.getPose().getX() - 1.0, odo.getPose().getY()))))
             : new PrintCommand("At Rotation")),
+        ((dontCrashTM() || ((PoseMath.poseDistance(currentPose, pose) > 1.0))) ? // If we are on the wrong side OR we
+                                                                                 // are greater than a meter away
+            new MoveToPose("vision_odo", constraints, pose)
+            : new PrintCommand("Climber is close enough")),
         climber.armsToPoint(Climber.ExtendPosition).withTimeout(2.0),
         new WaitCommand(2.0),
         new climberManuver(leftSide),
