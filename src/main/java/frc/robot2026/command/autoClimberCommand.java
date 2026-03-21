@@ -82,7 +82,7 @@ public class autoClimberCommand extends Command {
     
     var cmd = new SequentialCommandGroup(
       new PrintCommand("climb pose "+pose.toString() + " dist=" + PoseMath.poseDistance(currentPose, pose)),
-      (!DriverStation.isAutonomous()&&(dontCrashTM() && ((PoseMath.poseDistance(currentPose, pose) < 1.0))) ? 
+      ((dontCrashTM() && ((PoseMath.poseDistance(currentPose, pose) < 1.0))) ? 
             new MoveToPose("vision_odo", constraints, pose)
             : new PrintCommand("Climber is close enough")),
         climber.armsToPoint(Climber.ExtendPosition).withTimeout(2.0),

@@ -62,9 +62,9 @@
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "shoot to end climb2"
+            "name": "climb_right"
           }
         }
       ]
