@@ -4,10 +4,11 @@
   "holonomicMode": true,
   "pathFolders": [
     "ClockwiseRoundTheWorld",
+    "Pos1FuelShootFuel",
     "Pos3ShootFuelBump",
     "Pos3ShootFuelClimb",
-    "ShootOutpostShootClimb",
-    "RoundTheWorld"
+    "RoundTheWorld",
+    "ShootOutpostShootClimb"
   ],
   "autoFolders": [
     "BuddyNeutralAutos",
