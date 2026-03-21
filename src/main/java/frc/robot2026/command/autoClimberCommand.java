@@ -56,7 +56,7 @@ public class autoClimberCommand extends Command {
   
   public autoClimberCommand(boolean leftSide) {
     this.leftSide = leftSide;
-    Optional<Pose3d> BlueCenter = TheField.fieldLayout.getTagPose(31);
+    Optional<Pose3d> BlueCenter = TheField.fieldLayout.getTagPose(31); //If the field exists, give us the red and blue position
     Optional<Pose3d> RedCenter = TheField.fieldLayout.getTagPose(15);
     blueCenter = BlueCenter.isPresent() ? BlueCenter.get() : null;
     redCenter = RedCenter.isPresent() ? RedCenter.get() : null;
@@ -76,13 +76,13 @@ public class autoClimberCommand extends Command {
     realCenter = (DriverStation.getAlliance().get() == Alliance.Blue) ? blueCenter : redCenter;
     Pose2d currentPose = odo.getPose();
     Pose2d pose;
-    pose =  (leftSide) ?    
+    pose =  (leftSide) ?    //Gives us our tranformation based on left or right side
         realCenter.toPose2d().transformBy(new Transform2d(new Translation2d(1.15 - chassisLengthBumper*0.5, chassisWidthBumper*.5+.45), realCenter.toPose2d().getRotation()))  :
         realCenter.toPose2d().transformBy(new Transform2d(new Translation2d(1.15 + chassisLengthBumper*0.5, -1.0*(chassisWidthBumper*.5 +.45)), realCenter.toPose2d().getRotation().plus(Rotation2d.fromDegrees(180.0))));
     
     var cmd = new SequentialCommandGroup(
       new PrintCommand("climb pose "+pose.toString() + " dist=" + PoseMath.poseDistance(currentPose, pose)),
-      (DriverStation.isAutonomous()||(dontCrashTM() && ((PoseMath.poseDistance(currentPose, pose) < 1.0))) ? 
+      (!DriverStation.isAutonomous()&&(dontCrashTM() && ((PoseMath.poseDistance(currentPose, pose) < 1.0))) ? 
             new MoveToPose("vision_odo", constraints, pose)
             : new PrintCommand("Climber is close enough")),
         climber.armsToPoint(Climber.ExtendPosition).withTimeout(2.0),
@@ -103,7 +103,8 @@ public class autoClimberCommand extends Command {
     return true;
   }
 
-  private boolean dontCrashTM() {
+  private boolean dontCrashTM() { //TODO check if this actually works
+    //Checks if we will run into the tower when using waypoints. May change in general
     double LDC; //Line Dont Cross
     double currentPoseY = odo.getPose().getY(); 
     if (DriverStation.getAlliance().get() == Alliance.Blue) {
