@@ -78,21 +78,22 @@ public class Targeter extends SubsystemBase {
 
         // Quick and dirty table measured on 2/21/26
         // distance[m] -> flywheel [m/s]
-        vel_table.put(0.0 * MperFT, 19.0); // set a min
-        vel_table.put(5.4 * MperFT, 19.0);  //1:1
-        vel_table.put(6.0 * MperFT, 19.3);  //1:1
-        vel_table.put(10.0 * MperFT, 23.0); // 1:1 was26.8 this is ladder radius
-        //vel_table.put(12.0 * MperFT, 26.5);
-        vel_table.put(12.3 * MperFT, 26.2);  // 1:1
+        vel_table.put(0.0 * MperFT, 18.5); // set a min
+        vel_table.put(5.4 * MperFT, 18.5);  //1:1
+        vel_table.put(6.0 * MperFT, 19.2);  //1:1
+        vel_table.put(10.0 * MperFT, 22.9); // 1:1 was26.8 this is ladder radius
+        // vel_table.put(12.0 * MperFT, 26.5);
+        vel_table.put(12.3 * MperFT, 25.9);  // 1:1
         vel_table.put(14.0 * MperFT, 28.1);  // 1:1
         vel_table.put(17.0 * MperFT, 31.0);  // 1:1
         //vel_table.put(25.0 * MperFT, 31.0); // set a max
 
-        tolerance_table.put(0.0 * MperFT, 0.5); //1.6);
-        tolerance_table.put(5.0 * MperFT, 0.5); //1.4);
-        tolerance_table.put(6.0 * MperFT, 0.5); //1.2 );
+        tolerance_table.put(0.0 * MperFT, 0.3); //1.6);
+        tolerance_table.put(5.0 * MperFT, 0.3); //1.4);
+        tolerance_table.put(6.0 * MperFT, 0.3); //1.2 );
         tolerance_table.put(10.0 * MperFT, 0.3); //0.8);
         tolerance_table.put(17.0 * MperFT, 0.3);        
+
     }
 
     @Override
