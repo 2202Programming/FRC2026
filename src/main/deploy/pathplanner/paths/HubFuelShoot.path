@@ -122,7 +122,21 @@
       "rotationDegrees": 86.71481263787747
     }
   ],
-  "constraintZones": [],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0.3411214953271033,
+      "maxWaypointRelativePos": 0.8271028037383246,
+      "constraints": {
+        "maxVelocity": 1.0,
+        "maxAcceleration": 1.5,
+        "maxAngularVelocity": 360.0,
+        "maxAngularAcceleration": 360.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
@@ -138,7 +152,7 @@
     "rotation": 63.434948822921896
   },
   "reversed": false,
-  "folder": "Pos1FuelShootFuel",
+  "folder": "Pos3FuelShootFuel",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 50.526165483773006
