@@ -41,6 +41,8 @@ public class Targeter extends SubsystemBase {
     final double Shooter_Angle = 65.0; // [deg]
 
     final OdometryInterface odo;
+    final SwerveDrivetrain dt;
+
     // Hub targets
     public final Translation2d blueHubTarget;
     public final Translation2d redHubTarget;
@@ -48,10 +50,13 @@ public class Targeter extends SubsystemBase {
     final InverseInterpolator<Double> distance = InverseInterpolator.forDouble();
     final Interpolator<Double> vel_mps = Interpolator.forDouble();
     final Interpolator<Double> tolerance_mps = Interpolator.forDouble();
+    final Interpolator<Double> hangTime = Interpolator.forDouble();
     final InterpolatingTreeMap<Double, Double> vel_table = new InterpolatingTreeMap<>(distance, vel_mps); // [m][m/s]
     final InterpolatingTreeMap<Double, Double> tolerance_table = new InterpolatingTreeMap<>(distance, tolerance_mps); // [m][m/s]
+    final InterpolatingTreeMap<Double, Double> hangTime_table = new InterpolatingTreeMap<>(distance, hangTime); //[m][s]
 
     Translation2d targetTranslation2d;
+    Translation2d motionTargetTranslation2d;
     double target_dist; // function of VPE pose and Hub center + math
     double target_speed = LOW_SPEED;
     double manual_speed = LOW_SPEED; // flywheel speed manually controlled by driver
@@ -78,6 +83,7 @@ public class Targeter extends SubsystemBase {
         targetTranslation2d = blueHubTarget;
 
         odo = RobotContainer.getSubsystem(odo_name);
+        dt = RobotContainer.getSubsystem("drivetrain");
 
         // Quick and dirty table measured on 2/21/26
         // distance[m] -> flywheel [m/s]
@@ -95,7 +101,13 @@ public class Targeter extends SubsystemBase {
         tolerance_table.put(5.0 * MperFT, 0.3); //1.4);
         tolerance_table.put(6.0 * MperFT, 0.3); //1.2 );
         tolerance_table.put(10.0 * MperFT, 0.3); //0.8);
-        tolerance_table.put(17.0 * MperFT, 0.3);        
+        tolerance_table.put(17.0 * MperFT, 0.3);  
+        
+        //made up values, please measure
+        hangTime_table.put(0.0 * MperFT, 2.0);
+        hangTime_table.put(5.0 * MperFT, 2.5);
+        hangTime_table.put(10.0 * MperFT, 3.0);
+        hangTime_table.put(15.0 * MperFT, 3.5);
 
     }
 
@@ -108,6 +120,8 @@ public class Targeter extends SubsystemBase {
         target_dist += dist_err; 
         target_speed = vel_table.get(target_dist);
         target_tolerance = tolerance_table.get(target_dist);
+
+        motionTargetTranslation2d = motionCorrectedTarget(hangTime_table.get(target_dist));
 
     }
 
@@ -175,13 +189,19 @@ public class Targeter extends SubsystemBase {
         });
     }
 
+    //new point on the field to be the aiming target based on our velocity vector and ball hang time
     public Translation2d motionCorrectedTarget(double hangTime){
-        Translation2d newTarget;
-        SwerveDrivetrain dt = RobotContainer.getSubsystem("drivetrain");
         double xVelocity = dt.getFieldRelativeSpeeds().vxMetersPerSecond;
         double yVelocity = dt.getFieldRelativeSpeeds().vyMetersPerSecond;
-        newTarget = new Translation2d(targetTranslation2d.getX() + xVelocity*hangTime, targetTranslation2d.getY() + yVelocity*hangTime);
-        return newTarget;
+        return new Translation2d(targetTranslation2d.getX() + xVelocity*hangTime, targetTranslation2d.getY() + yVelocity*hangTime);
+    }
+
+    public double getMotionTargetX(){
+        return motionTargetTranslation2d.getX();
+    }
+
+    public double getMotionTargetY(){
+        return motionTargetTranslation2d.getY();
     }
 
     @Override
@@ -204,6 +224,8 @@ public class Targeter extends SubsystemBase {
             addEntry("target_dist-ft", ()-> {return Targeter.this.target_dist / MperFT; }, 2 );
             addEntry("target_dist-m", ()-> {return Targeter.this.target_dist; }, 2 );
             addEntry("target_speed", () -> {return Targeter.this.target_speed;  }, 2 );
+            addEntry("Motion Corrected Target X", Targeter.this::getMotionTargetX, 2);
+            addEntry("Motion Corrected Target Y", Targeter.this::getMotionTargetY, 2);
         }
     }
 }
