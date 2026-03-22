@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.command.WatcherCmd;
 import frc.lib2202.subsystem.OdometryInterface;
+import frc.lib2202.subsystem.TargeterInterface;
 import frc.robot2026.Constants.TheField;
 import frc.lib2202.subsystem.swerve.SwerveDrivetrain;
 
@@ -27,7 +28,7 @@ manage shooter speeds for different command use
     distance to hub
     heading to  hub 
  */
-public class Targeter extends SubsystemBase {
+public class Targeter extends SubsystemBase implements TargeterInterface {
     final double HIGH_SPEED = 29.5; // [M/S]
     final double LOW_SPEED = 26.3; // [M/S]
     final double LOW_TOLERANCE = 0.5; // [M/S]
@@ -203,7 +204,8 @@ public class Targeter extends SubsystemBase {
     public double getMotionTargetY(){
         return motionTargetTranslation2d.getY();
     }
-
+    
+    @Override
     public Translation2d getMotionCorrectedTarget(){
         return motionTargetTranslation2d;
     }
