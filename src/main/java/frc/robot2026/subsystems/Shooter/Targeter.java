@@ -19,7 +19,8 @@ import frc.lib2202.command.WatcherCmd;
 import frc.lib2202.subsystem.OdometryInterface;
 import frc.lib2202.subsystem.TargeterInterface;
 import frc.robot2026.Constants.TheField;
-import frc.lib2202.subsystem.swerve.SwerveDrivetrain;
+import frc.lib2202.subsystem.swerve.DriveTrainInterface;
+
 
 /*
 manage shooter speeds for different command use
@@ -42,7 +43,7 @@ public class Targeter extends SubsystemBase implements TargeterInterface {
     final double Shooter_Angle = 65.0; // [deg]
 
     final OdometryInterface odo;
-    final SwerveDrivetrain dt;
+    final DriveTrainInterface dt;
 
     // Hub targets
     public final Translation2d blueHubTarget;
@@ -58,17 +59,28 @@ public class Targeter extends SubsystemBase implements TargeterInterface {
 
     Translation2d targetTranslation2d;
     Translation2d motionTargetTranslation2d;
+    
     double target_dist; // function of VPE pose and Hub center + math
+    double target_dist_motion_corrected;
     double target_speed = LOW_SPEED;
+    double target_speed_motion_corrected = LOW_SPEED;
     double manual_speed = LOW_SPEED; // flywheel speed manually controlled by driver
     double target_tolerance = LOW_TOLERANCE;
     double override_dist = 0.0; // non-zero will skip LL distance calcs
 
+    double motionDeltaX;
+    double motionDeltaY;
+    double motionDeltaSpeed;
+
     public Targeter() {
-        this("vision_odo");
+        this("vision_odo", "drivetrain");
     }
 
     public Targeter(String odo_name) {
+        this(odo_name, "drivetrain");
+    }
+
+    public Targeter(String odo_name, String drivetrain_name) {
         setName("Targeter");
         // use hub tags to calc center of blue and red hubs
         Pose3d blue1 = TheField.fieldLayout.getTagPose(20).get();
@@ -84,7 +96,7 @@ public class Targeter extends SubsystemBase implements TargeterInterface {
         targetTranslation2d = blueHubTarget;
 
         odo = RobotContainer.getSubsystem(odo_name);
-        dt = RobotContainer.getSubsystem("drivetrain");
+        dt = RobotContainer.getSubsystem(drivetrain_name);
 
         // Quick and dirty table measured on 2/21/26
         // distance[m] -> flywheel [m/s]
@@ -122,8 +134,17 @@ public class Targeter extends SubsystemBase implements TargeterInterface {
         target_speed = vel_table.get(target_dist);
         target_tolerance = tolerance_table.get(target_dist);
 
+        //better to do some vector math to get the real target distance here (what is component of velocity away/towards target?)
+        //for now get hangtime from uncorrected distance
         motionTargetTranslation2d = motionCorrectedTarget(hangTime_table.get(target_dist));
+        
+        target_dist_motion_corrected = (override_dist == 0.0) ? odo.getDistanceToTranslation(motionTargetTranslation2d) : override_dist;
+        target_dist_motion_corrected += dist_err;
+        target_speed_motion_corrected = vel_table.get(target_dist_motion_corrected);
 
+        motionDeltaX = targetTranslation2d.getX() - motionTargetTranslation2d.getX();
+        motionDeltaY = targetTranslation2d.getY() - motionTargetTranslation2d.getY();
+        motionDeltaSpeed = target_dist_motion_corrected - target_speed;
     }
 
     // Expose hub locations for commands   
@@ -154,6 +175,10 @@ public class Targeter extends SubsystemBase implements TargeterInterface {
 
     public double getTargetSpeed() {
         return target_speed;
+    }
+
+    public double getTargetSpeedMotionCorrected() {
+        return target_speed_motion_corrected;
     }
 
     // Call this on autoInit and teleInit to make sure alliance target is set
@@ -204,7 +229,7 @@ public class Targeter extends SubsystemBase implements TargeterInterface {
     public double getMotionTargetY(){
         return motionTargetTranslation2d.getY();
     }
-    
+
     @Override
     public Translation2d getMotionCorrectedTarget(){
         return motionTargetTranslation2d;
@@ -230,8 +255,9 @@ public class Targeter extends SubsystemBase implements TargeterInterface {
             addEntry("target_dist-ft", ()-> {return Targeter.this.target_dist / MperFT; }, 2 );
             addEntry("target_dist-m", ()-> {return Targeter.this.target_dist; }, 2 );
             addEntry("target_speed", () -> {return Targeter.this.target_speed;  }, 2 );
-            addEntry("Motion Corrected Target X", Targeter.this::getMotionTargetX, 2);
-            addEntry("Motion Corrected Target Y", Targeter.this::getMotionTargetY, 2);
+            addEntry("MotionDeltaX", () -> {return Targeter.this.motionDeltaX;}, 2);
+            addEntry("MotionDeltaY", () -> {return Targeter.this.motionDeltaY;}, 2);
+            addEntry("MotionDeltaSpeed", () -> {return Targeter.this.motionDeltaSpeed;}, 2);
         }
     }
 }

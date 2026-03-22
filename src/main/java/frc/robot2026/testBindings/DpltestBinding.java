@@ -1,7 +1,6 @@
 package frc.robot2026.testBindings;
 
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.lib2202.builder.RobotContainer;
 //import frc.lib2202.command.swerve.FaceToTag;
 import frc.lib2202.command.swerve.RotateTo;
 import frc.lib2202.command.swerve.calibrate.TestConstantVelocity;
@@ -9,6 +8,7 @@ import frc.lib2202.command.swerve.calibrate.TestRotateVelocity;
 import frc.robot2026.BindingsCompetition;
 import frc.robot2026.RegisteredCommands;
 import frc.robot2026.command.autoClimberCommand;
+
 
 public class DpltestBinding {
 
@@ -27,7 +27,6 @@ public class DpltestBinding {
                         BindingsCompetition.targeter.getBlueHub(), 3.0).setP(4.0));
         c.x().onTrue(new autoClimberCommand(false)); // good for testing with Pos3 starts
         // testing on rotate to target
-        c.start().onTrue(new RotateTo(RobotContainer.getSubsystem("targeter"), 1.0)
-                .setP(4.0));
+
     }
 }

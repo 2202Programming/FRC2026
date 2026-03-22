@@ -146,7 +146,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
       })
         *************************/
       .add(Hopper.class)
-      .add(Targeter.class, "targeter")
+      .add(Targeter.class)
       ;
 
   // Robot Speed Limits
