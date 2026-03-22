@@ -134,10 +134,9 @@ public class Targeter extends SubsystemBase implements TargeterInterface {
         target_speed = vel_table.get(target_dist);
         target_tolerance = tolerance_table.get(target_dist);
 
-        //better to do some vector math to get the real target distance here (what is component of velocity away/towards target?)
-        //for now get hangtime from uncorrected distance
-        motionTargetTranslation2d = motionCorrectedTarget(hangTime_table.get(target_dist));
-        
+        //get new target location adjusted for velocity and expected hangtime of shot
+        motionTargetTranslation2d = motionCorrectedTarget(hangTime_table.get(motionCorrectedDistance()));
+
         target_dist_motion_corrected = (override_dist == 0.0) ? odo.getDistanceToTranslation(motionTargetTranslation2d) : override_dist;
         target_dist_motion_corrected += dist_err;
         target_speed_motion_corrected = vel_table.get(target_dist_motion_corrected);
@@ -220,6 +219,28 @@ public class Targeter extends SubsystemBase implements TargeterInterface {
         double xVelocity = dt.getFieldRelativeSpeeds().vxMetersPerSecond;
         double yVelocity = dt.getFieldRelativeSpeeds().vyMetersPerSecond;
         return new Translation2d(targetTranslation2d.getX() + xVelocity*hangTime, targetTranslation2d.getY() + yVelocity*hangTime);
+    }
+
+    //get a new target distance based on velocity vector directly towards/away from target
+    public double motionCorrectedDistance(){
+        double velocityTowardsTarget;
+
+        // 1. Vector towards target
+        double dx = targetTranslation2d.getX() - odo.getPose().getX();
+        double dy = targetTranslation2d.getY() - odo.getPose().getY();
+        
+        // 2. Distance (Magnitude)
+        double distance = Math.sqrt(dx * dx + dy * dy);
+        
+        // 3. Unit vector (normalized direction)
+        double ux = dx / distance;
+        double uy = dy / distance;
+        
+        // 4. Dot product (projection of velocity onto direction)
+        velocityTowardsTarget = dt.getFieldRelativeSpeeds().vxMetersPerSecond * ux + dt.getFieldRelativeSpeeds().vyMetersPerSecond * uy;
+
+        return distance + hangTime_table.get(distance)*velocityTowardsTarget;
+
     }
 
     public double getMotionTargetX(){
