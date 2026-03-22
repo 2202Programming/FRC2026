@@ -248,7 +248,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
 
 
     // Competition bindings
-    //BindingsCompetition.ConfigureCompetition(dc, true); //TODO TRUE for COMPETITION
+    BindingsCompetition.ConfigureCompetition(dc, true); //TODO TRUE for COMPETITION
 
     //DpltestBinding.calbrate(operator);
 
@@ -258,7 +258,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
     
     // DpltestBinding.calbrate((CommandXboxController)dc.Operator());
     // BGTestBindings.calbrate(op);
-    SimTestBindings.calbrate(operator);
+    //  SimTestBindings.calbrate(operator);
     // Anything else that needs to run after binding/commands are created 
     if (vpe != null) {
       vpe.configureGyroCallback();
