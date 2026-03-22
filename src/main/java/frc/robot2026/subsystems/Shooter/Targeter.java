@@ -2,6 +2,9 @@ package frc.robot2026.subsystems.Shooter;
 
 import static frc.lib2202.Constants.MperFT;
 
+import com.ctre.phoenix6.swerve.SwerveDrivetrain;
+
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
@@ -170,6 +173,15 @@ public class Targeter extends SubsystemBase {
         return runOnce(() -> {
             override_dist = distance_ft * MperFT;
         });
+    }
+
+    public Translation2d motionCorrectedTarget(double hangTime){
+        Translation2d newTarget;
+        SwerveDrivetrain dt = RobotContainer.getSubsystem("drivetrain");
+        double xVelocity = dt.getFieldRelativeSpeeds().vxMetersPerSecond;
+        double yVelocity = dt.getFieldRelativeSpeeds().vyMetersPerSecond;
+        newTarget = new Translation2d(targetTranslation2d.getX() + xVelocity*hangTime, targetTranslation2d.getY() + yVelocity*hangTime);
+        return newTarget;
     }
 
     @Override
