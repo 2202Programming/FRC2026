@@ -16,6 +16,7 @@
       "/SmartDashboard/Scheduler": "Scheduler",
       "/SmartDashboard/Sensors": "Subsystem",
       "/SmartDashboard/Shooter_left": "PIDController",
+      "/SmartDashboard/Shooter_right": "PIDController",
       "/SmartDashboard/SwerveDrivetrain": "Subsystem",
       "/SmartDashboard/SwerveDrivetrain/drive PIDF": "PIDController",
       "/SmartDashboard/TrimTables": "Subsystem",

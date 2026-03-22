@@ -143,7 +143,7 @@ public class Targeter extends SubsystemBase implements TargeterInterface {
 
         motionDeltaX = targetTranslation2d.getX() - motionTargetTranslation2d.getX();
         motionDeltaY = targetTranslation2d.getY() - motionTargetTranslation2d.getY();
-        motionDeltaSpeed = target_dist_motion_corrected - target_speed;
+        motionDeltaSpeed = target_speed_motion_corrected - target_speed;
     }
 
     // Expose hub locations for commands   
@@ -218,7 +218,7 @@ public class Targeter extends SubsystemBase implements TargeterInterface {
     public Translation2d motionCorrectedTarget(double hangTime){
         double xVelocity = dt.getFieldRelativeSpeeds().vxMetersPerSecond;
         double yVelocity = dt.getFieldRelativeSpeeds().vyMetersPerSecond;
-        return new Translation2d(targetTranslation2d.getX() + xVelocity*hangTime, targetTranslation2d.getY() + yVelocity*hangTime);
+        return new Translation2d(targetTranslation2d.getX() - xVelocity*hangTime, targetTranslation2d.getY() - yVelocity*hangTime);
     }
 
     //get a new target distance based on velocity vector directly towards/away from target
@@ -236,8 +236,12 @@ public class Targeter extends SubsystemBase implements TargeterInterface {
         double ux = dx / distance;
         double uy = dy / distance;
         
+        //current velocities, field coordinates
+        double vx = dt.getFieldRelativeSpeeds().vxMetersPerSecond;
+        double vy = dt.getFieldRelativeSpeeds().vyMetersPerSecond;
+
         // 4. Dot product (projection of velocity onto direction)
-        velocityTowardsTarget = dt.getFieldRelativeSpeeds().vxMetersPerSecond * ux + dt.getFieldRelativeSpeeds().vyMetersPerSecond * uy;
+        velocityTowardsTarget = vx * ux + vy * uy;
 
         return distance + hangTime_table.get(distance)*velocityTowardsTarget;
 

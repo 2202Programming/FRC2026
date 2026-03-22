@@ -2,10 +2,9 @@ package frc.robot2026.testBindings;
 
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib2202.builder.RobotContainer;
-import frc.lib2202.command.swerve.RotateTo;
+import frc.lib2202.command.swerve.TargetCentricDrive;
 import frc.lib2202.subsystem.hid.HID_Subsystem;
 import frc.lib2202.subsystem.swerve.DriveTrainInterface;
-//import frc.robot2026.command.shooter.AutoShoot;
 import frc.robot2026.command.shooter.AutoShoot;
 import frc.robot2026.subsystems.Climber;
 import frc.robot2026.subsystems.Hopper;
@@ -14,7 +13,7 @@ import frc.robot2026.subsystems.Shooter.Indexer;
 import frc.robot2026.subsystems.Shooter.Shooter;
 import frc.robot2026.subsystems.Shooter.Targeter;
 
-public class JRTestBindings {
+public class SimTestBindings {
     // subsystem references for use in command bindings
     public static DriveTrainInterface drivetrain;
     public static HID_Subsystem dc;
@@ -43,8 +42,7 @@ public class JRTestBindings {
     @SuppressWarnings("unused")
     public static void calbrate(CommandXboxController c) {
         get_references();
-        c.start().onTrue(new RotateTo(RobotContainer.getSubsystem("targeter"), 1.0)
-                .setP(4.0));
+        c.x().whileTrue(new TargetCentricDrive(targeter).setP(4.0));
         c.leftTrigger(0.7).whileTrue(new AutoShoot("left", targeter::getTargetSpeedMotionCorrected, targeter::getTolerance, 1.0));
         c.leftTrigger(0.7)
                 .whileTrue(new AutoShoot("right", targeter::getTargetSpeedMotionCorrected, targeter::getTolerance, 1.0));

@@ -27,6 +27,7 @@ import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.builder.RobotLimits;
 import frc.lib2202.builder.SubsystemConfig;
 import frc.lib2202.command.swerve.FieldCentricDrive;
+import frc.lib2202.command.swerve.RotateTo;
 import frc.lib2202.subsystem.Odometry;
 import frc.lib2202.subsystem.OdometryInterface;
 import frc.lib2202.subsystem.Sensors;
@@ -54,6 +55,7 @@ import frc.robot2026.subsystems.Shooter.Indexer;
 import frc.robot2026.subsystems.Shooter.Shooter;
 import frc.robot2026.subsystems.Shooter.Targeter;
 //import frc.robot2026.testBindings.DpltestBinding;
+import frc.robot2026.testBindings.SimTestBindings;
 
 public class RobotSpec_AlphaBot implements IRobotSpec {
   // Subsystem objects for use at other cut points
@@ -243,8 +245,10 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
       CommandScheduler.getInstance().schedule(cmd);
     }
 
+
+
     // Competition bindings
-    BindingsCompetition.ConfigureCompetition(dc, true); //TODO TRUE for COMPETITION
+    //BindingsCompetition.ConfigureCompetition(dc, true); //TODO TRUE for COMPETITION
 
     //DpltestBinding.calbrate(operator);
 
@@ -254,7 +258,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
     
     // DpltestBinding.calbrate((CommandXboxController)dc.Operator());
     // BGTestBindings.calbrate(op);
-   
+    SimTestBindings.calbrate(operator);
     // Anything else that needs to run after binding/commands are created 
     if (vpe != null) {
       vpe.configureGyroCallback();
