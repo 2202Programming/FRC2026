@@ -2,9 +2,8 @@ package frc.robot2026.subsystems.Shooter;
 
 import static frc.lib2202.Constants.MperFT;
 
-import com.ctre.phoenix6.swerve.SwerveDrivetrain;
+//import com.ctre.phoenix6.swerve.SwerveDrivetrain;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
@@ -19,6 +18,7 @@ import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.command.WatcherCmd;
 import frc.lib2202.subsystem.OdometryInterface;
 import frc.robot2026.Constants.TheField;
+import frc.lib2202.subsystem.swerve.SwerveDrivetrain;
 
 /*
 manage shooter speeds for different command use
