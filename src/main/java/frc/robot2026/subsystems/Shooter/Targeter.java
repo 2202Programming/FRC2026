@@ -204,6 +204,10 @@ public class Targeter extends SubsystemBase {
         return motionTargetTranslation2d.getY();
     }
 
+    public Translation2d getMotionCorrectedTarget(){
+        return motionTargetTranslation2d;
+    }
+
     @Override
     public void initSendable(SendableBuilder builder) {
         // if no setters, prefer watcher
