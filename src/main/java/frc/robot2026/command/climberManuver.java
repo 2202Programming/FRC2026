@@ -31,8 +31,8 @@ import frc.robot2026.Constants.TheField;
 // Consider yourself warned
 
 public class climberManuver extends Command {
-  final Transform2d negMove = new Transform2d(new Translation2d(-1.0 * (autoClimberCommand.chassisLengthBumper*0.5 + 0.08), 0.0), Rotation2d.fromDegrees(0.0)); //These values are 0 as we do not rotate on the ending move
-  final Transform2d posMove = new Transform2d(new Translation2d(autoClimberCommand.chassisLengthBumper*0.5 + 0.08, 0.0), Rotation2d.fromDegrees(0.0));
+  final Transform2d negMove = new Transform2d(new Translation2d(-1.0 * (autoClimberCommand.chassisLengthBumper*0.5 + 0.07), 0.0), Rotation2d.fromDegrees(0.0)); //These values are 0 as we do not rotate on the ending move
+  final Transform2d posMove = new Transform2d(new Translation2d(autoClimberCommand.chassisLengthBumper*0.5 + 0.07, 0.0), Rotation2d.fromDegrees(0.0));
 
   final Pose3d blueCenter; //center of climber via tag
   final Pose3d redCenter;

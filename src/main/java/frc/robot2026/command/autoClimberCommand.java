@@ -4,8 +4,6 @@
 
 package frc.robot2026.command;
 
-import static edu.wpi.first.units.Units.Rotation;
-
 import java.util.Optional;
 
 import com.pathplanner.lib.path.PathConstraints;
