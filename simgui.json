@@ -1,4 +1,28 @@
 {
+  "HALProvider": {
+    "Other Devices": {
+      "CANdle (v6)[3]": {
+        "header": {
+          "open": true
+        }
+      },
+      "CANdle (v6)[4]": {
+        "header": {
+          "open": true
+        }
+      },
+      "CANdle (v6)[5]": {
+        "header": {
+          "open": true
+        }
+      },
+      "CANdle (v6)[6]": {
+        "header": {
+          "open": true
+        }
+      }
+    }
+  },
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
@@ -8,6 +32,7 @@
       "/SmartDashboard/HID_Subsystem": "Subsystem",
       "/SmartDashboard/Hopper": "Subsystem",
       "/SmartDashboard/Intake-40": "Subsystem",
+      "/SmartDashboard/LightStack": "Subsystem",
       "/SmartDashboard/LimelightV2(limelight)": "Subsystem",
       "/SmartDashboard/Odometry": "Subsystem",
       "/SmartDashboard/PathPlanner": "Alerts",
@@ -57,6 +82,9 @@
         "open": true
       },
       "SmartDashboard": {
+        "LightStack": {
+          "open": true
+        },
         "VisionSystemSim-main": {
           "Sim Field": {
             "open": true
@@ -67,6 +95,15 @@
     }
   },
   "NetworkTables Info": {
+    "Clients": {
+      "open": true
+    },
+    "Server": {
+      "Publishers": {
+        "open": true
+      },
+      "open": true
+    },
     "visible": true
   }
 }

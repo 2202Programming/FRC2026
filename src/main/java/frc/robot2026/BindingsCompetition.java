@@ -19,11 +19,13 @@ import frc.lib2202.command.pathing.AllianceAwareGyroReset;
 import frc.lib2202.command.swerve.RobotCentricDrive;
 import frc.lib2202.command.swerve.RotateTo;
 import frc.lib2202.command.swerve.TargetCentricDrive;
+import frc.lib2202.subsystem.LightStack;
+import frc.lib2202.subsystem.LightStack.LightRequest;
 import frc.lib2202.subsystem.hid.HID_Subsystem;
 import frc.lib2202.subsystem.hid.TMJoystickController;
 import frc.lib2202.subsystem.swerve.DriveTrainInterface;
-import frc.robot2026.command.Agitate;
-import frc.robot2026.command.AgitateOS;
+//import frc.robot2026.command.Agitate;
+//import frc.robot2026.command.AgitateOS;
 import frc.robot2026.command.shooter.AutoShoot;
 import frc.robot2026.subsystems.Climber;
 import frc.robot2026.subsystems.Hopper;
@@ -95,14 +97,20 @@ public final class BindingsCompetition {
             // XBox
             CommandXboxController driver = (CommandXboxController) generic_driver;
             driver.rightBumper().whileTrue(new RobotCentricDrive(drivetrain, dc));
-            driver.back().whileTrue(new TargetCentricDrive(targeter.getRedHub(), targeter.getBlueHub()) 
-                                    .setP(4.0));
+            //driver.back().whileTrue(new TargetCentricDrive(targeter.getRedHub(), targeter.getBlueHub()) 
+                                    //.setP(4.0));
             // testing on rotate to target
-            driver.start().onTrue(new RotateTo(BindingsCompetition.targeter.getRedHub(),
-                                               BindingsCompetition.targeter.getBlueHub(),1.0)
-                                               .setP(4.0));
+            //driver.start().onTrue(new RotateTo(BindingsCompetition.targeter.getRedHub(),
+                                               //BindingsCompetition.targeter.getBlueHub(),1.0)
+                                               //.setP(4.0));
 
             driver.y().onTrue(new AllianceAwareGyroReset());
+            
+            // TODO Edison and Andrew add buttons for adding LED requests
+            // Aaron can't figure out inline instant commands right now. Might just have to create your own commands (with java files and all).
+            // Good practice temporarily
+            //driver.x().onTrue(new InstantCommand(() -> {LightStack.request(LightRequest.getRed())}, null));
+            //driver.b().onTrue( LightStack.request(LightRequest.getBlue()));
 
             // Driver will wants precision robot-centric throttle drive on left bumper
             driver.leftBumper().whileTrue(new ParallelCommandGroup(
@@ -175,8 +183,8 @@ public final class BindingsCompetition {
             // operator.a().whileTrue(new RepeatCommand(new Agitate()) ) 
             //             .onFalse(hopper.cmdBeltPct(0)) 
             //             .onFalse(intake.cmdPctPwr(0));
-            operator.a().whileTrue(new AgitateOS(true, 0.455, 1.0, 0.5, .65));
-            operator.b().whileTrue(new AgitateOS(false, 0.455, 0.25, 0.75, .65));
+            //operator.a().whileTrue(new AgitateOS(true, 0.455, 1.0, 0.5, .65));
+            //operator.b().whileTrue(new AgitateOS(false, 0.455, 0.25, 0.75, .65));
 
 
             //TESTING REMOVE FOR COMP
