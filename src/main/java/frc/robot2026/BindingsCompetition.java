@@ -161,7 +161,7 @@ public final class BindingsCompetition {
                                             .withInterruptBehavior(InterruptionBehavior.kCancelIncoming))
                     .onFalse(intake.cmdPctPwr(0.0));
 
-            // shooter unblock
+            // shooter unblock    
             operator.y().whileTrue(shooter_left.cmdVelocity(-15))
                         .whileTrue(shooter_right.cmdVelocity(-15))
                         .onFalse(shooter_left.cmdVelocity(0))
@@ -176,9 +176,9 @@ public final class BindingsCompetition {
             // operator.a().whileTrue(new RepeatCommand(new Agitate()) ) 
             //             .onFalse(hopper.cmdBeltPct(0)) 
             //             .onFalse(intake.cmdPctPwr(0));
-            operator.a().whileTrue(new AgitateOS(true, 0.455, 1.0, 0.5, .65));
+    /***    TODO RESTORE    operator.a().whileTrue(new AgitateOS(true, 0.455, 1.0, 0.5, .65));
             operator.b().whileTrue(new AgitateOS(false, 0.455, 0.25, 0.75, .65));
-
+***/
             // TESTING for now
             operator.back().onTrue(new Climb2('l'));
             operator.start().onTrue(new Climb2('r'));

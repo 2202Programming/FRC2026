@@ -31,17 +31,21 @@ import frc.robot2026.Constants.TheField;
 // Consider yourself warned
 
 public class climberManuver extends Command {
-  final Transform2d negMove = new Transform2d(new Translation2d(-1.0 * (autoClimberCommand.chassisLengthBumper*0.5 + 0.07), 0.0), Rotation2d.fromDegrees(0.0)); //These values are 0 as we do not rotate on the ending move
-  final Transform2d posMove = new Transform2d(new Translation2d(autoClimberCommand.chassisLengthBumper*0.5 + 0.07, 0.0), Rotation2d.fromDegrees(0.0));
+  final static double clof = 0.08; // CLIMBER OFFSET FROM CENTER
 
-  final Pose3d blueCenter; //center of climber via tag
+  final Transform2d negMove = new Transform2d(new Translation2d( 1.0*(autoClimberCommand.BL * 0.5 + clof), 0.0),
+      Rotation2d.kZero); // These values are 0 as we do not rotate on the ending move
+  final Transform2d posMove = new Transform2d(new Translation2d(autoClimberCommand.BL * 0.5 + clof, 0.0),
+      Rotation2d.kZero);
+
+  final Pose3d blueCenter; // center of climber via tag
   final Pose3d redCenter;
-  final boolean leftSide;          // doing left or right 
+  final boolean leftSide; // doing left or right
 
   // vars completed in initialize()
   private Rotation2d endRot;
-  private Pose3d realCenter;
-  
+  private Pose2d realCenter;
+
   PathPlannerPath path;
   Command runPath;
 
@@ -58,60 +62,73 @@ public class climberManuver extends Command {
 
     this.leftSide = leftSide;
 
-    //@Gavin - I don't think you need heading(), you will spec the endPose you want
-    // also, if you did need it, it would be pulled in initialize(), not construction.
+    // @Gavin - I don't think you need heading(), you will spec the endPose you want
+    // also, if you did need it, it would be pulled in initialize(), not
+    // construction.
     // try {
-    //   IHeadingProvider sensor = RobotContainer.getSubsystem("sensors");
-    //   endRot = sensor.getHeading();
+    // IHeadingProvider sensor = RobotContainer.getSubsystem("sensors");
+    // endRot = sensor.getHeading();
     // } catch (Exception e) {
-    //   System.out.println("Current bot does not have a sensor. THE HELL ARE YOU DOING HOW DID YOU GET HERE");
-    //   endRot = Rotation2d.fromDegrees((leftSide ? 0.0 : 180.0)); // THIS IS SO BAD
+    // System.out.println("Current bot does not have a sensor. THE HELL ARE YOU
+    // DOING HOW DID YOU GET HERE");
+    // endRot = Rotation2d.fromDegrees((leftSide ? 0.0 : 180.0)); // THIS IS SO BAD
     // }
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    //@Gavin, you really can't check alliance during construction, but it is safe at initialize()
+    // @Gavin, you really can't check alliance during construction, but it is safe
+    // at initialize()
     Alliance alliance = DriverStation.getAlliance().get();
-    realCenter = (alliance == Alliance.Blue) ? blueCenter : redCenter;
+    realCenter = (alliance == Alliance.Blue) ? blueCenter.toPose2d() : redCenter.toPose2d();
     // our computed waypoints
-    double allienceOffset = (alliance == Alliance.Blue) ? 180.0 : 0.0;
-    Rotation2d sideRotation;  //for endRot based on tag & left/rt side
+    //Rotation2d allienceOffset = (alliance == Alliance.Blue) ? Rotation2d.k180deg : Rotation2d.kZero;
+    Rotation2d sideRotation; // for endRot based on tag & left/rt side
     Pose2d startPose;
     Pose2d endPose;
     Pose2d odoPose = odo.getPose();
-    
+    sideRotation =  Rotation2d.kZero;   // odoPose.getRotation(); //Current rotation is correct from AutoClimberCommand
     // Create a list of waypoints from poses. Each pose represents one waypoint.
     // The rotation component of the pose should be the direction of travel. Do not
     // use holonomic rotation.
 
     if (leftSide) {
-      sideRotation = realCenter.toPose2d().getRotation().plus(Rotation2d.fromDegrees(allienceOffset));
-      startPose = realCenter.toPose2d().transformBy(new Transform2d(new Translation2d(1.15 - autoClimberCommand.chassisLengthBumper*0.5, 
-                                                                                autoClimberCommand.chassisWidthBumper*.5+.45)
-                                                                                ,sideRotation));
-                                                                                
-      endPose = startPose.transformBy(negMove); 
-    } else { 
-      sideRotation = realCenter.toPose2d().getRotation().plus(Rotation2d.fromDegrees(180.0-allienceOffset));       
-      startPose = realCenter.toPose2d().transformBy(new Transform2d(new Translation2d(1.15 + autoClimberCommand.chassisLengthBumper*0.5, 
-                                                                      -1.0*(autoClimberCommand.chassisWidthBumper*.5 +.45)), 
-                                                                      sideRotation));
+      sideRotation =  Rotation2d.kZero;
+      startPose = realCenter
+          .transformBy(new Transform2d
+            (new Translation2d(autoClimberCommand.TL - autoClimberCommand.BL * 0.5 - clof, //X
+              (autoClimberCommand.BW + autoClimberCommand.TW) * 0.5),               //Y
+               sideRotation));                                                      //Rotation
       endPose = startPose.transformBy(negMove);
+    } else {
+      //right side
+      sideRotation =  Rotation2d.k180deg;
+      startPose = realCenter
+          .transformBy(new Transform2d(new Translation2d(autoClimberCommand.TL + autoClimberCommand.BL * 0.5  + clof, //X
+              -0.5 * (autoClimberCommand.BW + autoClimberCommand.TW) ),                              //Y
+              sideRotation));                                                                        //Rotation
+      endPose = startPose.transformBy(posMove);
     }
     List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(odoPose, startPose, endPose);
 
-    //endRot can be based on the heading of the tag and the Left/right side
-    var tagHeading = realCenter.getRotation().toRotation2d();
+    // endRot can be based on the heading of the tag and the Left/right side
+    Rotation2d tagHeading = realCenter.getRotation();
     System.out.println("tagHeading for climb = " + tagHeading.toString());
-    endRot = tagHeading.rotateBy(sideRotation);
+    endRot = odoPose.getRotation();  //should be good already    //tagHeading.rotateBy(sideRotation);
     System.out.println("endRot for climb = " + endRot.toString());
 
     RobotLimits limits = RobotContainer.getRobotSpecs().getRobotLimits();
+    /*
+     * PathConstraints constraints = new PathConstraints(
+     * limits.kMaxSpeed, limits.kMaxSpeed / 1.33,
+     * limits.kMaxAngularSpeed, limits.kMaxAngularSpeed / 0.75);
+     */
+
     PathConstraints constraints = new PathConstraints(
-        limits.kMaxSpeed, limits.kMaxSpeed / 1.33,              
-        limits.kMaxAngularSpeed, limits.kMaxAngularSpeed / 0.75); // pulled from the MoveToPose Command
+        1.0, limits.kMaxSpeed / 1.33,
+        limits.kMaxAngularSpeed, limits.kMaxAngularSpeed / 0.75);
+    // pulled from the MoveToPose Command
     // You can also use unlimited constraints, only limited by motor torque and
     // nominal battery voltage
 

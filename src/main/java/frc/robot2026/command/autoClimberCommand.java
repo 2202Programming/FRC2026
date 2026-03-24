@@ -28,6 +28,7 @@ import frc.lib2202.subsystem.OdometryInterface;
 import frc.lib2202.subsystem.swerve.DriveTrainInterface;
 import frc.lib2202.util.PoseMath;
 import frc.robot2026.Constants.TheField;
+
 import frc.robot2026.subsystems.Climber;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
@@ -48,11 +49,14 @@ public class autoClimberCommand extends Command {
   final Pose3d redCenter;
   final boolean leftSide;
   // computed in init based on Alliance and side...
-  Pose3d realCenter;
+  Pose2d realCenter;
 
   // Assuming our bot is symmetric
-  final static double chassisWidthBumper = 0.86;
-  final static double chassisLengthBumper = 0.81;
+  final static double BW = 0.86;
+  final static double BL = 0.81;
+
+  final static double TL = 1.095; //tower length from tag to front of tower
+  final static double TW = 0.895;
 
   public autoClimberCommand(boolean leftSide) {
     this.leftSide = leftSide;
@@ -66,7 +70,7 @@ public class autoClimberCommand extends Command {
     odo = RobotContainer.getSubsystem("vision_odo");
     climber = RobotContainer.getSubsystem("climber");
     sdt = RobotContainer.getSubsystem("drivetrain");
-    constraints = new PathConstraints(limits.kMaxSpeed, limits.kMaxSpeed / 1.33,
+    constraints = new PathConstraints(1.0, limits.kMaxSpeed / 1.33,
         limits.kMaxAngularSpeed, limits.kMaxAngularSpeed / 0.75);
 
     // no requirements, we will add them to the cmd we build in initialize
@@ -74,18 +78,21 @@ public class autoClimberCommand extends Command {
 
   @Override
   public void initialize() {
-    realCenter = (DriverStation.getAlliance().get() == Alliance.Blue) ? blueCenter : redCenter;
+    realCenter = (DriverStation.getAlliance().get() == Alliance.Blue) ? blueCenter.toPose2d() : redCenter.toPose2d();
     Pose2d currentPose = odo.getPose();
     Pose2d pose;
     Rotation2d targetRot;
-    targetRot = (!leftSide) ? (realCenter.toPose2d().getRotation())
-        : realCenter.toPose2d().getRotation().plus(Rotation2d.fromDegrees(180.0));
+    targetRot = (!leftSide) ? (realCenter.getRotation())
+        : realCenter.getRotation().plus(Rotation2d.fromDegrees(180.0));
     pose = (leftSide) ? // Gives us our tranformation based on left or right side
-        realCenter.toPose2d()
-            .transformBy(new Transform2d(
-                new Translation2d(1.15 - chassisLengthBumper * 0.5, chassisWidthBumper * .5 + .45), Rotation2d.fromDegrees(180.0)))
-        : realCenter.toPose2d().transformBy(new Transform2d(
-            new Translation2d(1.15 + chassisLengthBumper * 0.5, -1.0 * (chassisWidthBumper * .5 + .45)), Rotation2d.fromDegrees(0.0)));
+        realCenter.transformBy(new Transform2d(
+                new Translation2d(TL - BL * 0.5 - climberManuver.clof,    //x
+                (BW + TW) *.5),                                           //y
+                Rotation2d.fromDegrees(180.0)))                   //
+        : realCenter.transformBy(new Transform2d(
+                new Translation2d(TL + BL * 0.5 + climberManuver.clof,
+                                  -0.5 * (BW + TW)), 
+                                   Rotation2d.fromDegrees(0.0)));
 
     var cmd = new SequentialCommandGroup(
         new PrintCommand("climb pose " + pose.toString() + " dist=" + PoseMath.poseDistance(currentPose, pose)),
@@ -125,19 +132,19 @@ public class autoClimberCommand extends Command {
     double currentPoseY = odo.getPose().getY();
     if (DriverStation.getAlliance().get() == Alliance.Blue) {
       if (leftSide) {
-        LDC = blueCenter.getY() + (chassisWidthBumper * .5 + .45);
+        LDC = blueCenter.getY() + (BW * .5 + .45);
       } else {
-        LDC = blueCenter.getY() - (chassisWidthBumper * .5 + .45);
+        LDC = blueCenter.getY() - (BW * .5 + .45);
         currentPoseY = -currentPoseY;
         LDC = -LDC;
       }
     } else {
       if (leftSide) {
-        LDC = redCenter.getY() - (chassisWidthBumper * .5 + .45);
+        LDC = redCenter.getY() - (BW * .5 + .45);
         currentPoseY = -currentPoseY;
         LDC = -LDC;
       } else {
-        LDC = redCenter.getY() + (chassisWidthBumper * .5 + .45);
+        LDC = redCenter.getY() + (BW * .5 + .45);
       }
     }
     return currentPoseY > LDC;

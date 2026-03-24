@@ -8,8 +8,8 @@ public class GRLTestBindings {
 
     @SuppressWarnings("unused")
     public static void calbrate(CommandXboxController c) {
-        c.x().onTrue(new autoClimberCommand(false));
-        c.y().onTrue(new autoClimberCommand(true));
+        c.a().onTrue(new autoClimberCommand(false));
+        c.b().onTrue(new autoClimberCommand(true));
 
     }
 }

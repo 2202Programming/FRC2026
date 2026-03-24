@@ -54,6 +54,7 @@ import frc.robot2026.subsystems.Shooter.Indexer;
 import frc.robot2026.subsystems.Shooter.Shooter;
 import frc.robot2026.subsystems.Shooter.Targeter;
 //import frc.robot2026.testBindings.DpltestBinding;
+import frc.robot2026.testBindings.GRLTestBindings;
 
 public class RobotSpec_AlphaBot implements IRobotSpec {
   // Subsystem objects for use at other cut points
@@ -254,6 +255,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
     
     // DpltestBinding.calbrate((CommandXboxController)dc.Operator());
     // BGTestBindings.calbrate(op);
+    GRLTestBindings.calbrate((CommandXboxController)dc.Operator());
    
     // Anything else that needs to run after binding/commands are created 
     if (vpe != null) {
