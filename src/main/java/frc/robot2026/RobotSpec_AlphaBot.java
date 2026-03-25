@@ -152,15 +152,15 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
   RobotLimits robotLimits = new RobotLimits(FeetPerSecond.of(15.0), DegreesPerSecond.of(315.0));
 
   // Chassis
-  double kWheelCorrectionFactor = 1.008;
+  double kWheelCorrectionFactor = 1.00;  // all wheels
   double kSteeringGR = 12.8;
   double kDriveGR = 5.36;
-  double kWheelDiameter = MperFT * 4.0 / 12.0; // [m]
+  double kWheelDiameter = MperFT * (3.93 / 12.0); // [m] worn wheels, 3.93" measured 3/24/26
 
   final ChassisConfig chassisConfig = new ChassisConfig(
       0.66 / 2.0, // x, as measured, 2/21/2026
       0.715 / 2.0, // y, as measured, 2/21/2026
-      kWheelCorrectionFactor, // scale [] <= 1.0
+      kWheelCorrectionFactor, // scale [] <= 1.0   applies to all wheels
       kWheelDiameter,
       kSteeringGR,
       kDriveGR,
@@ -202,7 +202,8 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
 
     modules[CornerID.FrontRight.getIdx()] = new ModuleConfig(CornerID.FrontRight,
         CAN.FR_CANCoder, CAN.FR_Drive, CAN.FR_Angle, -103.98)
-        .setInversions(true, true, true);
+        .setInversions(true, true, true)
+        .withWheelFactor(3.98/3.93);   // replaced wheel / other wheels dia, applies only to FR
 
     modules[CornerID.BackLeft.getIdx()] = new ModuleConfig(CornerID.BackLeft,
         CAN.BL_CANCoder, CAN.BL_Drive, CAN.BL_Angle, -127.54)
