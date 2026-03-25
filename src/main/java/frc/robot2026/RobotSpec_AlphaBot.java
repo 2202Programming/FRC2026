@@ -251,7 +251,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
     // active. Just comment them out.   
     // DpltestBinding.calbrate((CommandXboxController)dc.Operator());
     // BGTestBindings.calbrate(op);
-    // GRLTestBindings.calbrate((CommandXboxController)dc.Operator());
+    // GRLTestBindings.calbrate((CommandXboxController)dc.Operator()); //uses opr a & b
    
     // Anything else that needs to run after binding/commands are created 
     if (vpe != null) {
