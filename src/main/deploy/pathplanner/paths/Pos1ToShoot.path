@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.5510430463576164,
-        "y": 6.909933774834437
+        "x": 3.6127546714888483,
+        "y": 7.440284697508897
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.9872360616844604,
-        "y": 7.451043890865955
+        "x": 3.8261059756431837,
+        "y": 7.570596711596794
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.116346381969158,
+        "x": 3.898215792648589,
         "y": 7.440284697508897
       },
       "prevControl": {
-        "x": 3.417603795966786,
-        "y": 6.934602609727166
+        "x": 3.6435701397194027,
+        "y": 7.2861980481167645
       },
       "nextControl": null,
       "isLocked": false,
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -66.25050550713313
+    "rotation": -77.90524292261675
   },
   "reversed": false,
   "folder": "ClockwiseRoundTheWorld",
