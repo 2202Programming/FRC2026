@@ -19,7 +19,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
+//import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.builder.RobotLimits;
 import frc.lib2202.command.pathing.MoveToPose;
@@ -107,10 +107,10 @@ public class autoClimberCommand extends Command {
                                                                                  // are greater than a meter away
             new MoveToPose("vision_odo", constraints, pose)
             : new PrintCommand("Climber is close enough")),
-        climber.armsToPoint(Climber.ExtendPosition).withTimeout(2.0),
-        new WaitCommand(2.0),
+        climber.armsToPoint(Climber.ExtendPosition), //.withTimeout(2.0),
+        //new WaitCommand(2.0),
         new climberManuver(leftSide),
-        climber.armsToPoint(Climber.ClimbPositon).withTimeout(2.0));
+        climber.armsToPoint(Climber.ClimbPositon));//.withTimeout(2.0));
 
     cmd.addRequirements(climber, sdt);
     cmd.setName("autoClimb-" + pose.toString());
