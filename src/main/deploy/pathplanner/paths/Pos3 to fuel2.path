@@ -3,29 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.1275909090909098,
-        "y": 1.3691193181818175
+        "x": 3.601485132767169,
+        "y": 0.5824282883283751
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.3890222898344,
-        "y": 1.3711829579804682
-      },
-      "isLocked": false,
-      "linkedName": "Pos32ShootEnd"
-    },
-    {
-      "anchor": {
-        "x": 3.237215909090909,
-        "y": 0.6017443181818192
-      },
-      "prevControl": {
-        "x": 2.6416474350717585,
-        "y": 0.7809472980970323
-      },
-      "nextControl": {
-        "x": 3.8327843831100594,
-        "y": 0.42254133826660606
+        "x": 3.862916513510659,
+        "y": 0.5844919281270258
       },
       "isLocked": false,
       "linkedName": null
@@ -78,23 +62,23 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 1.0671140939597392,
+      "waypointRelativePos": 0.55,
       "rotationDegrees": 89.47621569926949
     },
     {
-      "waypointRelativePos": 2.0,
+      "waypointRelativePos": 1.0,
       "rotationDegrees": 90.0
     },
     {
-      "waypointRelativePos": 2.939597315436259,
+      "waypointRelativePos": 1.939597315436259,
       "rotationDegrees": 90.0
     }
   ],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 1.5,
-      "maxWaypointRelativePos": 4.0,
+      "minWaypointRelativePos": 0.75,
+      "maxWaypointRelativePos": 3.0,
       "constraints": {
         "maxVelocity": 2.0,
         "maxAcceleration": 2.0,
@@ -123,7 +107,7 @@
   "folder": "Pos3ShootFuelClimb",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 60.37625124882622
+    "rotation": 90.0
   },
   "useDefaultConstraints": false
 }

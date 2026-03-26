@@ -3,12 +3,12 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.116346381969158,
+        "x": 3.898215792648589,
         "y": 7.440284697508897
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.116346381969159,
+        "x": 4.898215792648589,
         "y": 7.440284697508897
       },
       "isLocked": false,
@@ -48,7 +48,7 @@
   "folder": "ClockwiseRoundTheWorld",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -66.25050550713313
+    "rotation": -77.90524292261675
   },
   "useDefaultConstraints": true
 }
