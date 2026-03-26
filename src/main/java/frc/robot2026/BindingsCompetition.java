@@ -173,13 +173,14 @@ public final class BindingsCompetition {
                         .onFalse(indexer_left.cmdSetPct(0))
                         .onFalse(indexer_right.cmdSetPct(0));
 
-            // agitate back and forth, uses intake trigger to not lose fuel
+            //agitate back and forth, uses intake trigger to not lose fuel
             // operator.a().whileTrue(new RepeatCommand(new Agitate()) ) 
             //             .onFalse(hopper.cmdBeltPct(0)) 
             //             .onFalse(intake.cmdPctPwr(0));
-    /***    TODO RESTORE    operator.a().whileTrue(new AgitateOS(true, 0.455, 1.0, 0.5, .65));
+                        
+            operator.a().whileTrue(new AgitateOS(true, 0.455, 1.0, 0.5, .65));
             operator.b().whileTrue(new AgitateOS(false, 0.455, 0.25, 0.75, .65));
-***/
+
             // TESTING for now
             operator.back().onTrue(new autoClimberCommand(true)); // LEFT
             operator.start().onTrue(new autoClimberCommand(false)); // RIGHT
