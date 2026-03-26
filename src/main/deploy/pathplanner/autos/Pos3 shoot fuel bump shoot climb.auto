@@ -78,6 +78,12 @@
           "data": {
             "pathName": "shoot to end climb"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "climb_right"
+          }
         }
       ]
     }

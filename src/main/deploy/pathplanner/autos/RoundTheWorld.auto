@@ -79,6 +79,12 @@
           "data": {
             "pathName": "Shoot2ToClimb"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "climb_left"
+          }
         }
       ]
     }

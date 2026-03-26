@@ -28,6 +28,12 @@
           "data": {
             "name": "shoot"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "climb_right"
+          }
         }
       ]
     }
