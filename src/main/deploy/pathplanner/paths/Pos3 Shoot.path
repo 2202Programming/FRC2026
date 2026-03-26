@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 80.57884126958298
+    "rotation": 90.0
   },
   "reversed": false,
   "folder": "RoundTheWorld",

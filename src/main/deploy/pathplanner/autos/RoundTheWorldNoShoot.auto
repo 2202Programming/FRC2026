@@ -5,12 +5,6 @@
     "data": {
       "commands": [
         {
-          "type": "path",
-          "data": {
-            "pathName": "Pos3 Shoot"
-          }
-        },
-        {
           "type": "race",
           "data": {
             "commands": [
@@ -27,7 +21,7 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "ShootFuelShoot"
+                        "pathName": "ShootFuelShootStraight"
                       }
                     }
                   ]
