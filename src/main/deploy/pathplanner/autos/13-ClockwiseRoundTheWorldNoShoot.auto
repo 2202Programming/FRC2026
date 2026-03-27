@@ -7,12 +7,6 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Pos1ToShoot"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
             "pathName": "ShootToFuel"
           }
         },
@@ -77,6 +71,12 @@
           "type": "named",
           "data": {
             "name": "climb_right"
+          }
+        },
+        {
+          "type": "sequential",
+          "data": {
+            "commands": []
           }
         }
       ]
