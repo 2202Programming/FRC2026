@@ -176,8 +176,8 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0.2,
-    "rotation": -63.82471001824013
+    "velocity": 0.0,
+    "rotation": -49.71667121597656
   },
   "reversed": false,
   "folder": "RoundTheWorld",
