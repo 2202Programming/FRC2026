@@ -16,12 +16,12 @@
     },
     {
       "anchor": {
-        "x": 3.898215792648589,
-        "y": 7.440284697508897
+        "x": 4.401455555555555,
+        "y": 7.410869205298013
       },
       "prevControl": {
-        "x": 3.6435701397194027,
-        "y": 7.2861980481167645
+        "x": 4.1468099026263685,
+        "y": 7.256782555905881
       },
       "nextControl": null,
       "isLocked": false,
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -77.90524292261675
+    "rotation": -90.0
   },
   "reversed": false,
   "folder": "ClockwiseRoundTheWorld",
