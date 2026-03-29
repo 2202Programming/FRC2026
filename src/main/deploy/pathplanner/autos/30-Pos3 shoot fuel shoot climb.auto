@@ -9,15 +9,34 @@
           "data": {
             "commands": [
               {
-                "type": "path",
+                "type": "named",
                 "data": {
-                  "pathName": "Pos1FuelTunnelShoot"
+                  "name": "intake_on"
                 }
               },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Pos3 to fuel2"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
               {
                 "type": "named",
                 "data": {
                   "name": "intake_on"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Fuel to shoot"
                 }
               }
             ]
@@ -36,29 +55,10 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 15.0
+                  "waitTime": 10.0
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "sequential",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Shoot3ToClimb"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "climb_left"
           }
         }
       ]

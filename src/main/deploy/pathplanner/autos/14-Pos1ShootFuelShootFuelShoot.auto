@@ -11,7 +11,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Pos1FuelTunnelShoot"
+                  "pathName": "Pos1FuelTunnelShootClose"
                 }
               },
               {
@@ -36,29 +36,48 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 15.0
+                  "waitTime": 3.0
                 }
               }
             ]
           }
         },
         {
-          "type": "sequential",
+          "type": "race",
           "data": {
             "commands": [
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Shoot3ToClimb"
+                  "pathName": "Pos1FuelTunnelShootClose"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intake_on"
                 }
               }
             ]
           }
         },
         {
-          "type": "named",
+          "type": "race",
           "data": {
-            "name": "climb_left"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "shoot"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 3.0
+                }
+              }
+            ]
           }
         }
       ]
