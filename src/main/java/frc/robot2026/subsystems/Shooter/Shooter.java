@@ -185,7 +185,18 @@ public class Shooter extends SubsystemBase {
 
         // Rev Only
         if (flywheel instanceof FlyWheelRev) {
+
             var revfw = (FlyWheelRev) flywheel;
+
+            builder.addDoubleProperty("iMaxAccum", revfw::getIMaxAccum, revfw::setIMaxAccum);
+            builder.addDoubleProperty("iAccum", revfw::getIAccum, null);
+            builder.addDoubleProperty("iZone", cfg.hw_pid::getIZone, cfg.hw_pid::setIZone);
+            builder.addDoubleProperty("ramp_rate", revfw::getRampRate, revfw::setRampRate);
+
+        } else if (flywheel instanceof FlyWheelRevFlex) {
+
+            var revfw = (FlyWheelRevFlex) flywheel;
+            
             builder.addDoubleProperty("iMaxAccum", revfw::getIMaxAccum, revfw::setIMaxAccum);
             builder.addDoubleProperty("iAccum", revfw::getIAccum, null);
             builder.addDoubleProperty("iZone", cfg.hw_pid::getIZone, cfg.hw_pid::setIZone);
