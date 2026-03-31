@@ -30,7 +30,7 @@ import frc.lib2202.command.swerve.FieldCentricDrive;
 import frc.lib2202.subsystem.Odometry;
 import frc.lib2202.subsystem.OdometryInterface;
 import frc.lib2202.subsystem.Sensors;
-//import frc.lib2202.subsystem.UX.TrimTables;   
+import frc.lib2202.subsystem.UX.TrimTables;   
 import frc.lib2202.subsystem.hid.HID_Subsystem;
 import frc.lib2202.subsystem.swerve.AutoPPConfigure;
 import frc.lib2202.subsystem.swerve.DriveTrainInterface;
@@ -82,7 +82,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
       .add(Sensors.class, "sensors", () -> {
         return new Sensors(CAN.PIGEON_IMU_CAN);
       })
-      //.add(TrimTables.class)
+      .add(TrimTables.class)
       .add(LimelightV2.class, "limelight", () -> {
         // Limelight position in robot coords - this has LL in the front of bot
         Pose3d LimelightPosition = new Pose3d(0.32, 0.00, 0.515,   //new position 3/20/26

@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.command.WatcherCmd;
 import frc.lib2202.subsystem.OdometryInterface;
+import frc.lib2202.subsystem.UX.TrimTables.Trim;
 import frc.robot2026.Constants.TheField;
 
 /*
@@ -25,6 +26,26 @@ manage shooter speeds for different command use
     heading to  hub 
  */
 public class Targeter extends SubsystemBase {
+
+    // VelocityEntry uses a persistent Trim value and will update vel_table entry on changes
+    class VelocityEntry {
+        final double distance;   //used as key into interpMap
+        final Trim speedTrim;      
+        VelocityEntry(String name, double distance_ft, double speed) {
+            this.distance = distance_ft * MperFT;
+            speedTrim = new Trim("Targeter", name, speed);        
+            Targeter.this.vel_table.put(distance, speed );
+            // use callback to update vel_map on change
+            speedTrim.addChangeCallback(this::callback);
+        }
+        // return isn't used, just a useful supplier
+        Boolean callback() {
+            double newSpeed = speedTrim.getValue();
+            Targeter.this.vel_table.put(distance, newSpeed );  //update table with new value
+            return true;
+        }
+    }
+
     final double HIGH_SPEED = 29.5; // [M/S]
     final double LOW_SPEED = 26.3; // [M/S]
     final double LOW_TOLERANCE = 0.5; // [M/S]
@@ -78,15 +99,27 @@ public class Targeter extends SubsystemBase {
 
         // Quick and dirty table measured on 2/21/26
         // distance[m] -> flywheel [m/s]
+        // Create Velocity table with VelocityEntry so it is tied to persistent trims
+        new VelocityEntry("00.0 ft", 0.0, 18.5);
+        new VelocityEntry("05.4 ft", 5.4, 18.5);
+        new VelocityEntry("06.0 ft", 6.0, 19.2);
+        new VelocityEntry("10.0 ft", 10.0, 22.9);
+        new VelocityEntry("12.3 ft", 12.3, 25.9);
+        new VelocityEntry("14.0 ft", 14.0, 28.1);
+        new VelocityEntry("17.0 ft", 17.0, 31.0);
+        new VelocityEntry("20.0 ft", 20.0, 31.0);
+
+        /****************
+         *  old way
         vel_table.put(0.0 * MperFT, 18.5); // set a min
         vel_table.put(5.4 * MperFT, 18.5);  //1:1
         vel_table.put(6.0 * MperFT, 19.2);  //1:1
-        vel_table.put(10.0 * MperFT, 22.9); // 1:1 was26.8 this is ladder radius
-        // vel_table.put(12.0 * MperFT, 26.5);
+        vel_table.put(10.0 * MperFT, 22.9); // 1:1 this is ladder radius
         vel_table.put(12.3 * MperFT, 25.9);  // 1:1
         vel_table.put(14.0 * MperFT, 28.1);  // 1:1
         vel_table.put(17.0 * MperFT, 31.0);  // 1:1
         //vel_table.put(25.0 * MperFT, 31.0); // set a max
+        *******************/
 
         tolerance_table.put(0.0 * MperFT, 1.0); //1.6);
         tolerance_table.put(5.0 * MperFT, 1.0); //1.4);
@@ -105,7 +138,6 @@ public class Targeter extends SubsystemBase {
         target_dist += dist_err; 
         target_speed = vel_table.get(target_dist);
         target_tolerance = tolerance_table.get(target_dist);
-
     }
 
     // Expose hub locations for commands   
@@ -120,7 +152,6 @@ public class Targeter extends SubsystemBase {
     public void setManualSpeed(double value) {
         manual_speed = value;
     }
-
 
     public double getManualSpeed() {
         return manual_speed;

@@ -66,7 +66,9 @@ public class AutoShoot extends Command {
     boolean myturn = is_left  ?  AutoShoot.left_active : !AutoShoot.left_active;
 
     if (shooter.atSetpoint() && myturn) {
+      //shoot what we have
       indexer.setPct(idxPct);
+      switchShooter();          // this lets other shooter after we start, WIP 3/31/26
     } else {
       // roll indexer until we have fuel
       idxCmd = (gate) ? 0.0 : idxLoad;
@@ -77,10 +79,10 @@ public class AutoShoot extends Command {
     if (gate_prev && (gate != gate_prev)) {
       // should be fuel leaving the bot, count it
       shots_taken++;
-      AutoShoot.left_active = ! AutoShoot.left_active;
-    } else  //if we don't have fuel, switch turns
-    if (myturn && !gate){
-       AutoShoot.left_active = ! AutoShoot.left_active;
+      //switchShooter();      //This switches on ball LEAVING LightGate  (used in districts)
+    } else if (myturn && !gate) {
+      //if we don't have fuel, switch turns
+      switchShooter();
     }
 
     // low to high indicates loading/readying a shot
@@ -115,5 +117,9 @@ public class AutoShoot extends Command {
   @Override
   public boolean isFinished() {
     return false;  //never ends, expect to use with a timeout or button release
+  }
+
+  static void switchShooter() {
+    AutoShoot.left_active = ! AutoShoot.left_active;
   }
 }
