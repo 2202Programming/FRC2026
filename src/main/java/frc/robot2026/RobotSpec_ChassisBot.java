@@ -11,20 +11,25 @@ import com.revrobotics.spark.SparkFlex;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib2202.builder.IRobotSpec;
 import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.builder.RobotLimits;
 import frc.lib2202.builder.SubsystemConfig;
+import frc.lib2202.command.ScaleDriver;
+import frc.lib2202.command.pathing.AllianceAwareGyroReset;
 import frc.lib2202.command.swerve.FieldCentricDrive;
+import frc.lib2202.command.swerve.RobotCentricDrive;
+import frc.lib2202.command.swerve.RotateTo;
+import frc.lib2202.command.swerve.TargetCentricDrive;
 import frc.lib2202.subsystem.Odometry;
 import frc.lib2202.subsystem.OdometryInterface;
 import frc.lib2202.subsystem.Sensors;
@@ -43,6 +48,7 @@ import frc.robot2026.command.pose.setGyroOffsetWithVision;
 import frc.robot2026.subsystems.LimelightV2;
 import frc.robot2026.subsystems.Photonvision;
 import frc.robot2026.subsystems.VisionPoseEstimator;
+import frc.robot2026.subsystems.Shooter.Targeter;
 
 public class RobotSpec_ChassisBot implements IRobotSpec {
   // Subsystems and other hardware on 2025 Robot rev Alpha
@@ -79,6 +85,7 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
       .add(SwerveDrivetrain.class, "drivetrain", () -> {
         return new SwerveDrivetrain(SparkFlex.class);
       })
+      /*
       .add(Photonvision.class, "photonvision", () -> {
         // create config object with our cameras and their positions
         Photonvision.Config pvConfig = new Photonvision.Config(
@@ -114,21 +121,19 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
         pv = new Photonvision(pvConfig);
         return pv;
       })
+        */
       .add(OdometryInterface.class, "odometry", () -> {
         var obj = new Odometry();
         obj.new OdometryWatcher();
         return obj;
       })
       // VisonPoseEstimator needs LL and Odometry, adds simplename and alias to lookup
-      .addAlias(VisionPoseEstimator.class, "vision_odo");
-    //  .add(Climber.class, "climber", () -> {
-    //    return new Climber(true);}
-
-
-
+      .addAlias(VisionPoseEstimator.class, "vision_odo")
+      .add(Targeter.class)
+      ;
 
   // Robot Speed Limits
-  RobotLimits robotLimits = new RobotLimits(FeetPerSecond.of(15.0), DegreesPerSecond.of(180.0));
+  RobotLimits robotLimits = new RobotLimits(FeetPerSecond.of(15.0), DegreesPerSecond.of(270.0));
 
   // Chassis
   double kWheelCorrectionFactor = .9875;
@@ -206,7 +211,6 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
     HID_Subsystem dc = RobotContainer.getSubsystem("DC");
     //Climber cl = RobotContainer.getSubsystem("climber");
     vpe.getWatcher();
-    CommandXboxController operator = (CommandXboxController)dc.Operator();
 
     // Initialize PathPlanner, if we have needed Subsystems
     if (odo != null && sdt != null) {
@@ -216,18 +220,7 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
     }
 
     // Competition bindings
-    BindingsCompetition.ConfigureCompetition(dc, false);
-    
-    //Take care testing binding don't collide
-    //DpltestBinding.calbrate(operator);  // rt/left bumper, rt/lt Trigger
-    //cl.setDemoBindings(operator);       //pov,a,x
-    pv.setDemoBindings(operator);
-
-    // Place your test binding in ./testBinding/<yourFile>.java and call it here
-    // comment out any conflicting bindings. Try not to push with your bindings
-    // active. Just comment them out.
-
-    // Anything else that needs to run after binding/commands are created
+    localBindings(dc);
     
     // maybe beter way, but this registers vpe with the aliance-aware reset cmd.
     if (vpe != null) vpe.configureGyroCallback();
@@ -240,7 +233,8 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
 
   @Override
   public void setupRegisteredCommands() {
-    RegisteredCommands.RegisterCommands();
+    // likely not enough on this bot for registerd cmds
+    //RegisteredCommands.RegisterCommands();
 
     // enable chooser - builds autochooser list, requires AutoBuilder to be
     // configured
@@ -268,5 +262,36 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
   public void disabledInit(){
     CommandScheduler.getInstance().schedule(new setGyroOffsetWithVision());
   }
+
+
+private void localBindings(HID_Subsystem _dc)
+{
+   DriveTrainInterface drivetrain = RobotContainer.getSubsystem("drivetrain");  
+   Targeter targeter = RobotContainer.getSubsystem(Targeter.class);
+   var generic_driver = _dc.Driver();
+
+  if (generic_driver instanceof CommandXboxController) {
+            // XBox
+            CommandXboxController driver = (CommandXboxController) generic_driver;
+            driver.rightBumper().whileTrue(new RobotCentricDrive(drivetrain, _dc));
+            driver.back().whileTrue(new TargetCentricDrive(targeter.getRedHub(), targeter.getBlueHub()) 
+                                    .setP(4.0));
+            // testing on rotate to target
+            driver.start().onTrue(new RotateTo(targeter.getRedHub(),
+                                               targeter.getBlueHub(),1.0)
+                                               .setP(4.0));
+
+            driver.y().onTrue(new AllianceAwareGyroReset());
+
+            // Driver will wants precision robot-centric throttle drive on left bumper
+            driver.leftBumper().whileTrue(new ParallelCommandGroup(
+                    new ScaleDriver(0.3),
+                    new RobotCentricDrive(drivetrain, _dc)));
+   } else {
+    DriverStation.reportError("Comp Bindings: No driver bindings set, check controllers.", false);
+  }
+
+}
+
 
 }
