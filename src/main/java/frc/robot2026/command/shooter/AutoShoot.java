@@ -29,6 +29,7 @@ public class AutoShoot extends Command {
 
   // state vars
   boolean gate, gate_prev; // gate edge
+  boolean myturn;          // ok to shoot
   int shots_taken;
 
   public AutoShoot(String side, DoubleSupplier speedProvider, DoubleSupplier toleranceProvider, double idxPct) {
@@ -63,7 +64,7 @@ public class AutoShoot extends Command {
     shooter.flywheel.setVelocityTolerance(toleranceProvider.getAsDouble());
     gate = indexer.hasFuel();
 
-    boolean myturn = is_left  ?  AutoShoot.left_active : !AutoShoot.left_active;
+    myturn = is_left  ?  AutoShoot.left_active : !AutoShoot.left_active;
 
     if (shooter.atSetpoint() && myturn) {
       //shoot what we have
@@ -119,7 +120,8 @@ public class AutoShoot extends Command {
     return false;  //never ends, expect to use with a timeout or button release
   }
 
-  static void switchShooter() {
+  void switchShooter() {
     AutoShoot.left_active = ! AutoShoot.left_active;
+    myturn = false;
   }
 }
