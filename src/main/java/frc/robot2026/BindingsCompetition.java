@@ -157,7 +157,7 @@ public final class BindingsCompetition {
             * when the balls being ejected. */ 
             operator.rightBumper().whileTrue(hopper.cmdBeltPct(-1))
                     .onFalse(hopper.cmdBeltPct(0));
-            operator.rightBumper().whileTrue(intake.cmdPctPwr(-1.0).withInterruptBehavior(InterruptionBehavior.kCancelIncoming))
+            operator.rightBumper().whileTrue(intake.cmdEject(-1.0))
                     .onFalse(intake.cmdPctPwr(0.0));
 
             // shooter unblock    
