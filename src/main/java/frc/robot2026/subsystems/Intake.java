@@ -187,7 +187,7 @@ public class Intake extends SubsystemBase {
   }
 
   public Command cmdPctPwr(double cmd_pct) {
-    return Commands.runOnce(() -> {
+    return Commands.run(() -> {   //TESTING 3/31/26 changing from runOnce so cmd stays while pressed
       this.setPercent(cmd_pct);
     });
   }
