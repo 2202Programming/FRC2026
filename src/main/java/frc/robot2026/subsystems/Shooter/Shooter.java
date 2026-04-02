@@ -82,10 +82,10 @@ public class Shooter extends SubsystemBase {
     // Setup using Vortex
     private FlyWheelConfig initFlyWheelConfigREVFlexRight() { // RIGHT SHOOTER
         // Tuned by XS and AN on production alpha bot shooter
-        double kP = 0.01;
-        double kI = 0.00015;
-        double kD = 1.0;
-        double kF = 0.315;
+        double kP = 0.25;
+        double kI = 0.002;
+        double kD = 10.0;
+        double kF = 0.324;
         double iZone = 1.0; // setting it to 0.0 seems to 'unlock' it
 
         FlyWheelConfig cfg = new FlyWheelConfig();
@@ -104,10 +104,10 @@ public class Shooter extends SubsystemBase {
     }
  private FlyWheelConfig initFlyWheelConfigREVFlexLeft() { // LEFT SHOOTER
         // Tuned by XS and AN on production alpha bot shooter
-        double kP = 0.05;
-        double kI = 0.0003;
-        double kD = 5.0;
-        double kF = 0.323;
+        double kP = 0.25;
+        double kI = 0.002;
+        double kD = 10.0;
+        double kF = 0.324;
         double iZone = 1.0; // setting it to 0.0 seems to 'unlock' it
 
         FlyWheelConfig cfg = new FlyWheelConfig();

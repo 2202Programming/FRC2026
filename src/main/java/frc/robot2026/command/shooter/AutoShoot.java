@@ -81,7 +81,9 @@ public class AutoShoot extends Command {
       // should be fuel leaving the bot, count it
       shots_taken++;
       //switchShooter();      //This switches on ball LEAVING LightGate  (used in districts)
-    } else if (myturn && !gate) {
+    } //else   // testing theory on why we are waiting to shoot 
+    
+    if (myturn && !gate) {
       //if we don't have fuel, switch turns
       switchShooter();
     }

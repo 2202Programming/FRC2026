@@ -47,7 +47,7 @@ public class Targeter extends SubsystemBase {
     }
 
     final double HIGH_SPEED = 29.5; // [M/S]
-    final double LOW_SPEED = 26.3; // [M/S]
+    final double LOW_SPEED = 20.8; // [M/S]
     final double LOW_TOLERANCE = 0.5; // [M/S]
     final double UNBLOCK_SPEED = -15.0; // [M/S]
 
