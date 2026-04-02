@@ -19,7 +19,7 @@ public class AutoShoot extends Command {
   final Indexer indexer;
   final Hopper hopper;
 
-  final double HopperNoCmdSpeed = 0.706;
+  final double HopperNoCmdSpeed = 0.500; // was 0.706
 
   final DoubleSupplier speedProvider;
   final DoubleSupplier toleranceProvider;

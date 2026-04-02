@@ -42,12 +42,12 @@ public class Shooter extends SubsystemBase {
         } else if (controllerType.equalsIgnoreCase("multi")) {
             cfg = initMultiFlyWheelConfigREV();
             flywheel = new FlyWheelRev(ShooterID, cfg);
-        } else if (controllerType.equalsIgnoreCase("flex_2")) {
-            cfg = initFlyWheelConfigREVFlex2();
+        } else if (controllerType.equalsIgnoreCase("left")) {
+            cfg = initFlyWheelConfigREVFlexLeft();
             flywheel = new FlyWheelRevFlex(ShooterID, cfg);
         } 
-        else if (controllerType.equalsIgnoreCase("flex")) {
-            cfg = initFlyWheelConfigREVFlex();
+        else if (controllerType.equalsIgnoreCase("right")) {
+            cfg = initFlyWheelConfigREVFlexRight();
             flywheel = new FlyWheelRevFlex(ShooterID, cfg);
         } else {
             cfg = initFlyWheelConfigREV();
@@ -80,18 +80,18 @@ public class Shooter extends SubsystemBase {
     }
 
     // Setup using Vortex
-    private FlyWheelConfig initFlyWheelConfigREVFlex() { // RIGHT SHOOTER
+    private FlyWheelConfig initFlyWheelConfigREVFlexRight() { // RIGHT SHOOTER
         // Tuned by XS and AN on production alpha bot shooter
-        double kP = 0.019;
-        double kI = 0.0003;
-        double kD = 7.0;
-        double kF = 0.171;
+        double kP = 0.01;
+        double kI = 0.00015;
+        double kD = 1.0;
+        double kF = 0.315;
         double iZone = 1.0; // setting it to 0.0 seems to 'unlock' it
 
         FlyWheelConfig cfg = new FlyWheelConfig();
         cfg.inverted = inverted;
         cfg.rampRate = 0.0; // try to soften the startup, zero disables
-        cfg.gearRatio = 50.0 / 24.0; // mtr-side /fw-side
+        cfg.gearRatio = 40.0 / 38.0; // mtr-side /fw-side
         cfg.stallAmp = 90; // [amp] Check motor specs for amps
         cfg.freeAmp = 15; // [amp]
         cfg.maxOpenLoopRPM = 5800.0; // measure at full power or motor spec
@@ -102,7 +102,7 @@ public class Shooter extends SubsystemBase {
         cfg.hw_pid.setIZone(iZone);
         return cfg;
     }
- private FlyWheelConfig initFlyWheelConfigREVFlex2() { // LEFT SHOOTER
+ private FlyWheelConfig initFlyWheelConfigREVFlexLeft() { // LEFT SHOOTER
         // Tuned by XS and AN on production alpha bot shooter
         double kP = 0.05;
         double kI = 0.0003;
@@ -196,7 +196,7 @@ public class Shooter extends SubsystemBase {
         } else if (flywheel instanceof FlyWheelRevFlex) {
 
             var revfw = (FlyWheelRevFlex) flywheel;
-            
+
             builder.addDoubleProperty("iMaxAccum", revfw::getIMaxAccum, revfw::setIMaxAccum);
             builder.addDoubleProperty("iAccum", revfw::getIAccum, null);
             builder.addDoubleProperty("iZone", cfg.hw_pid::getIZone, cfg.hw_pid::setIZone);
