@@ -37,10 +37,15 @@ public class Fuelgauge extends SubsystemBase {
         return empty;
     }
 
+    boolean hasFuel() {
+        //returns true if fuel is blocking gauge
+        return !gauge.get(); 
+    }
+
     public void periodic() {
         boolean indexers_have_fuel = idx_left.hasFuel() || idx_right.hasFuel();
 
-        if (gauge.get() || indexers_have_fuel) {
+        if (hasFuel() || indexers_have_fuel) {
             // restart the timer because we've seen fuel
             fuel_timer.restart();
         }
@@ -51,6 +56,7 @@ public class Fuelgauge extends SubsystemBase {
     public class  FuelGaugeWatcher extends WatcherCmd{
         FuelGaugeWatcher() {
             addEntry("_Empty_", Fuelgauge.this::isEmpty);
+            addEntry("HasFuel", Fuelgauge.this::hasFuel);
             addEntry("Loaded_Left", Fuelgauge.this.idx_left::hasFuel);
             addEntry("Loaded_Right", Fuelgauge.this.idx_right::hasFuel);
             addEntry("Timer", Fuelgauge.this.fuel_timer::get, 2);
