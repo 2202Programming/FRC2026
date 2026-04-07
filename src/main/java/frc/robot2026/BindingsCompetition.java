@@ -18,6 +18,7 @@ import frc.lib2202.command.ScaleDriver;
 import frc.lib2202.command.pathing.AllianceAwareGyroReset;
 import frc.lib2202.command.swerve.RobotCentricDrive;
 import frc.lib2202.command.swerve.RotateTo;
+import frc.lib2202.command.swerve.StrafeDrive;
 import frc.lib2202.command.swerve.TargetCentricDrive;
 import frc.lib2202.subsystem.hid.HID_Subsystem;
 import frc.lib2202.subsystem.hid.TMJoystickController;
@@ -98,13 +99,17 @@ public final class BindingsCompetition {
             CommandXboxController driver = (CommandXboxController) generic_driver;
             driver.rightBumper().whileTrue(new RobotCentricDrive(drivetrain, dc));
             driver.back().whileTrue(new TargetCentricDrive(targeter.getRedHub(), targeter.getBlueHub()) 
-                                    .setP(4.0));
+                                    .setP(4.0));            
             // testing on rotate to target
             driver.start().onTrue(new RotateTo(BindingsCompetition.targeter.getRedHub(),
                                                BindingsCompetition.targeter.getBlueHub(),1.0)
                                                .setP(4.0));
 
             driver.y().onTrue(new AllianceAwareGyroReset());
+
+            // Strafe based on Vy motion. Command is Alliance aware.
+            driver.povUp().whileTrue(new StrafeDrive(135.0));           
+            driver.povDown().whileTrue(new StrafeDrive(45.0));
 
             // Driver will wants precision robot-centric throttle drive on left bumper
             driver.leftBumper().whileTrue(new ParallelCommandGroup(
