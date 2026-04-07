@@ -9,6 +9,7 @@ import java.util.function.DoubleSupplier;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.lib2202.builder.RobotContainer;
 import frc.robot2026.subsystems.Hopper;
+import frc.robot2026.subsystems.Shooter.Fuelgauge;
 import frc.robot2026.subsystems.Shooter.Indexer;
 import frc.robot2026.subsystems.Shooter.Shooter;
 
@@ -18,6 +19,7 @@ public class AutoShoot extends Command {
   final Shooter shooter;
   final Indexer indexer;
   final Hopper hopper;
+  final Fuelgauge fuelgauge;
 
   final double HopperNoCmdSpeed = 0.500; // was 0.706
 
@@ -38,6 +40,8 @@ public class AutoShoot extends Command {
     this.indexer = RobotContainer.getSubsystem("indexer_" + side);
     // Targeter targeter = RobotContainer.getSubsystem(Targeter.class);
     this.hopper = RobotContainer.getSubsystem(Hopper.class);  // not on requriements
+    this.fuelgauge = RobotContainer.getSubsystem(Fuelgauge.class);  // not needed on requirements
+
     this.speedProvider = speedProvider;
     this.toleranceProvider = toleranceProvider;
     this.idxPct = idxPct;
@@ -119,7 +123,8 @@ public class AutoShoot extends Command {
 
   @Override
   public boolean isFinished() {
-    return false;  //never ends, expect to use with a timeout or button release
+    return fuelgauge.isEmpty();
+    //return false;  //never ends, expect to use with a timeout or button release
   }
 
   void switchShooter() {

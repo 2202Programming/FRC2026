@@ -103,6 +103,7 @@ public final class Constants {
     public static final int IntakeGate = 0;
     public static final int IndexerGateRight = 1;    
     public static final int IndexerGateLeft = 2;
+    public static final int FuelGauge = 3;
     
   }
 

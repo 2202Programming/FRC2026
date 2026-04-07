@@ -50,6 +50,7 @@ import frc.robot2026.subsystems.LimelightV2;
 import frc.robot2026.subsystems.Photonvision;
 //import frc.robot2026.subsystems.RangeSensor;
 import frc.robot2026.subsystems.VisionPoseEstimator;
+import frc.robot2026.subsystems.Shooter.Fuelgauge;
 import frc.robot2026.subsystems.Shooter.Indexer;
 import frc.robot2026.subsystems.Shooter.Shooter;
 import frc.robot2026.subsystems.Shooter.Targeter;
@@ -112,6 +113,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
       .add(Shooter.class, "shooter_right", () -> {
         return new Shooter("right", Constants.CAN.ShooterIDRight, true);
       })
+      .add(Fuelgauge.class)
       .add(Intake.class, "intake", () -> {
         return new Intake();
       })
