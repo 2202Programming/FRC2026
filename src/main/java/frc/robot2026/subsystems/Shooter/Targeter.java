@@ -34,7 +34,8 @@ public class Targeter extends SubsystemBase {
         VelocityEntry(String name, double distance_ft, double speed) {
             this.distance = distance_ft * MperFT;
             speedTrim = new Trim("Targeter", name, speed);        
-            Targeter.this.vel_table.put(distance, speed );
+            double tbl_speed = speedTrim.getValue();
+            Targeter.this.vel_table.put(distance, tbl_speed );
             // use callback to update vel_map on change
             speedTrim.addChangeCallback(this::callback);
         }
