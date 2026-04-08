@@ -53,11 +53,11 @@
       },
       "prevControl": {
         "x": 8.135642946665225,
-        "y": 0.5020531101401016
+        "y": 0.5020531101401009
       },
       "nextControl": {
         "x": 8.026388888888889,
-        "y": 1.764544444444441
+        "y": 1.7645444444444407
       },
       "isLocked": false,
       "linkedName": null
@@ -203,7 +203,7 @@
   },
   "goalEndState": {
     "velocity": 0.0,
-    "rotation": -49.717
+    "rotation": -45.24443752770182
   },
   "reversed": false,
   "folder": "RoundTheWorld",
