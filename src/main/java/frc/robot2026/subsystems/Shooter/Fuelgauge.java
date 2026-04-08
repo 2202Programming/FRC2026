@@ -43,7 +43,9 @@ public class Fuelgauge extends SubsystemBase {
     }
 
     public void periodic() {
-        boolean indexers_have_fuel = idx_left.hasFuel() || idx_right.hasFuel();
+        // idx.isLoaded() latches having a fuel, hasFuel is only the light gate so 
+        // it misses when a fuel is backed off of gate during Load() command.
+        boolean indexers_have_fuel = idx_left.isLoaded() || idx_right.isLoaded();
 
         if (hasFuel() || indexers_have_fuel) {
             // restart the timer because we've seen fuel
@@ -57,8 +59,8 @@ public class Fuelgauge extends SubsystemBase {
         FuelGaugeWatcher() {
             addEntry("_Empty_", Fuelgauge.this::isEmpty);
             addEntry("HasFuel", Fuelgauge.this::hasFuel);
-            addEntry("Loaded_Left", Fuelgauge.this.idx_left::hasFuel);
-            addEntry("Loaded_Right", Fuelgauge.this.idx_right::hasFuel);
+            addEntry("Loaded_Left", Fuelgauge.this.idx_left::isLoaded);
+            addEntry("Loaded_Right", Fuelgauge.this.idx_right::isLoaded);
             addEntry("Timer", Fuelgauge.this.fuel_timer::get, 2);
         }
         

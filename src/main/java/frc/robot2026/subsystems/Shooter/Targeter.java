@@ -34,7 +34,8 @@ public class Targeter extends SubsystemBase {
         VelocityEntry(String name, double distance_ft, double speed) {
             this.distance = distance_ft * MperFT;
             speedTrim = new Trim("Targeter", name, speed);        
-            Targeter.this.vel_table.put(distance, speed );
+            double tbl_speed = speedTrim.getValue();
+            Targeter.this.vel_table.put(distance, tbl_speed );
             // use callback to update vel_map on change
             speedTrim.addChangeCallback(this::callback);
         }
@@ -100,14 +101,14 @@ public class Targeter extends SubsystemBase {
         // Quick and dirty table measured on 2/21/26
         // distance[m] -> flywheel [m/s]
         // Create Velocity table with VelocityEntry so it is tied to persistent trims
-        new VelocityEntry("00.0 ft", 0.0, 18.5);
-        new VelocityEntry("05.4 ft", 5.4, 18.5);
-        new VelocityEntry("06.0 ft", 6.0, 19.2);
-        new VelocityEntry("10.0 ft", 10.0, 22.9);
-        new VelocityEntry("12.3 ft", 12.3, 25.9);
-        new VelocityEntry("14.0 ft", 14.0, 28.1);
-        new VelocityEntry("17.0 ft", 17.0, 31.0);
-        new VelocityEntry("20.0 ft", 20.0, 31.0);
+        new VelocityEntry("00.0 ft", 0.0, 13.9);
+        new VelocityEntry("05.4 ft", 5.4, 13.9);
+        new VelocityEntry("06.0 ft", 6.0, 14.6);
+        new VelocityEntry("10.0 ft", 10.0, 17.6);
+        new VelocityEntry("12.3 ft", 12.3, 18.9);
+        new VelocityEntry("14.0 ft", 14.0, 20.0);
+        new VelocityEntry("17.0 ft", 17.0, 24.1);
+        new VelocityEntry("20.0 ft", 20.0, 24.2);
 
         /****************
          *  old way

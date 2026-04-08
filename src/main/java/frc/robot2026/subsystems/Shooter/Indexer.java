@@ -62,6 +62,7 @@ public class Indexer extends SubsystemBase {
   double pos_setpoint;
   double increment_position = 6.0; // rough estimate as of 2/20/2026
   boolean m_changes = false;
+  boolean loaded;
 
   public Indexer(int CanID, boolean inverted, int dio_gate) {
     setName(inverted ? "indexer_left" : "indexer_right");
@@ -160,6 +161,14 @@ public class Indexer extends SubsystemBase {
     m_changes = true;
   }
 
+  public boolean isLoaded() {
+    return loaded;
+  }
+
+  void setLoaded(boolean value){
+    loaded = value;
+  }
+
   /**
    * 
    * @param motorController - The motor controller to apply the values to
@@ -245,8 +254,7 @@ public class Indexer extends SubsystemBase {
     final static double DEFAULT_SPEED = 1.0;  //pct power
     final static double BackupSpeed = -0.3;
 
-    final double speed;
-    boolean loaded;
+    final double speed;    
 
     public Load() {
       this(DEFAULT_SPEED);
@@ -291,10 +299,7 @@ public class Indexer extends SubsystemBase {
       return false;    //used as default command, so never end...
     }
 
-
   }
-
-
 
 
 }
