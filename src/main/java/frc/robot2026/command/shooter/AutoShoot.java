@@ -84,6 +84,7 @@ public class AutoShoot extends Command {
     if (gate_prev && (gate != gate_prev)) {
       // should be fuel leaving the bot, count it
       shots_taken++;
+      indexer.setLoaded(false);
       //switchShooter();      //This switches on ball LEAVING LightGate  (used in districts)
     } //else   // testing theory on why we are waiting to shoot 
     

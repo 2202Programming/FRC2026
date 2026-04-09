@@ -165,7 +165,7 @@ public class Indexer extends SubsystemBase {
     return loaded;
   }
 
-  void setLoaded(boolean value){
+  public void setLoaded(boolean value){
     loaded = value;
   }
 
