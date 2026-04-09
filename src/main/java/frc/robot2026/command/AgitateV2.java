@@ -29,23 +29,23 @@ public class AgitateV2 extends SequentialCommandGroup {
     
     addCommands(   // New agitate command (will run hopper forward and back fast to unscramble the fuel and then run belts into indexer for 2 seconds)
         hopper.cmdBeltPct(hopper_fwd),
-        intake.cmdPctPwr(0.65),
+        intake.cmdPctPwr(0.70),
         new WaitCommand(0.1),
         hopper.cmdBeltPct(hopper_rev),
-        intake.cmdPctPwr(-0.65),
-        new WaitCommand(0.3),
+        intake.cmdPctPwr(-0.70),
+        new WaitCommand(0.25),
         hopper.cmdBeltPct(hopper_fwd),
-        intake.cmdPctPwr(-0.65),
-        new WaitCommand(0.3),
+        intake.cmdPctPwr(-0.70),
+        new WaitCommand(0.25),
         hopper.cmdBeltPct(hopper_rev),
-        intake.cmdPctPwr(0.65),
-        new WaitCommand(0.3),
+        intake.cmdPctPwr(0.70),
+        new WaitCommand(0.25),
         hopper.cmdBeltPct(hopper_rev),
-        intake.cmdPctPwr(0.65),
-        new WaitCommand(0.3),
+        intake.cmdPctPwr(0.70),
+        new WaitCommand(0.25),
         hopper.cmdBeltPct(hopper_fwd),
         intake.cmdPctPwr(0.65),
-        new WaitCommand(2)
+        new WaitCommand(2.5)
     );  
   }
 }
