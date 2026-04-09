@@ -24,19 +24,13 @@
           }
         },
         {
-          "type": "race",
+          "type": "sequential",
           "data": {
             "commands": [
               {
                 "type": "named",
                 "data": {
                   "name": "shoot"
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 2.0
                 }
               }
             ]
@@ -62,19 +56,13 @@
           }
         },
         {
-          "type": "race",
+          "type": "sequential",
           "data": {
             "commands": [
               {
                 "type": "named",
                 "data": {
                   "name": "shoot"
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 3.0
                 }
               }
             ]
