@@ -74,8 +74,8 @@ public class RegisteredCommands {
                 // new RotateTo(targeter.getRedHub(), targeter.getBlueHub(), face_timeout).setP(8.0),
                 // the commands in this parallel group DO NOT FINISH ...
                 new ParallelRaceGroup(
-                        new AgitateV2().repeatedly(),
-                       // new AgitateOS(true, belts_speed, agitate_period, agitate_delay, agitate_in_spd),
+                        // new AgitateV2().repeatedly(),
+                        new AgitateOS(true, belts_speed, agitate_period, agitate_delay, agitate_in_spd),
                         new AutoShoot("left", targeter::getTargetSpeed, targeter::getTolerance, 1.0),
                         new AutoShoot("right", targeter::getTargetSpeed, targeter::getTolerance, 1.0)
                 ),
