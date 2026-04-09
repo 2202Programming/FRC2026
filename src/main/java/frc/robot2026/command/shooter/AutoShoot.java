@@ -94,7 +94,9 @@ public class AutoShoot extends Command {
     }
 
     // low to high indicates loading/readying a shot
-    // if (gate && (gate != gate_prev)) { }
+    if (gate && (gate != gate_prev)) {
+      indexer.setLoaded(true);
+     }
 
     gate_prev = gate;
 

@@ -6,6 +6,8 @@ import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -70,7 +72,7 @@ public class RegisteredCommands {
                 // not working consistently, needs more testing   
                 // new RotateTo(targeter.getRedHub(), targeter.getBlueHub(), face_timeout).setP(8.0),
                 // the commands in this parallel group DO NOT FINISH ...
-                new ParallelCommandGroup(
+                new ParallelRaceGroup(
                         new AgitateOS(true, belts_speed, agitate_period, agitate_delay, agitate_in_spd),
                         new AutoShoot("left", targeter::getTargetSpeed, targeter::getTolerance, 1.0),
                         new AutoShoot("right", targeter::getTargetSpeed, targeter::getTolerance, 1.0)
