@@ -101,12 +101,12 @@ public class Targeter extends SubsystemBase {
         // Quick and dirty table measured on 2/21/26
         // distance[m] -> flywheel [m/s]
         // Create Velocity table with VelocityEntry so it is tied to persistent trims
-        new VelocityEntry("00.0 ft", 0.0, 13.9);
-        new VelocityEntry("05.4 ft", 5.4, 13.9);
-        new VelocityEntry("06.0 ft", 6.0, 15.0);
-        new VelocityEntry("07.0 ft", 7.0, 15.4);
-        new VelocityEntry("08.0 ft", 8.0, 15.8);
-        new VelocityEntry("09.0 ft", 9.0, 16.7);
+        new VelocityEntry("00.0 ft", 0.0, 14.3);
+        new VelocityEntry("05.4 ft", 5.4, 14.3);
+        new VelocityEntry("06.0 ft", 6.0, 15.3);
+        new VelocityEntry("07.0 ft", 7.0, 15.7);
+        new VelocityEntry("08.0 ft", 8.0, 16.1);
+        new VelocityEntry("09.0 ft", 9.0, 16.9);
         new VelocityEntry("10.0 ft", 10.0, 17.65);
         new VelocityEntry("11.0 ft", 11.0, 18.6);
         new VelocityEntry("12.3 ft", 12.3, 19.6);
