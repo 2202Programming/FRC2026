@@ -15,7 +15,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.command.WatcherCmd;
 import frc.lib2202.subsystem.OdometryInterface;
+import frc.lib2202.subsystem.TargeterInterface;
 import frc.lib2202.subsystem.UX.TrimTables.Trim;
+import frc.lib2202.subsystem.swerve.DriveTrainInterface;
 import frc.robot2026.Constants.TheField;
 
 /*
@@ -25,7 +27,7 @@ manage shooter speeds for different command use
     distance to hub
     heading to  hub 
  */
-public class Targeter extends SubsystemBase {
+public class Targeter extends SubsystemBase implements TargeterInterface {
 
     // VelocityEntry uses a persistent Trim value and will update vel_table entry on changes
     class VelocityEntry {
@@ -60,6 +62,8 @@ public class Targeter extends SubsystemBase {
     final double Shooter_Angle = 65.0; // [deg]
 
     final OdometryInterface odo;
+    final DriveTrainInterface dt;
+
     // Hub targets
     public final Translation2d blueHubTarget;
     public final Translation2d redHubTarget;
@@ -67,21 +71,35 @@ public class Targeter extends SubsystemBase {
     final InverseInterpolator<Double> distance = InverseInterpolator.forDouble();
     final Interpolator<Double> vel_mps = Interpolator.forDouble();
     final Interpolator<Double> tolerance_mps = Interpolator.forDouble();
+    final Interpolator<Double> hangTime = Interpolator.forDouble();
     final InterpolatingTreeMap<Double, Double> vel_table = new InterpolatingTreeMap<>(distance, vel_mps); // [m][m/s]
     final InterpolatingTreeMap<Double, Double> tolerance_table = new InterpolatingTreeMap<>(distance, tolerance_mps); // [m][m/s]
+    final InterpolatingTreeMap<Double, Double> hangTime_table = new InterpolatingTreeMap<>(distance, hangTime); //[m][s]
 
     Translation2d targetTranslation2d;
     double target_dist; // function of VPE pose and Hub center + math
+    double target_dist_motion_corrected;
     double target_speed = LOW_SPEED;
+    double target_speed_motion_corrected = LOW_SPEED;
     double manual_speed = LOW_SPEED; // flywheel speed manually controlled by driver
     double target_tolerance = LOW_TOLERANCE;
     double override_dist = 0.0; // non-zero will skip LL distance calcs
 
+    Translation2d motionTargetTranslation2d;
+    double motionDeltaX;
+    double motionDeltaY;
+    double motionDeltaSpeed;
+
+
     public Targeter() {
-        this("vision_odo");
+        this("vision_odo", "drivetrain");
     }
 
     public Targeter(String odo_name) {
+        this(odo_name, "drivetrain");
+    }
+
+    public Targeter(String odo_name, String drivetrain_name) {
         setName("Targeter");
         // use hub tags to calc center of blue and red hubs
         Pose3d blue1 = TheField.fieldLayout.getTagPose(20).get();
@@ -97,7 +115,7 @@ public class Targeter extends SubsystemBase {
         targetTranslation2d = blueHubTarget;
 
         odo = RobotContainer.getSubsystem(odo_name);
-
+        dt = RobotContainer.getSubsystem(drivetrain_name);
         // Quick and dirty table measured on 2/21/26
         // distance[m] -> flywheel [m/s]
         // Create Velocity table with VelocityEntry so it is tied to persistent trims
@@ -128,6 +146,11 @@ public class Targeter extends SubsystemBase {
         tolerance_table.put(10.0 * MperFT, 1.0); //0.8);
         tolerance_table.put(17.0 * MperFT, 1.0);        
 
+        //made up values, please measure
+        hangTime_table.put(0.0 * MperFT, 2.0);
+        hangTime_table.put(5.0 * MperFT, 2.5);
+        hangTime_table.put(10.0 * MperFT, 3.0);
+        hangTime_table.put(15.0 * MperFT, 3.5);
     }
 
     @Override
@@ -139,6 +162,18 @@ public class Targeter extends SubsystemBase {
         target_dist += dist_err; 
         target_speed = vel_table.get(target_dist);
         target_tolerance = tolerance_table.get(target_dist);
+
+        //get new target location adjusted for velocity and expected hangtime of shot
+        motionTargetTranslation2d = motionCorrectedTarget(hangTime_table.get(motionCorrectedDistance()));
+
+        target_dist_motion_corrected = (override_dist == 0.0) ? odo.getDistanceToTranslation(motionTargetTranslation2d) : override_dist;
+        target_dist_motion_corrected += dist_err;
+        target_speed_motion_corrected = vel_table.get(target_dist_motion_corrected);
+
+        motionDeltaX = targetTranslation2d.getX() - motionTargetTranslation2d.getX();
+        motionDeltaY = targetTranslation2d.getY() - motionTargetTranslation2d.getY();
+        motionDeltaSpeed = target_speed_motion_corrected - target_speed;
+
     }
 
     // Expose hub locations for commands   
@@ -204,6 +239,53 @@ public class Targeter extends SubsystemBase {
         });
     }
 
+    //new point on the field to be the aiming target based on our velocity vector and ball hang time
+    public Translation2d motionCorrectedTarget(double hangTime){
+        double xVelocity = dt.getFieldRelativeSpeeds().vxMetersPerSecond;
+        double yVelocity = dt.getFieldRelativeSpeeds().vyMetersPerSecond;
+        return new Translation2d(targetTranslation2d.getX() - xVelocity*hangTime, targetTranslation2d.getY() - yVelocity*hangTime);
+    }
+
+    //get a new target distance based on velocity vector directly towards/away from target
+    public double motionCorrectedDistance(){
+        double velocityTowardsTarget;
+
+        // 1. Vector towards target
+        double dx = targetTranslation2d.getX() - odo.getPose().getX();
+        double dy = targetTranslation2d.getY() - odo.getPose().getY();
+        
+        // 2. Distance (Magnitude)
+        double distance = Math.sqrt(dx * dx + dy * dy);
+        
+        // 3. Unit vector (normalized direction)
+        double ux = dx / distance;
+        double uy = dy / distance;
+        
+        //current velocities, field coordinates
+        double vx = dt.getFieldRelativeSpeeds().vxMetersPerSecond;
+        double vy = dt.getFieldRelativeSpeeds().vyMetersPerSecond;
+
+        // 4. Dot product (projection of velocity onto direction)
+        velocityTowardsTarget = vx * ux + vy * uy;
+
+        return distance + hangTime_table.get(distance)*velocityTowardsTarget;
+
+    }
+
+    public double getMotionTargetX(){
+        return motionTargetTranslation2d.getX();
+    }
+
+    public double getMotionTargetY(){
+        return motionTargetTranslation2d.getY();
+    }
+
+    @Override
+    public Translation2d getMotionCorrectedTarget(){
+        return motionTargetTranslation2d;
+    }
+
+
     @Override
     public void initSendable(SendableBuilder builder) {
         // if no setters, prefer watcher
@@ -224,6 +306,9 @@ public class Targeter extends SubsystemBase {
             addEntry("target_dist-ft", ()-> {return Targeter.this.target_dist / MperFT; }, 2 );
             addEntry("target_dist-m", ()-> {return Targeter.this.target_dist; }, 2 );
             addEntry("target_speed", () -> {return Targeter.this.target_speed;  }, 2 );
+            addEntry("MotionDeltaX", () -> {return Targeter.this.motionDeltaX;}, 2);
+            addEntry("MotionDeltaY", () -> {return Targeter.this.motionDeltaY;}, 2);
+            addEntry("MotionDeltaSpeed", () -> {return Targeter.this.motionDeltaSpeed;}, 2);
         }
     }
 }
