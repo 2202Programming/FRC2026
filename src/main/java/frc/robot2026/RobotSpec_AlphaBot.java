@@ -27,6 +27,7 @@ import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.builder.RobotLimits;
 import frc.lib2202.builder.SubsystemConfig;
 import frc.lib2202.command.swerve.FieldCentricDrive;
+import frc.lib2202.command.swerve.TargetCentricDrive;
 import frc.lib2202.subsystem.Odometry;
 import frc.lib2202.subsystem.OdometryInterface;
 import frc.lib2202.subsystem.Sensors;
@@ -302,6 +303,9 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
   public void teleopInit() {   
     IRobotSpec.super.teleopInit();
     targeter.setTarget(); // set blue/red alliance
+
+    //TODO - TEST CODE, REMOVE
+    //CommandScheduler.getInstance().schedule(new TargetCentricDrive(targeter));
   }
 
   @Override
