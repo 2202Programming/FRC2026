@@ -63,9 +63,9 @@ public class Targeter extends SubsystemBase implements TargeterInterface {
     final double UNBLOCK_SPEED = -15.0; // [M/S]
 
     final double MAX_SHOOTING_DISTANCE = 10.0; //[M]
-    final double MAX_MOTION_ADJUSTMENT = 3.0; //[M]
+    final double MAX_MOTION_ADJUSTMENT = 5.0; //[M]
     final double SHOOTING_DISTANCE_MOTION_ADJUSTMENT_FACTOR = 0.1; //[magic number units]
-    final double SHOOTING_MOTION_ADJUSTMENT_FACTOR = 0.1; //[magic number units]
+    final double SHOOTING_MOTION_ADJUSTMENT_FACTOR = 0.2; //[magic number units]
 
     // todo make this a trim entry
     final double dist_err = MperFT * 0.0 / 12.0; // [m] testing tape measure seemed like we were 6" short
@@ -191,7 +191,7 @@ public class Targeter extends SubsystemBase implements TargeterInterface {
         motionTargetTranslation2d = motionCorrectedTarget(hangTime_table.get(prevDistance));
 
         // converge on motiondistance
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < 1; i++) {
             // new distance to last motiontarget
             double distance = odo.getDistanceToTranslation(motionTargetTranslation2d);
             motionTargetTranslation2d = motionCorrectedTarget(hangTime_table.get(distance));
