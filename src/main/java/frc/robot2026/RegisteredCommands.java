@@ -78,7 +78,7 @@ public class RegisteredCommands {
                         new AgitateOS(true, belts_speed, agitate_period, agitate_delay, agitate_in_spd),
                         new AutoShoot("left", targeter::getTargetSpeed, targeter::getTolerance, 1.0),
                         new AutoShoot("right", targeter::getTargetSpeed, targeter::getTolerance, 1.0)
-                ),
+                ).withTimeout(6.0),
                 new PrintCommand("                     ... nothing but net.")
         );         
         cmd.setName("ncShoot");

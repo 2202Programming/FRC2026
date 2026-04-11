@@ -248,7 +248,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
     }
 
     // Competition bindings
-    //BindingsCompetition.ConfigureCompetition(dc, true);
+    BindingsCompetition.ConfigureCompetition(dc, true);
 
     // Place your test binding in ./testBinding/<yourFile>.java and call it here
     // comment out any conflicting bindings. Try not to push with your bindings
@@ -256,7 +256,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
     // DpltestBinding.calbrate((CommandXboxController)dc.Operator());
     // BGTestBindings.calbrate(op);
     // GRLTestBindings.calbrate((CommandXboxController)dc.Operator()); //uses opr a & b
-     JRtestBinding.calbrate((CommandXboxController)dc.Driver());
+     //JRtestBinding.calbrate((CommandXboxController)dc.Driver());
    
     // Anything else that needs to run after binding/commands are created 
     if (vpe != null) {
