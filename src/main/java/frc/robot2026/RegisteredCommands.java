@@ -3,6 +3,7 @@ package frc.robot2026;
 import javax.net.ssl.TrustManager;
 
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.events.EventTrigger;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -86,6 +87,18 @@ public class RegisteredCommands {
         return cmd;
     }
 
+    static Command ncSpinup() {
+        Command cmd =     new InstantCommand( () -> {
+            shooter_left.flywheel.setSetpoint(SPINUP);
+            shooter_right.flywheel.setSetpoint(SPINUP);
+            System.out.print("##############################################################################################");
+            System.out.print("##############################################################################################");
+            System.out.print("##############################################################################################");
+       });
+       
+       return cmd;
+    }
+
     static double SPINUP = 17.65; // about 10ft
     public static void RegisterCommands() {    
         get_references();
@@ -93,20 +106,11 @@ public class RegisteredCommands {
         // Construct all the commands and register them to NamedCommands for PathPlanner
         NamedCommands.registerCommand("shoot", ncShoot());
         NamedCommands.registerCommand("intake_on", intake.cmdRunWhileFuel(.45, .5));
-
         NamedCommands.registerCommand("climb_right", new autoClimberCommand(false));
-
         NamedCommands.registerCommand("climb_left", new autoClimberCommand(true));
-        NamedCommands.registerCommand("spinup",new InstantCommand(()-> {
-            shooter_left.flywheel.setSetpoint(SPINUP);
-            shooter_right.flywheel.setSetpoint(SPINUP);
-            System.out.print("##############################################################################################");
-            System.out.print("##############################################################################################");
-            System.out.print("##############################################################################################");
-        }));
+        NamedCommands.registerCommand("noise",   new PrintCommand("noise ... --- ..."));
 
-        NamedCommands.registerCommand("noise",
-                new PrintCommand("noise ... --- ..."));
+        new EventTrigger("spinup").onTrue(ncSpinup());
 
     }
 }

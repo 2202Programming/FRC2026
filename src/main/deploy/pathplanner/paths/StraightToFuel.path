@@ -113,7 +113,7 @@
   "eventMarkers": [
     {
       "name": "spinup",
-      "waypointRelativePos": 1.8179401993355515,
+      "waypointRelativePos": 1.764705882352941,
       "endWaypointRelativePos": null,
       "command": null
     }
