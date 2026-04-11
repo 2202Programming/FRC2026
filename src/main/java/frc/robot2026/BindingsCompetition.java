@@ -98,10 +98,10 @@ public final class BindingsCompetition {
             // XBox
             CommandXboxController driver = (CommandXboxController) generic_driver;
             driver.rightBumper().whileTrue(new RobotCentricDrive(drivetrain, dc));
-            driver.back().whileTrue(new TargetCentricDrive(targeter.getRedHub(), targeter.getBlueHub()) 
+            driver.povLeft().whileTrue(new TargetCentricDrive(targeter.getRedHub(), targeter.getBlueHub()) 
                                     .setP(4.0));            
             // testing on rotate to target
-            driver.start().onTrue(new RotateTo(BindingsCompetition.targeter.getRedHub(),
+            driver.povRight().onTrue(new RotateTo(BindingsCompetition.targeter.getRedHub(),
                                                BindingsCompetition.targeter.getBlueHub(),1.0)
                                                .setP(4.0));
 
