@@ -120,7 +120,7 @@
   "folder": "ClockwiseRoundTheWorld",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 77.47119229084848
+    "rotation": 72.5
   },
   "useDefaultConstraints": true
 }
