@@ -100,8 +100,11 @@ public class RegisteredCommands {
         NamedCommands.registerCommand("spinup",new InstantCommand(()-> {
             shooter_left.flywheel.setSetpoint(SPINUP);
             shooter_right.flywheel.setSetpoint(SPINUP);
+            System.out.print("##############################################################################################");
+            System.out.print("##############################################################################################");
+            System.out.print("##############################################################################################");
         }));
-        
+
         NamedCommands.registerCommand("noise",
                 new PrintCommand("noise ... --- ..."));
 
