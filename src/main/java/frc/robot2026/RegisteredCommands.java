@@ -19,6 +19,7 @@ import frc.lib2202.command.swerve.RotateTo;
 import frc.lib2202.subsystem.hid.HID_Subsystem;
 import frc.lib2202.subsystem.swerve.DriveTrainInterface;
 import frc.robot2026.command.AgitateOS;
+import frc.robot2026.command.AgitateV2;
 import frc.robot2026.command.autoClimberCommand;
 import frc.robot2026.command.shooter.AutoShoot;
 import frc.robot2026.subsystems.Climber;
@@ -62,21 +63,22 @@ public class RegisteredCommands {
     public static Command ncShoot() {
         get_references();
         
-        final double face_timeout = 2.0;   //pathing should leave us close
-        final double agitate_period = 1.0;
-        final double belts_speed = 0.25;
-        final double agitate_delay = 0.5;
-        final double agitate_in_spd = 0.6;
+        //final double face_timeout = 2.0;   //pathing should leave us close
+        final double agitate_period = .25;
+        final double belts_speed = 0.65;
+        final double agitate_delay = 0.25;
+        final double agitate_in_spd = 0.7;
         var cmd = new SequentialCommandGroup(
                 new PrintCommand("Shooting lots of fuel ..."),                            
                 // not working consistently, needs more testing   
                 // new RotateTo(targeter.getRedHub(), targeter.getBlueHub(), face_timeout).setP(8.0),
                 // the commands in this parallel group DO NOT FINISH ...
                 new ParallelRaceGroup(
+                        // new AgitateV2().repeatedly(),
                         new AgitateOS(true, belts_speed, agitate_period, agitate_delay, agitate_in_spd),
                         new AutoShoot("left", targeter::getTargetSpeed, targeter::getTolerance, 1.0),
                         new AutoShoot("right", targeter::getTargetSpeed, targeter::getTolerance, 1.0)
-                ),
+                ).withTimeout(6.0),
                 new PrintCommand("                     ... nothing but net.")
         );         
         cmd.setName("ncShoot");

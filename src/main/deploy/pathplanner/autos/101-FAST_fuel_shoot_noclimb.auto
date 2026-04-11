@@ -5,9 +5,42 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "race",
           "data": {
-            "pathName": "ShootToFuel"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "intake_on"
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "StraightToFuel"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "sequential",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "shoot"
+                }
+              }
+            ]
           }
         },
         {
@@ -27,19 +60,13 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "FuelToFuel"
+                        "pathName": "SecondPassHub"
                       }
                     }
                   ]
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "FueltoPos3Shoot"
           }
         },
         {
