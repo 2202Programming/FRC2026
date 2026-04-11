@@ -55,6 +55,7 @@ import frc.robot2026.subsystems.Shooter.Fuelgauge;
 import frc.robot2026.subsystems.Shooter.Indexer;
 import frc.robot2026.subsystems.Shooter.Shooter;
 import frc.robot2026.subsystems.Shooter.Targeter;
+import frc.robot2026.testBindings.JRtestBinding;
 
 public class RobotSpec_AlphaBot implements IRobotSpec {
   // Subsystem objects for use at other cut points
@@ -255,6 +256,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
     // DpltestBinding.calbrate((CommandXboxController)dc.Operator());
     // BGTestBindings.calbrate(op);
     // GRLTestBindings.calbrate((CommandXboxController)dc.Operator()); //uses opr a & b
+    // JRtestBinding.calbrate((CommandXboxController)dc.Operator());
    
     // Anything else that needs to run after binding/commands are created 
     if (vpe != null) {

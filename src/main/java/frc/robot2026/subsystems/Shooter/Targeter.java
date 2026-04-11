@@ -62,6 +62,11 @@ public class Targeter extends SubsystemBase implements TargeterInterface {
     final double LOW_TOLERANCE = 0.5; // [M/S]
     final double UNBLOCK_SPEED = -15.0; // [M/S]
 
+    final double MAX_SHOOTING_DISTANCE = 10.0; //[M]
+    final double MAX_MOTION_ADJUSTMENT = 3.0; //[M]
+    final double SHOOTING_DISTANCE_MOTION_ADJUSTMENT_FACTOR = 0.1; //[magic number units]
+    final double SHOOTING_MOTION_ADJUSTMENT_FACTOR = 0.1; //[magic number units]
+
     // todo make this a trim entry
     final double dist_err = MperFT * 0.0 / 12.0; // [m] testing tape measure seemed like we were 6" short
 
@@ -93,6 +98,8 @@ public class Targeter extends SubsystemBase implements TargeterInterface {
     double target_tolerance = LOW_TOLERANCE;
     double override_dist = 0.0; // non-zero will skip LL distance calcs
     double prevDistance;
+    double currentHangTime;
+    double parallelTargetVelocity;
 
     Translation2d motionTargetTranslation2d;
     double motionDeltaX;
@@ -201,7 +208,7 @@ public class Targeter extends SubsystemBase implements TargeterInterface {
         motionDeltaX = targetTranslation2d.getX() - motionTargetTranslation2d.getX();
         motionDeltaY = targetTranslation2d.getY() - motionTargetTranslation2d.getY();
         motionDeltaSpeed = target_speed_motion_corrected - target_speed;
-
+        currentHangTime = hangTime_table.get(prevDistance);
         m_field.setRobotPose(odo.getPose());
         m_field_obj.setPose(new Pose2d(motionTargetTranslation2d, new Rotation2d()));
 
@@ -275,14 +282,22 @@ public class Targeter extends SubsystemBase implements TargeterInterface {
     public Translation2d motionCorrectedTarget(double hangTime) {
         double xVelocity = dt.getFieldRelativeSpeeds().vxMetersPerSecond;
         double yVelocity = dt.getFieldRelativeSpeeds().vyMetersPerSecond;
-        return new Translation2d(targetTranslation2d.getX() - xVelocity * hangTime,
-                targetTranslation2d.getY() - yVelocity * hangTime);
+        double xAdjustment = xVelocity * hangTime * SHOOTING_MOTION_ADJUSTMENT_FACTOR; //[M]
+        double yAdjustment = yVelocity * hangTime * SHOOTING_MOTION_ADJUSTMENT_FACTOR; //[M]
+
+        //don't adjust target beyond ability to shoot
+        if (xAdjustment > MAX_MOTION_ADJUSTMENT) xAdjustment = MAX_MOTION_ADJUSTMENT;
+        if (yAdjustment > MAX_MOTION_ADJUSTMENT) yAdjustment = MAX_MOTION_ADJUSTMENT;
+        if (xAdjustment < -MAX_MOTION_ADJUSTMENT) xAdjustment = -MAX_MOTION_ADJUSTMENT;
+        if (yAdjustment < -MAX_MOTION_ADJUSTMENT) yAdjustment = -MAX_MOTION_ADJUSTMENT;
+
+        return new Translation2d(targetTranslation2d.getX() - xAdjustment,
+                targetTranslation2d.getY() - yAdjustment);
     }
 
     // get a new target distance based on velocity vector directly towards/away from
     // target
     public double motionCorrectedDistance(Translation2d t) {
-        double velocityTowardsTarget;
 
         // 1. Vector towards target (meters)
         double dx = t.getX() - odo.getPose().getX();
@@ -300,10 +315,15 @@ public class Targeter extends SubsystemBase implements TargeterInterface {
         double vy = dt.getFieldRelativeSpeeds().vyMetersPerSecond;
 
         // 4. Dot product (projection of velocity onto direction) [m/s]
-        velocityTowardsTarget = vx * ux + vy * uy;
+        parallelTargetVelocity = vx * ux + vy * uy;
+        double distanceAdjustment = hangTime_table.get(distance) * parallelTargetVelocity * SHOOTING_DISTANCE_MOTION_ADJUSTMENT_FACTOR; // [m]
+        double finalMotionCorrectedDistance = distanceAdjustment + distance;
 
-        return distance + hangTime_table.get(distance) * velocityTowardsTarget; //[m]
+        //don't return a distance further than we can shoot
+        if (finalMotionCorrectedDistance > MAX_SHOOTING_DISTANCE) finalMotionCorrectedDistance = MAX_SHOOTING_DISTANCE;
+        if (finalMotionCorrectedDistance < -MAX_SHOOTING_DISTANCE) finalMotionCorrectedDistance = -MAX_SHOOTING_DISTANCE;
 
+        return finalMotionCorrectedDistance;
     }
 
     public double getMotionTargetX() {
@@ -358,6 +378,12 @@ public class Targeter extends SubsystemBase implements TargeterInterface {
             }, 2);
             addEntry("preDistance", () -> {
                 return Targeter.this.prevDistance;
+            }, 2);
+            addEntry("hangTime", () -> {
+                return Targeter.this.currentHangTime;
+            }, 2);
+            addEntry("ParallelVel", () -> {
+                return Targeter.this.parallelTargetVelocity;
             }, 2);
         }
     }
