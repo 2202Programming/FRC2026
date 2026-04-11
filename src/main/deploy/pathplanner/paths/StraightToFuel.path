@@ -37,7 +37,7 @@
       },
       "prevControl": {
         "x": 8.415198675496688,
-        "y": 3.904321192052979
+        "y": 3.9043211920529783
       },
       "nextControl": {
         "x": 7.4372835494105365,
@@ -110,7 +110,14 @@
     }
   ],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "spinup",
+      "waypointRelativePos": 1.8179401993355515,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 8.0,
     "maxAcceleration": 7.0,
