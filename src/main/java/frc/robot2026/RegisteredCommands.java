@@ -5,6 +5,7 @@ import javax.net.ssl.TrustManager;
 import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
@@ -85,6 +86,7 @@ public class RegisteredCommands {
         return cmd;
     }
 
+    static double SPINUP = 17.65; // about 10ft
     public static void RegisterCommands() {    
         get_references();
 
@@ -95,7 +97,11 @@ public class RegisteredCommands {
         NamedCommands.registerCommand("climb_right", new autoClimberCommand(false));
 
         NamedCommands.registerCommand("climb_left", new autoClimberCommand(true));
-
+        NamedCommands.registerCommand("spinup",new InstantCommand(()-> {
+            shooter_left.flywheel.setSetpoint(SPINUP);
+            shooter_right.flywheel.setSetpoint(SPINUP);
+        }));
+        
         NamedCommands.registerCommand("noise",
                 new PrintCommand("noise ... --- ..."));
 
