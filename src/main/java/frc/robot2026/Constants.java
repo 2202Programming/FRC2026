@@ -74,6 +74,14 @@ public final class Constants {
     public static final int ShooterIDLeft = 52; 
     public static final int LIndexerID = 53; 
 
+
+    // MultiShooter Indexer
+    public static final int LIndexerMultiID = 40;
+    public static final int RIndexerMultiID = 55;
+    // MultiShooter Shooter
+    public static final int MShooter = 51;
+    // Extendable Hopper
+    public static final int ExtendHopperID = 36;
     // IMU
     public static final int PIGEON_IMU_CAN = 60;
 

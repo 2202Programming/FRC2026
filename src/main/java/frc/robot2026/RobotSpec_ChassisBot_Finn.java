@@ -33,8 +33,11 @@ import frc.lib2202.subsystem.swerve.config.ModuleConfig;
 import frc.lib2202.subsystem.swerve.config.ModuleConfig.CornerID;
 import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
-
+import frc.robot2026.subsystems.Extender;
+import frc.robot2026.subsystems.Intake;
 import frc.robot2026.subsystems.VisionPoseEstimator;
+import frc.robot2026.subsystems.Shooter.Shooter;
+import frc.robot2026.subsystems.Shooter.Targeter;
 import frc.robot2026.testBindings.DpltestBinding;
 
 public class RobotSpec_ChassisBot_Finn implements IRobotSpec { 
@@ -53,6 +56,20 @@ public class RobotSpec_ChassisBot_Finn implements IRobotSpec {
       .add(Sensors.class, "sensors", () -> {
         return new Sensors(CAN.PIGEON_IMU_CAN);
       })
+      .add(Shooter.class, "shooter", () ->{
+        return new Shooter("ctre", CAN.MShooter, true);
+      })
+
+      .add(Targeter.class, "targeter", () -> {
+        return new Targeter("odometry");
+      })
+      .add(Extender.class,  "extender", ()->{
+        return new Extender();
+      })
+      .add(Intake.class, "intake", () -> {
+        return new Intake(true);
+      })
+
       .add(SwerveDrivetrain.class, "drivetrain", () -> {
         return new SwerveDrivetrain(SparkFlex.class);
       })
