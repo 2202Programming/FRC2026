@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.065366666666668,
-        "y": 7.410869205298013
+        "x": 3.855960264900662,
+        "y": 0.6809105960264901
       },
       "prevControl": null,
       "nextControl": {
-        "x": 8.065366666666668,
-        "y": 6.147640728476821
+        "x": 3.855960264900662,
+        "y": -0.582317880794702
       },
       "isLocked": false,
       "linkedName": "ShootToFuelEnd"
@@ -62,7 +62,7 @@
   "folder": "ClockwiseRoundTheWorld",
   "idealStartingState": {
     "velocity": 1.0,
-    "rotation": -90.0
+    "rotation": 77.47119229084848
   },
   "useDefaultConstraints": true
 }
