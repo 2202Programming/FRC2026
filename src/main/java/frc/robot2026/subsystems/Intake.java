@@ -100,6 +100,45 @@ public class Intake extends SubsystemBase {
     this.setDefaultCommand(cmdRunWhileFuel(.45, 0.5) );
   }
 
+
+  public Intake(boolean isMulti) {
+    lightgate = null;
+    setName("Intake-" + CAN.MultiIntakeIDIntakeID);
+    controller = new SparkFlex(CAN.IntakeID, MotorType.kBrushless);
+    config = new SparkFlexConfig();
+    encoder = controller.getEncoder();
+    closedLoopController = controller.getClosedLoopController();
+
+    ffObj = config.closedLoop.feedForward;
+
+    config
+        .inverted(motor_inverted);
+
+    config.encoder
+        .positionConversionFactor(conversionFactor);
+
+    config.closedLoop
+        .feedbackSensor(FeedbackSensor.kPrimaryEncoder);
+
+    config.closedLoop.maxMotion
+        .cruiseVelocity(cruiseVel, slot)
+        .maxAcceleration(maxAccel, slot)
+        .allowedProfileError(1);
+    double P = 0.0;
+    double I = 0.0;
+    double  D = 0.0;
+    double kS = 0.0;
+    double kV = 0.0;
+    config.closedLoop
+        .p(P, slot).i(I, slot).d(D, slot)
+        .feedForward
+          .kS(kS, slot).kV(kV, slot);
+
+    controller.configure(config, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+    //don't use Trigger, changed to be a default command
+    this.setDefaultCommand(cmdRunWhileFuel(.45, 0.5) );
+  }
+
   /**
    * 
    * @param motorController - The motor controller to apply the values to
