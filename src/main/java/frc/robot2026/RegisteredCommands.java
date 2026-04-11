@@ -91,9 +91,6 @@ public class RegisteredCommands {
         Command cmd =     new InstantCommand( () -> {
             shooter_left.flywheel.setSetpoint(SPINUP);
             shooter_right.flywheel.setSetpoint(SPINUP);
-            System.out.print("##############################################################################################");
-            System.out.print("##############################################################################################");
-            System.out.print("##############################################################################################");
        });
        
        return cmd;
@@ -110,6 +107,7 @@ public class RegisteredCommands {
         NamedCommands.registerCommand("climb_left", new autoClimberCommand(true));
         NamedCommands.registerCommand("noise",   new PrintCommand("noise ... --- ..."));
 
+        // Event Markers set in paths need an EventTrigger to execute the command.
         new EventTrigger("spinup").onTrue(ncSpinup());
 
     }
