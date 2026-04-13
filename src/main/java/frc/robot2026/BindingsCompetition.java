@@ -116,17 +116,21 @@ public final class BindingsCompetition {
                     new ScaleDriver(0.3),
                     new RobotCentricDrive(drivetrain, dc)));
 
-            // Shoot with targetSpeed based on distance to hub
-            driver.leftTrigger(0.7).whileTrue(new AutoShoot("left", targeter::getTargetSpeed, targeter::getTolerance, 1.0));
-            driver.leftTrigger(0.7).whileTrue(new AutoShoot("right", targeter::getTargetSpeed, targeter::getTolerance, 1.0));
-            driver.leftTrigger(0.1).whileTrue(hopper.cmdBeltPct(0.705))
-                    .onFalse(hopper.cmdBeltPct(0));
+            // Shoot with targetSpeed based on distance to hub - moved to Opr.B()
+            // driver.leftTrigger(0.7).whileTrue(new AutoShoot("left", targeter::getTargetSpeed, targeter::getTolerance, 1.0));
+            // driver.leftTrigger(0.7).whileTrue(new AutoShoot("right", targeter::getTargetSpeed, targeter::getTolerance, 1.0));
+            // driver.leftTrigger(0.1).whileTrue(hopper.cmdBeltPct(0.705))
+            //         .onFalse(hopper.cmdBeltPct(0));
 
             // Driver wants to manually fire/pass
-            driver.rightTrigger(0.7).whileTrue(new AutoShoot("left", targeter::getManualSpeed, targeter::getManualTolerance, 1.0));
-            driver.rightTrigger(0.7).whileTrue(new AutoShoot("right", targeter::getManualSpeed, targeter::getManualTolerance, 1.0));
-            driver.rightTrigger(0.1).whileTrue(hopper.cmdBeltPct(0.705))
-                    .onFalse(hopper.cmdBeltPct(0).withName("rtTrig_hopperZero*****"));
+            //driver.rightTrigger(0.7).whileTrue(new AutoShoot("left", targeter::getManualSpeed, targeter::getManualTolerance, 1.0));
+            //driver.rightTrigger(0.7).whileTrue(new AutoShoot("right", targeter::getManualSpeed, targeter::getManualTolerance, 1.0));
+            //driver.rightTrigger(0.1).whileTrue(hopper.cmdBeltPct(0.705))
+            //        .onFalse(hopper.cmdBeltPct(0).withName("rtTrig_hopperZero*****"));
+
+            //Strafe commands on triggers
+            driver.leftTrigger(0.5).whileTrue(new StrafeDrive(45.0));
+            driver.leftTrigger(0.5).whileTrue(new StrafeDrive(135.0));    
 
         } else {
             DriverStation.reportError("Comp Bindings: No driver bindings set, check controllers.", false);
@@ -169,8 +173,8 @@ public final class BindingsCompetition {
             operator.y().whileTrue(shooter_left.cmdVelocity(-15))
                         .whileTrue(shooter_right.cmdVelocity(-15))
                         .onFalse(shooter_left.cmdVelocity(0))
-
                         .onFalse(shooter_right.cmdVelocity(0));
+                        
             operator.y().whileTrue(indexer_left.cmdSetPct(-1))
                         .whileTrue(indexer_right.cmdSetPct(-1))
                         .onFalse(indexer_left.cmdSetPct(0))
@@ -182,14 +186,24 @@ public final class BindingsCompetition {
             //             .onFalse(intake.cmdPctPwr(0));
                         
             operator.a().whileTrue(new AgitateOS(true, 0.455, 1.0, 0.5, .65));
-            operator.b().whileTrue(new AgitateOS(false, 0.455, 0.25, 0.75, .65));
+            //operator.b() - still free    
+                            
+            // Shoot with targetSpeed based on distance to hub - moved to Opr.B()
+            operator.leftTrigger(0.7).whileTrue(new AutoShoot("left", targeter::getTargetSpeed, targeter::getTolerance, 1.0));
+            operator.leftTrigger(0.7).whileTrue(new AutoShoot("right", targeter::getTargetSpeed, targeter::getTolerance, 1.0));
+            operator.leftTrigger(0.1).whileTrue(hopper.cmdBeltPct(0.705))
+                    .onFalse(hopper.cmdBeltPct(0));
+
+            // Driver wants to manually fire/pass
+            operator.rightTrigger(0.7).whileTrue(new AutoShoot("left", targeter::getManualSpeed, targeter::getManualTolerance, 1.0));
+            operator.rightTrigger(0.7).whileTrue(new AutoShoot("right", targeter::getManualSpeed, targeter::getManualTolerance, 1.0));
+            operator.rightTrigger(0.1).whileTrue(hopper.cmdBeltPct(0.705))
+                    .onFalse(hopper.cmdBeltPct(0));
 
             // TESTING for now
-            operator.back().onTrue(new autoClimberCommand(true)); // LEFT
-            operator.start().onTrue(new autoClimberCommand(false)); // RIGHT
-            //TESTING REMOVE FOR COMP
-            //operator.b().whileTrue(RegisteredCommands.ncShoot());
-
+            //operator.back().onTrue(new autoClimberCommand(true)); // LEFT
+            //operator.start().onTrue(new autoClimberCommand(false)); // RIGHT
+         
             // Calibration Commands
             Cal.and(sideboard.sw12()).whileTrue(climber.setVelocityCmd(Climber.ClimbCalibrateVel))
                     .onFalse(climber.setVelocityCmd(0.0));
