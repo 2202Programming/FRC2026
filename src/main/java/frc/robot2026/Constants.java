@@ -62,7 +62,7 @@ public final class Constants {
    
     // Intake
     public static final int IntakeID = 40; // this canID is correct DONT CHANGE IT
-    public static final int MultiIntakeIDIntakeID = 52;
+    public static final int MultiIntakeIDIntakeID = 53;
     //public static final int IntakeBottomID = 41; 
 
     //Hopper

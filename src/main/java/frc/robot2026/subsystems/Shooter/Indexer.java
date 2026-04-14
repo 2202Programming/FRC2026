@@ -14,10 +14,12 @@ import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.FeedForwardConfig;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
+import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -29,8 +31,8 @@ import frc.lib2202.command.WatcherCmd;
 
 public class Indexer extends SubsystemBase {
 
-  final SparkFlex controller;
-  final SparkFlexConfig controllerCfg;
+  final SparkBase  controller;
+  final SparkBaseConfig controllerCfg;
   final RelativeEncoder encoder;
   final SparkClosedLoopController closedLoopController;
   final FeedForwardConfig ffObj;
@@ -65,10 +67,20 @@ public class Indexer extends SubsystemBase {
   boolean loaded;
 
   public Indexer(int CanID, boolean inverted, int dio_gate) {
+    this(CanID, inverted, dio_gate, SparkFlex.class);
+  }
+  
+  public Indexer(int CanID, boolean inverted, int dio_gate, Class motorType) {
     setName(inverted ? "indexer_left" : "indexer_right");
-    indexGate = new DigitalInput(dio_gate);
-    controller = new SparkFlex(CanID, MotorType.kBrushless);
-    controllerCfg = new SparkFlexConfig();
+    if (motorType == SparkFlex.class) {
+      indexGate = new DigitalInput(dio_gate);
+      controller = new SparkFlex(CanID, MotorType.kBrushless);
+      controllerCfg = new SparkFlexConfig();
+    } else {
+      indexGate = null;
+      controller = new SparkMax(CanID, MotorType.kBrushless);
+      controllerCfg = new SparkMaxConfig();
+    }
     encoder = controller.getEncoder();
     closedLoopController = controller.getClosedLoopController();
     ffObj = controllerCfg.closedLoop.feedForward;
@@ -81,6 +93,7 @@ public class Indexer extends SubsystemBase {
     // Default command will keep indexer loaded but stops before flywheel
     this.setDefaultCommand(this.new Load()); 
   }
+
 
   private void configure(ClosedLoopSlot slot, boolean inverted) {
 
@@ -140,7 +153,11 @@ public class Indexer extends SubsystemBase {
   }
   
   public boolean hasFuel(){
-    return !indexGate.get();
+    if(indexGate!=null)  {
+      return !indexGate.get();
+    } else {
+      return false;
+    }
   }
 
   public Command cmdSetPct(double pct) {

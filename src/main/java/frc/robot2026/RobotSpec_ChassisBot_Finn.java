@@ -6,7 +6,9 @@ import static frc.lib2202.Constants.MperFT;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathfindingCommand;
+import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.SparkMax;
 
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
@@ -21,6 +23,7 @@ import frc.lib2202.builder.RobotLimits;
 import frc.lib2202.builder.SubsystemConfig;
 import frc.lib2202.command.swerve.FieldCentricDrive;
 import frc.lib2202.subsystem.Odometry;
+import frc.lib2202.subsystem.Odometry.OdometryWatcher;
 import frc.lib2202.subsystem.OdometryInterface;
 import frc.lib2202.subsystem.Sensors;
 import frc.lib2202.subsystem.hid.HID_Subsystem;
@@ -35,7 +38,9 @@ import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
 import frc.robot2026.subsystems.Extender;
 import frc.robot2026.subsystems.Intake;
+import frc.robot2026.subsystems.MultiIntake;
 import frc.robot2026.subsystems.VisionPoseEstimator;
+import frc.robot2026.subsystems.Shooter.Indexer;
 import frc.robot2026.subsystems.Shooter.Shooter;
 import frc.robot2026.subsystems.Shooter.Targeter;
 import frc.robot2026.testBindings.DpltestBinding;
@@ -57,7 +62,7 @@ public class RobotSpec_ChassisBot_Finn implements IRobotSpec {
         return new Sensors(CAN.PIGEON_IMU_CAN);
       })
       .add(Shooter.class, "shooter", () ->{
-        return new Shooter("ctre", CAN.MShooter, true);
+        return new Shooter("ctre", CAN.MShooter, false);
       })
 
       .add(Targeter.class, "targeter", () -> {
@@ -69,11 +74,17 @@ public class RobotSpec_ChassisBot_Finn implements IRobotSpec {
       .add(Intake.class, "intake", () -> {
         return new Intake(true);
       })
-
+      .add(Indexer.class, "indexer_top", () -> {
+        return new Indexer(CAN.LIndexerMultiID, false,  0,SparkMax.class);
+      })
+      .add(Indexer.class, "indexer_bottom", () -> {
+        return new Indexer(CAN.RIndexerMultiID, false, 0, SparkMax.class);
+      })
+       //.add(MultiIntake.class)
       .add(SwerveDrivetrain.class, "drivetrain", () -> {
         return new SwerveDrivetrain(SparkFlex.class);
       })
-      .add(OdometryInterface.class, "odometry", () -> {
+.add(OdometryInterface.class, "odometry", () -> {
         var obj = new Odometry();
         obj.new OdometryWatcher();
         return obj;
@@ -157,7 +168,7 @@ public class RobotSpec_ChassisBot_Finn implements IRobotSpec {
     // novision "odometry"
     // TODO switch to vision based when we have a LL
     OdometryInterface odo = RobotContainer.getSubsystemOrNull("odometry");
-    VisionPoseEstimator vpe = RobotContainer.getSubsystemOrNull("vision_odo");
+    //VisionPoseEstimator vpe = RobotContainer.getSubsystemOrNull("vision_odo");
     DriveTrainInterface sdt = RobotContainer.getSubsystemOrNull("drivetrain");
     HID_Subsystem dc = RobotContainer.getSubsystem("DC");
     
@@ -171,10 +182,10 @@ public class RobotSpec_ChassisBot_Finn implements IRobotSpec {
     }
 
     // Competition bindings
-    BindingsCompetition.ConfigureCompetition(dc, false);
+    BindingsMulti.ConfigureCompetition(dc, true);
     
     //Take care testing binding don't collide
-    DpltestBinding.calbrate(operator);  // rt/left bumper, rt/lt Trigger
+    //.calbrate(operator);  // rt/left bumper, rt/lt Trigger
     //cl.setDemoBindings(operator);       //pov,a,x
 
     // Place your test binding in ./testBinding/<yourFile>.java and call it here
@@ -184,7 +195,7 @@ public class RobotSpec_ChassisBot_Finn implements IRobotSpec {
     // Anything else that needs to run after binding/commands are created
     
     // maybe beter way, but this registers vpe with the aliance-aware reset cmd.
-    if (vpe != null) vpe.configureGyroCallback();
+    //if (vpe != null) vpe.configureGyroCallback();
 
     // show what cmds are running
     SmartDashboard.putData(CommandScheduler.getInstance());
@@ -194,14 +205,14 @@ public class RobotSpec_ChassisBot_Finn implements IRobotSpec {
 
   @Override
   public void setupRegisteredCommands() {
-    RegisteredCommands.RegisterCommands();
+    //RegisteredCommands.RegisterCommands();
 
     // enable chooser - builds autochooser list, requires AutoBuilder to be
     // configured
     // thus SDT and some form of odometry. Skip auto if not configured.
     if (AutoBuilder.isConfigured()) {
-      autoChooser = AutoBuilder.buildAutoChooser();
-      SmartDashboard.putData("Auto Chooser", autoChooser);
+      //autoChooser = AutoBuilder.buildAutoChooser();
+      //SmartDashboard.putData("Auto Chooser", autoChooser);
     }
   }
 

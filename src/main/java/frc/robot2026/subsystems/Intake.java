@@ -13,10 +13,13 @@ import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.FeedForwardConfig;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkFlexConfig;
+import com.revrobotics.spark.config.SparkMaxConfig;
+
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
@@ -31,8 +34,8 @@ import frc.robot2026.Constants.DigitalIO;
 
 public class Intake extends SubsystemBase {
 
-  final SparkFlex controller;
-  final SparkFlexConfig config;
+  final SparkBase controller;
+  final SparkBaseConfig config;
   final RelativeEncoder encoder;
   final SparkClosedLoopController closedLoopController;
   final FeedForwardConfig ffObj;
@@ -42,7 +45,7 @@ public class Intake extends SubsystemBase {
 
   final ClosedLoopSlot slot = ClosedLoopSlot.kSlot0;
 
-  final boolean motor_inverted = true;
+   boolean motor_inverted = true;
 
   final DigitalInput lightgate;
 
@@ -104,8 +107,14 @@ public class Intake extends SubsystemBase {
   public Intake(boolean isMulti) {
     lightgate = null;
     setName("Intake-" + CAN.MultiIntakeIDIntakeID);
-    controller = new SparkFlex(CAN.IntakeID, MotorType.kBrushless);
-    config = new SparkFlexConfig();
+    if(!isMulti) {
+      controller = new SparkFlex(CAN.IntakeID, MotorType.kBrushless);
+      config = new SparkFlexConfig();
+    } else {
+      controller = new SparkMax(CAN.MultiIntakeIDIntakeID, MotorType.kBrushless);
+      config = new SparkMaxConfig();
+      motor_inverted=false;
+    }
     encoder = controller.getEncoder();
     closedLoopController = controller.getClosedLoopController();
 
@@ -213,7 +222,11 @@ public class Intake extends SubsystemBase {
   }
 
   public boolean hasFuel() {
-    return !lightgate.get();
+    if(this.lightgate!=null) {
+      return !lightgate.get();
+    } else {
+      return false;
+    }
   }
 
   public void zeroPos() {

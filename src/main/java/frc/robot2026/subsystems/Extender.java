@@ -4,12 +4,16 @@ import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.FeedForwardConfig;
+import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkFlexConfig;
+import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -21,8 +25,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot2026.Constants.CAN;
 
 public class Extender extends SubsystemBase {
-    final SparkFlex controller;
-    final SparkFlexConfig config;
+    final SparkMax controller;
+    final SparkMaxConfig config;
     final RelativeEncoder encoder;
     final SparkClosedLoopController closedLoopController;
     final FeedForwardConfig ffObj;
@@ -54,8 +58,8 @@ public class Extender extends SubsystemBase {
 
     public Extender() {
         setName("Extender-" + CAN.ExtendHopperID);
-        controller = new SparkFlex(CAN.ExtendHopperID, MotorType.kBrushless);
-        config = new SparkFlexConfig();
+        controller = new SparkMax(CAN.ExtendHopperID, MotorType.kBrushless);
+        config = new SparkMaxConfig();
         encoder = controller.getEncoder();
         closedLoopController = controller.getClosedLoopController();
         config.closedLoop.maxMotion

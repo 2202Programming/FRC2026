@@ -94,9 +94,9 @@ public final class BindingsMulti {
                     new RobotCentricDrive(drivetrain, dc)));
 
             //Shoot with targetSpeed based on distance to hub
-            driver.leftTrigger().whileTrue(indexerT.cmdSetPct(0.5).alongWith(indexerB.cmdSetPct(0.5)))
-                                 .onFalse(indexerT.cmdSetPct(0).alongWith(indexerB.cmdSetPct(0))
-                                 );
+           // driver.leftTrigger().whileTrue(indexerT.cmdSetPct(0.5).alongWith(indexerB.cmdSetPct(0.5)))
+            //                     .onFalse(indexerT.cmdSetPct(0).alongWith(indexerB.cmdSetPct(0))
+            //                     );
             
             //driver.leftTrigger(0.7).whileTrue(new AutoShootMulti(shooter, indexerT, indexerB, targeter::getTargetSpeed, 1));
             //driver.leftTrigger(0.1).whileTrue(hopper.cmdBeltPct(1))
