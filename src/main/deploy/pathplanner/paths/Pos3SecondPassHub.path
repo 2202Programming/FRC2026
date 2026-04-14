@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.2590156918687585,
-        "y": 7.483152639087019
+        "x": 4.323708987161198,
+        "y": 7.379643366619116
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.957703281027103,
-        "y": 7.651355206847361
+        "x": 5.022396576319543,
+        "y": 7.547845934379458
       },
       "isLocked": false,
       "linkedName": null
@@ -109,7 +109,7 @@
   "eventMarkers": [
     {
       "name": "spinup",
-      "waypointRelativePos": 2.1497326203208553,
+      "waypointRelativePos": 1.5168119551681125,
       "endWaypointRelativePos": null,
       "command": null
     }
