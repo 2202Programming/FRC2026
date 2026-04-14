@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.856,
-        "y": 0.681
+        "x": 3.81910128388017,
+        "y": 0.6256633380884444
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.841255349500712,
-        "y": 0.7809272467902997
+        "x": 4.804356633380882,
+        "y": 0.7255905848787441
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 6.613851640513552,
-        "y": 0.832681883024252
+        "x": 6.2774465049928665,
+        "y": 0.7938659058487882
       },
       "prevControl": {
-        "x": 5.886436177375075,
-        "y": 0.5424416654628539
+        "x": 5.55003104185439,
+        "y": 0.5036256882873902
       },
       "nextControl": {
-        "x": 7.6101283880171176,
-        "y": 1.2301982881597726
+        "x": 7.273723252496432,
+        "y": 1.191382310984309
       },
       "isLocked": false,
       "linkedName": null
@@ -83,11 +83,11 @@
     },
     {
       "waypointRelativePos": 2.3191733639494956,
-      "rotationDegrees": 86.07474049463308
+      "rotationDegrees": 106.3821012580117
     },
     {
       "waypointRelativePos": 3.1,
-      "rotationDegrees": 88.85
+      "rotationDegrees": 149.06655617144733
     }
   ],
   "constraintZones": [
@@ -115,8 +115,8 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 5.8,
-    "maxAcceleration": 4.5,
+    "maxVelocity": 4.5,
+    "maxAcceleration": 5.0,
     "maxAngularVelocity": 360.0,
     "maxAngularAcceleration": 360.0,
     "nominalVoltage": 12.0,
@@ -132,5 +132,5 @@
     "velocity": 0,
     "rotation": 90.0
   },
-  "useDefaultConstraints": false
+  "useDefaultConstraints": true
 }
