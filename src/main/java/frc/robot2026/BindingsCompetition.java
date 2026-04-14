@@ -130,7 +130,7 @@ public final class BindingsCompetition {
 
             //Strafe commands on triggers
             driver.leftTrigger(0.5).whileTrue(new StrafeDrive(45.0));
-            driver.leftTrigger(0.5).whileTrue(new StrafeDrive(135.0));    
+            driver.rightTrigger(0.5).whileTrue(new StrafeDrive(135.0));    
 
         } else {
             DriverStation.reportError("Comp Bindings: No driver bindings set, check controllers.", false);
@@ -185,7 +185,7 @@ public final class BindingsCompetition {
             //             .onFalse(hopper.cmdBeltPct(0)) 
             //             .onFalse(intake.cmdPctPwr(0));
                         
-            operator.a().whileTrue(new AgitateOS(true, 0.455, 1.0, 0.5, .65));
+            operator.a().whileTrue(new AgitateOS(true, 0.655, .25, 0.25, .7));
             //operator.b() - still free    
                             
             // Shoot with targetSpeed based on distance to hub - moved to Opr.B()
