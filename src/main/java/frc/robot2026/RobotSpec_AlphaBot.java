@@ -276,6 +276,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
     // Skip auto if not configured.
     if (AutoBuilder.isConfigured()) {
       autoChooser = AutoBuilder.buildAutoChooser();
+     
       SmartDashboard.putData("Auto Chooser", autoChooser);
     }
 
