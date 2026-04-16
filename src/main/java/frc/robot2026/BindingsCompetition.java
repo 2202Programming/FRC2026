@@ -186,7 +186,12 @@ public final class BindingsCompetition {
             //             .onFalse(intake.cmdPctPwr(0));
                         
             operator.a().whileTrue(new AgitateOS(true, 0.655, .25, 0.25, .7));
-            //operator.b() - still free    
+
+            double spinUp = 17.501;
+            operator.b().onTrue(shooter_left.cmdVelocity(spinUp))
+                        .onFalse(shooter_left.cmdVelocity(0.0));
+            operator.b().onTrue(shooter_right.cmdVelocity(spinUp))
+                        .onFalse(shooter_right.cmdVelocity(0.0));
                             
             // Shoot with targetSpeed based on distance to hub - moved to Opr.B()
             operator.leftTrigger(0.7).whileTrue(new AutoShoot("left", targeter::getTargetSpeed, targeter::getTolerance, 1.0));

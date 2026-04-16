@@ -199,20 +199,20 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
   public ModuleConfig[] getModuleConfigs() {
     ModuleConfig[] modules = new ModuleConfig[4];
     modules[CornerID.FrontLeft.getIdx()] = new ModuleConfig(CornerID.FrontLeft,
-        CAN.FL_CANCoder, CAN.FL_Drive, CAN.FL_Angle, -20.74)
+        CAN.FL_CANCoder, CAN.FL_Drive, CAN.FL_Angle, -19.42)
         .setInversions(false, true, true);
 
     modules[CornerID.FrontRight.getIdx()] = new ModuleConfig(CornerID.FrontRight,
-        CAN.FR_CANCoder, CAN.FR_Drive, CAN.FR_Angle, -103.98)
+        CAN.FR_CANCoder, CAN.FR_Drive, CAN.FR_Angle, -103.54)
         .setInversions(true, true, true);
         //.withWheelFactor(3.98/3.93);   shouldn't need this anymore - changed wheels out// replaced wheel / other wheels dia, applies only to FR
 
     modules[CornerID.BackLeft.getIdx()] = new ModuleConfig(CornerID.BackLeft,
-        CAN.BL_CANCoder, CAN.BL_Drive, CAN.BL_Angle, -127.54)
+        CAN.BL_CANCoder, CAN.BL_Drive, CAN.BL_Angle, -126.48)
         .setInversions(false, true, true);
 
     modules[CornerID.BackRight.getIdx()] = new ModuleConfig(CornerID.BackRight,
-        CAN.BR_CANCoder, CAN.BR_Drive, CAN.BR_Angle, 103.61)
+        CAN.BR_CANCoder, CAN.BR_Drive, CAN.BR_Angle, 102.64)
         .setInversions(true, true, true);
 
     return modules;
