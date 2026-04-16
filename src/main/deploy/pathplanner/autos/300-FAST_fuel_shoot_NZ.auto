@@ -9,15 +9,22 @@
           "data": {
             "commands": [
               {
-                "type": "path",
-                "data": {
-                  "pathName": "Pos1FuelTunnelShoot"
-                }
-              },
-              {
                 "type": "named",
                 "data": {
                   "name": "intake_on"
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "Pos3StraightToFuel"
+                      }
+                    }
+                  ]
                 }
               }
             ]
@@ -41,15 +48,22 @@
           "data": {
             "commands": [
               {
-                "type": "path",
-                "data": {
-                  "pathName": "BumpHubBumpShoot"
-                }
-              },
-              {
                 "type": "named",
                 "data": {
                   "name": "intake_on"
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "Pos3SecondPassHub"
+                      }
+                    }
+                  ]
                 }
               }
             ]
@@ -64,6 +78,18 @@
                 "data": {
                   "name": "shoot"
                 }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "transition"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Shoot3ToNZ"
+                }
               }
             ]
           }
@@ -72,6 +98,6 @@
     }
   },
   "resetOdom": true,
-  "folder": "BuddyNeutralAutos",
+  "folder": "SoloNeturalAutos",
   "choreoAuto": false
 }

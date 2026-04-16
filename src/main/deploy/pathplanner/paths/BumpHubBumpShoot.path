@@ -48,16 +48,16 @@
     },
     {
       "anchor": {
-        "x": 2.858363930885529,
-        "y": 2.3404967602591786
+        "x": 2.420011363636364,
+        "y": 2.6746534090909098
       },
       "prevControl": {
-        "x": 3.3970788336933038,
-        "y": 2.1250107991360676
+        "x": 2.9587262664441387,
+        "y": 2.4591674479677987
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "ShootPoint1"
     }
   ],
   "rotationTargets": [
@@ -109,7 +109,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 43.53119928561418
+    "rotation": 32.27564431457761
   },
   "reversed": false,
   "folder": "Pos1FuelShootFuel",

@@ -17,29 +17,16 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Pos3 to fuel2"
+                  "pathName": "Pos3 to fuel"
                 }
               }
             ]
           }
         },
         {
-          "type": "race",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "intake_on"
-                }
-              },
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Fuel to shoot"
-                }
-              }
-            ]
+            "pathName": "Fuel bump shoot"
           }
         },
         {
@@ -51,14 +38,14 @@
                 "data": {
                   "name": "shoot"
                 }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Shoot3ToNZ"
+                }
               }
             ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "climb_right"
           }
         }
       ]

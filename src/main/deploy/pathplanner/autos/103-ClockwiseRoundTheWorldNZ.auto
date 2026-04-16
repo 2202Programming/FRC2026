@@ -5,6 +5,19 @@
     "data": {
       "commands": [
         {
+          "type": "sequential",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "shoot"
+                }
+              }
+            ]
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "ShootToFuel"
@@ -37,12 +50,6 @@
           }
         },
         {
-          "type": "path",
-          "data": {
-            "pathName": "FueltoPos3Shoot"
-          }
-        },
-        {
           "type": "sequential",
           "data": {
             "commands": [
@@ -51,26 +58,14 @@
                 "data": {
                   "name": "shoot"
                 }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Shoot3ToNZ"
+                }
               }
             ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Pos3ShootToClimb"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "climb_right"
-          }
-        },
-        {
-          "type": "sequential",
-          "data": {
-            "commands": []
           }
         }
       ]

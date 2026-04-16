@@ -5,9 +5,22 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "race",
           "data": {
-            "pathName": "Pos1ToShoot"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Pos3FuelShoot"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intake_on"
+                }
+              }
+            ]
           }
         },
         {
@@ -21,12 +34,6 @@
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "ShootToFuel"
           }
         },
         {
@@ -34,31 +41,18 @@
           "data": {
             "commands": [
               {
+                "type": "path",
+                "data": {
+                  "pathName": "HubFuelShoot"
+                }
+              },
+              {
                 "type": "named",
                 "data": {
                   "name": "intake_on"
                 }
-              },
-              {
-                "type": "sequential",
-                "data": {
-                  "commands": [
-                    {
-                      "type": "path",
-                      "data": {
-                        "pathName": "FuelToFuel"
-                      }
-                    }
-                  ]
-                }
               }
             ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "FueltoPos3Shoot"
           }
         },
         {
@@ -70,26 +64,20 @@
                 "data": {
                   "name": "shoot"
                 }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "trenchToNZ"
+                }
               }
             ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Pos3ShootToClimb"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "climb_right"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "SoloNeturalAutos",
+  "folder": "BuddyNeutralAutos",
   "choreoAuto": false
 }
