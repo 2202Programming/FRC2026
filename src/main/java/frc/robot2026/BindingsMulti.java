@@ -94,9 +94,9 @@ public final class BindingsMulti {
                     new RobotCentricDrive(drivetrain, dc)));
 
             //Shoot with targetSpeed based on distance to hub
-           // driver.leftTrigger().whileTrue(indexerT.cmdSetPct(0.5).alongWith(indexerB.cmdSetPct(0.5)))
-            //                     .onFalse(indexerT.cmdSetPct(0).alongWith(indexerB.cmdSetPct(0))
-            //                     );
+            driver.leftTrigger().whileTrue(indexerT.cmdSetPct(-0.5).alongWith(indexerB.cmdSetPct(-0.5)))
+                                 .onFalse(indexerT.cmdSetPct(0).alongWith(indexerB.cmdSetPct(0))
+                                 );
             
             //driver.leftTrigger(0.7).whileTrue(new AutoShootMulti(shooter, indexerT, indexerB, targeter::getTargetSpeed, 1));
             //driver.leftTrigger(0.1).whileTrue(hopper.cmdBeltPct(1))
@@ -104,6 +104,7 @@ public final class BindingsMulti {
             
             //Driver wants to manually fire/pass
             driver.rightTrigger(0.7).whileTrue(new AutoShootMulti(shooter, indexerT,indexerB, targeter::getManualSpeed, 0.5));
+            //driver.leftTrigger().whileTrue(null)
             //driver.rightTrigger(0.7).whileTrue(new AutoShootMulti(shooter, indexerT, indexerB, .8, 1));
             //driver.rightTrigger(0.1).whileTrue(hopper.cmdBeltPct(1))
              //                                 .onFalse(hopper.cmdBeltPct(0));
@@ -129,11 +130,13 @@ public final class BindingsMulti {
             // intake bindings
             
             //intake in
-            operator.leftBumper().whileTrue(intake.cmdPctPwr(.7))
+            operator.leftBumper().whileTrue(intake.cmdPctPwr(.55))
                                  .onFalse(intake.cmdPctPwr(0.0));
             // intake out
-            operator.a().whileTrue(intake.cmdPctPwr(-1.0))
+            operator.rightBumper().whileTrue(intake.cmdPctPwr(-1.0))
                                  .onFalse(intake.cmdPctPwr(0.0));
+
+            
             
             //sideboard.sw14().onTrue(targeter.OverrideTargetDistanceFT(9.99))   // fixed distance
               //              .onFalse(targeter.OverrideTargetDistanceFT(0.0));  //use vision distance

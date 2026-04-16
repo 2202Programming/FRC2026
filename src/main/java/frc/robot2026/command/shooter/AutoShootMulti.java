@@ -38,11 +38,11 @@ double cmdPower;
     shooter.flywheel.setSetpoint(cmdPower);
 
     if(shooter.atSetpoint()) {
-      indexerT.setPct(idxPct);
-      indexerB.setPct(idxPct);
+      //indexerT.setPct(idxPct);
+      //indexerB.setPct(idxPct);
     } else {
-      indexerT.setPct(0.0);
-      indexerB.setPct(0.0);
+      //indexerT.setPct(0.0);
+      //indexerB.setPct(0.0);
     }
   }
 

@@ -153,16 +153,16 @@ public class Shooter extends SubsystemBase {
     // for testing Kraken
     private FlyWheelConfig initFlyWheelConfigCTRE() {
         double kP = 0.7; //
-        double kI = 4.0; // feels kind of bs
-        double kD = 0.01; // Seems innsensitive until you add an extremely large value
-        double kF = 0.12; // Kraken X60 is a 500 kV motor, 500 rpm per V = 8.333 rps per V,
+        double kI = 0.0; // feels kind of bs
+        double kD = 0.00; // Seems innsensitive until you add an extremely large value
+        double kF = 2.8; // Kraken X60 is a 500 kV motor, 500 rpm per V = 8.333 rps per V,
                           // 1/8.33 =// 0.12 volts / rotation per second
         double iZone = 0.0; // unused in Talon CTRE controller
 
         FlyWheelConfig cfg = new FlyWheelConfig();
         cfg.inverted = inverted;
         cfg.rampRate = 0.0; // not implemented in ctre, but could be
-        cfg.gearRatio = 1.0 / 1.0; // new kraken pulleys
+        cfg.gearRatio = 3.14 / 1.46; // new kraken pulleys
         cfg.stallAmp = 80; // [amp] Use as stator amps
         cfg.freeAmp = 10; // [amp] //unused
         cfg.maxOpenLoopRPM = 5800.0; // measure at full power or motor spec

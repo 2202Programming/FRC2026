@@ -91,7 +91,9 @@ public class Indexer extends SubsystemBase {
     this.getWatcherCmd();  //todo remove for comp
 
     // Default command will keep indexer loaded but stops before flywheel
-    this.setDefaultCommand(this.new Load()); 
+    if (motorType == SparkFlex.class) {
+      this.setDefaultCommand(this.new Load()); 
+    }
   }
 
 

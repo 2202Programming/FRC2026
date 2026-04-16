@@ -145,7 +145,9 @@ public class Intake extends SubsystemBase {
 
     controller.configure(config, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
     //don't use Trigger, changed to be a default command
-    this.setDefaultCommand(cmdRunWhileFuel(.45, 0.5) );
+    if(!isMulti) {
+      this.setDefaultCommand(cmdRunWhileFuel(.45, 0.5) );
+    }
   }
 
   /**

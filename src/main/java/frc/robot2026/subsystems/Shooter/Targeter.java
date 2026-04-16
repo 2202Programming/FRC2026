@@ -47,7 +47,7 @@ public class Targeter extends SubsystemBase {
         }
     }
 
-    final double HIGH_SPEED = 29.5; // [M/S]
+    final double HIGH_SPEED = 45; // [M/S]
     final double LOW_SPEED = 20.8; // [M/S]
     final double LOW_TOLERANCE = 0.5; // [M/S]
     final double UNBLOCK_SPEED = -15.0; // [M/S]
@@ -73,7 +73,7 @@ public class Targeter extends SubsystemBase {
     Translation2d targetTranslation2d;
     double target_dist; // function of VPE pose and Hub center + math
     double target_speed = LOW_SPEED;
-    double manual_speed = LOW_SPEED; // flywheel speed manually controlled by driver
+    double manual_speed = HIGH_SPEED; // flywheel speed manually controlled by driver
     double target_tolerance = LOW_TOLERANCE;
     double override_dist = 0.0; // non-zero will skip LL distance calcs
 
@@ -101,8 +101,8 @@ public class Targeter extends SubsystemBase {
         // Quick and dirty table measured on 2/21/26
         // distance[m] -> flywheel [m/s]
         // Create Velocity table with VelocityEntry so it is tied to persistent trims
-        new VelocityEntry("00.0 ft", 0.0, 14.1);
-        new VelocityEntry("05.4 ft", 5.4, 14.1);
+        new VelocityEntry("00.0 ft", 0.0, 30.1);
+        new VelocityEntry("05.4 ft", 5.4, 30.1);
         new VelocityEntry("06.0 ft", 6.0, 14.8);
         new VelocityEntry("10.0 ft", 10.0, 17.8);
         new VelocityEntry("12.3 ft", 12.3, 19.1);
