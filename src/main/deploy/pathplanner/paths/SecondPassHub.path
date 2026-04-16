@@ -64,16 +64,16 @@
     },
     {
       "anchor": {
-        "x": 2.9557284768211916,
-        "y": 5.182069536423841
+        "x": 2.7546444444444442,
+        "y": 5.857211111111111
       },
       "prevControl": {
-        "x": 3.572822847682118,
-        "y": 5.276448675496688
+        "x": 3.371738815305371,
+        "y": 5.951590250183958
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "ShootPoint2"
     }
   ],
   "rotationTargets": [
@@ -128,7 +128,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -32.988521613634596
+    "rotation": -45.24443752770182
   },
   "reversed": false,
   "folder": "ClockwiseRoundTheWorld",

@@ -5,9 +5,22 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "race",
           "data": {
-            "pathName": "ShootToFuel"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "intake_on"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Pos3 to fuel2"
+                }
+              }
+            ]
           }
         },
         {
@@ -21,25 +34,12 @@
                 }
               },
               {
-                "type": "sequential",
+                "type": "path",
                 "data": {
-                  "commands": [
-                    {
-                      "type": "path",
-                      "data": {
-                        "pathName": "FuelToFuel"
-                      }
-                    }
-                  ]
+                  "pathName": "Fuel to shoot"
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "FueltoPos3Shoot"
           }
         },
         {
@@ -54,11 +54,30 @@
               }
             ]
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "shoot to end climb"
+          }
+        },
+        {
+          "type": "sequential",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "climb_right"
+                }
+              }
+            ]
+          }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "SoloNeturalAutos",
+  "folder": "BuddyNeutralAutos",
   "choreoAuto": false
 }

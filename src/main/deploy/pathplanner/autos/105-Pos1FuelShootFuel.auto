@@ -9,22 +9,15 @@
           "data": {
             "commands": [
               {
-                "type": "named",
+                "type": "path",
                 "data": {
-                  "name": "intake_on"
+                  "pathName": "Pos1FuelTunnelShoot"
                 }
               },
               {
-                "type": "sequential",
+                "type": "named",
                 "data": {
-                  "commands": [
-                    {
-                      "type": "path",
-                      "data": {
-                        "pathName": "StraightToFuel"
-                      }
-                    }
-                  ]
+                  "name": "intake_on"
                 }
               }
             ]
@@ -48,22 +41,15 @@
           "data": {
             "commands": [
               {
-                "type": "named",
+                "type": "path",
                 "data": {
-                  "name": "intake_on"
+                  "pathName": "BumpHubBumpShoot"
                 }
               },
               {
-                "type": "sequential",
+                "type": "named",
                 "data": {
-                  "commands": [
-                    {
-                      "type": "path",
-                      "data": {
-                        "pathName": "SecondPassHub"
-                      }
-                    }
-                  ]
+                  "name": "intake_on"
                 }
               }
             ]
@@ -78,6 +64,12 @@
                 "data": {
                   "name": "shoot"
                 }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Shoot3ToNZ"
+                }
               }
             ]
           }
@@ -86,6 +78,6 @@
     }
   },
   "resetOdom": true,
-  "folder": "SoloNeturalAutos",
+  "folder": "BuddyNeutralAutos",
   "choreoAuto": false
 }

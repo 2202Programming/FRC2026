@@ -5,6 +5,12 @@
     "data": {
       "commands": [
         {
+          "type": "path",
+          "data": {
+            "pathName": "ShootToFuel"
+          }
+        },
+        {
           "type": "race",
           "data": {
             "commands": [
@@ -21,7 +27,7 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "ShootFuelShootStraight"
+                        "pathName": "FuelToFuel"
                       }
                     }
                   ]
@@ -38,6 +44,18 @@
                 "type": "named",
                 "data": {
                   "name": "shoot"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "shoot to end climb"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "climb_right"
                 }
               }
             ]

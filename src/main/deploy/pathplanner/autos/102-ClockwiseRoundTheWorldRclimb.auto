@@ -5,9 +5,22 @@
     "data": {
       "commands": [
         {
+          "type": "sequential",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "shoot"
+                }
+              }
+            ]
+          }
+        },
+        {
           "type": "path",
           "data": {
-            "pathName": "StraightShootToFuel"
+            "pathName": "ShootToFuel"
           }
         },
         {
@@ -27,19 +40,13 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "FuelToFuel2"
+                        "pathName": "FuelToFuel"
                       }
                     }
                   ]
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "FueltoPos3Shoot"
           }
         },
         {
@@ -51,26 +58,20 @@
                 "data": {
                   "name": "shoot"
                 }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "shoot to end climb"
+                }
               }
             ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Pos3ShootToClimb"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "climb_right"
-          }
-        },
-        {
-          "type": "sequential",
-          "data": {
-            "commands": []
           }
         }
       ]

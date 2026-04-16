@@ -11,7 +11,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Pos1FuelTunnelShootClose"
+                  "pathName": "Pos1FuelShoot"
                 }
               },
               {
@@ -24,7 +24,7 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "sequential",
           "data": {
             "commands": [
               {
@@ -43,7 +43,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Pos1FuelTunnelShootClose"
+                  "pathName": "HubFuel"
                 }
               },
               {
@@ -56,13 +56,19 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "sequential",
           "data": {
             "commands": [
               {
                 "type": "named",
                 "data": {
                   "name": "shoot"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "shoot to end climb2"
                 }
               }
             ]

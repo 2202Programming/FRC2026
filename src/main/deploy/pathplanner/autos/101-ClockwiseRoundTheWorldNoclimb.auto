@@ -5,42 +5,9 @@
     "data": {
       "commands": [
         {
-          "type": "race",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "intake_on"
-                }
-              },
-              {
-                "type": "sequential",
-                "data": {
-                  "commands": [
-                    {
-                      "type": "path",
-                      "data": {
-                        "pathName": "Pos3StraightToFuel"
-                      }
-                    }
-                  ]
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "sequential",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "shoot"
-                }
-              }
-            ]
+            "pathName": "ShootToFuel"
           }
         },
         {
@@ -60,7 +27,7 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "Pos3SecondPassHub"
+                        "pathName": "FuelToFuel"
                       }
                     }
                   ]
@@ -77,6 +44,12 @@
                 "type": "named",
                 "data": {
                   "name": "shoot"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Shoot3ToNZ"
                 }
               }
             ]
