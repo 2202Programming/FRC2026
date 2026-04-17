@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.9839259095078816,
-        "y": 0.6041802290536464
+        "x": 4.466034236804564,
+        "y": 0.6127246790299581
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.6385281822351536,
-        "y": 0.14574841087182938
+        "x": 3.120636509531836,
+        "y": 0.15429286084814103
       },
       "isLocked": false,
       "linkedName": "Pos32ShootEnd"
@@ -53,7 +53,7 @@
   "folder": "ShootOutpostShootClimb",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 79.71429956482503
+    "rotation": 91.0809241866607
   },
   "useDefaultConstraints": true
 }

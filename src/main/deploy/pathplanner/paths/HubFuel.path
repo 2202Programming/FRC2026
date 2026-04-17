@@ -106,13 +106,20 @@
       "rotationDegrees": -125.92100449992046
     },
     {
-      "waypointRelativePos": 3.963525835866296,
-      "rotationDegrees": -129.22436955781973
+      "waypointRelativePos": 4.0104947526236705,
+      "rotationDegrees": -127.44410857111737
     }
   ],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "spinup",
+      "waypointRelativePos": 2.4315068493150465,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 4.5,
     "maxAcceleration": 5.0,

@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.401455555555555,
-        "y": 0.5759193357058121
+        "x": 4.427218259629101,
+        "y": 0.6903566333808839
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.027547831901511,
-        "y": 0.5612712759084493
+        "x": 5.053310535975058,
+        "y": 0.6757085735835211
       },
       "isLocked": false,
       "linkedName": "Pos3ShootEnd"
@@ -57,7 +57,7 @@
       },
       "nextControl": {
         "x": 8.026388888888889,
-        "y": 1.7645444444444405
+        "y": 1.7645444444444403
       },
       "isLocked": false,
       "linkedName": null
@@ -192,7 +192,14 @@
     }
   ],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "spinup",
+      "waypointRelativePos": 4.1189290161892975,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 4.5,
     "maxAcceleration": 5.0,

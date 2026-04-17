@@ -3,12 +3,12 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.504037660206599,
+        "x": 4.414279600570612,
         "y": 0.6256633380884444
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.8794754906739746,
+        "x": 4.789717431037988,
         "y": 0.570319073150281
       },
       "isLocked": false,
@@ -158,7 +158,14 @@
     }
   ],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "spinup",
+      "waypointRelativePos": 3.9620174346201575,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 6.5,
     "maxAcceleration": 5.0,

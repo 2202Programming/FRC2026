@@ -78,12 +78,20 @@
   ],
   "rotationTargets": [
     {
+      "waypointRelativePos": 0.5,
+      "rotationDegrees": 0.0
+    },
+    {
       "waypointRelativePos": 0.9961744452945789,
       "rotationDegrees": -105.94516226451587
     },
     {
       "waypointRelativePos": 3.5,
       "rotationDegrees": -45.0
+    },
+    {
+      "waypointRelativePos": 3.688155922038997,
+      "rotationDegrees": -43.88401942251122
     }
   ],
   "constraintZones": [
@@ -102,7 +110,14 @@
     }
   ],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "spinup",
+      "waypointRelativePos": 1.5765877957658692,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 3.95,
     "maxAcceleration": 2.0,
@@ -113,7 +128,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": -48.050029831016666
   },
   "reversed": false,
   "folder": "Pos1FuelShootFuel",

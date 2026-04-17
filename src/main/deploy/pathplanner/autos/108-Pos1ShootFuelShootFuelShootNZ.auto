@@ -37,25 +37,6 @@
           }
         },
         {
-          "type": "race",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Pos1FuelTunnelShootClose"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "intake_on"
-                }
-              }
-            ]
-          }
-        },
-        {
           "type": "parallel",
           "data": {
             "commands": [
