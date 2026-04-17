@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.9839259095078816,
-        "y": 0.6041802290536464
+        "x": 4.466034236804564,
+        "y": 0.6127246790299581
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.245357290251372,
-        "y": 0.6062438688522971
+        "x": 4.727465617548054,
+        "y": 0.6147883188286087
       },
       "isLocked": false,
       "linkedName": "Pos32ShootEnd"
@@ -107,7 +107,7 @@
   "folder": "Pos3ShootFuelBump",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 79.71429956482503
+    "rotation": 91.0809241866607
   },
   "useDefaultConstraints": false
 }

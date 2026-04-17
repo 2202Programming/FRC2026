@@ -77,10 +77,17 @@
     }
   ],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "spinup",
+      "waypointRelativePos": 0.3754669987546703,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
-    "maxVelocity": 3.5,
-    "maxAcceleration": 1.5,
+    "maxVelocity": 4.5,
+    "maxAcceleration": 5.0,
     "maxAngularVelocity": 360.0,
     "maxAngularAcceleration": 360.0,
     "nominalVoltage": 12.0,
@@ -96,5 +103,5 @@
     "velocity": 0.0,
     "rotation": 92.219
   },
-  "useDefaultConstraints": false
+  "useDefaultConstraints": true
 }
