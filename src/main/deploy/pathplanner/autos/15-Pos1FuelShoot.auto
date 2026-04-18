@@ -11,7 +11,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Pos1FuelTunnelShoot"
+                  "pathName": "Pos1FuelTunnelShootmk2"
                 }
               },
               {
@@ -24,7 +24,7 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "sequential",
           "data": {
             "commands": [
               {
@@ -37,15 +37,35 @@
           }
         },
         {
-          "type": "sequential",
+          "type": "race",
           "data": {
-            "commands": []
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Pos3toNZmk2"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intake_on"
+                }
+              }
+            ]
           }
         },
         {
-          "type": "path",
+          "type": "sequential",
           "data": {
-            "pathName": "Pos3toNZ"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "shoot"
+                }
+              }
+            ]
           }
         }
       ]
