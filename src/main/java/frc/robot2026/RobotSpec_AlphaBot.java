@@ -54,6 +54,7 @@ import frc.robot2026.subsystems.Shooter.Fuelgauge;
 import frc.robot2026.subsystems.Shooter.Indexer;
 import frc.robot2026.subsystems.Shooter.Shooter;
 import frc.robot2026.subsystems.Shooter.Targeter;
+import frc.robot2026.util.BetterAutoChooser;
 
 public class RobotSpec_AlphaBot implements IRobotSpec {
   // Subsystem objects for use at other cut points
@@ -275,7 +276,8 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
     // Requires AutoBuilder to be configured thus SDT and some form of odometry.
     // Skip auto if not configured.
     if (AutoBuilder.isConfigured()) {
-      autoChooser = AutoBuilder.buildAutoChooser();
+      autoChooser = BetterAutoChooser.buildAutoChooser();
+     
       SmartDashboard.putData("Auto Chooser", autoChooser);
     }
 
