@@ -152,11 +152,11 @@ public class RobotSpec_ChassisBot_Finn implements IRobotSpec {
         .setInversions(true, true, false);
 
     modules[CornerID.BackLeft.getIdx()] = new ModuleConfig(CornerID.BackLeft,
-        CAN.BL_CANCoder, CAN.BL_Drive, CAN.BL_Angle, -42.626)
+        CAN.BL_CANCoder, CAN.BL_Drive, CAN.BL_Angle, 132.126)
         .setInversions(false, true, false);
 
     modules[CornerID.BackRight.getIdx()] = new ModuleConfig(CornerID.BackRight,
-        CAN.BR_CANCoder, CAN.BR_Drive, CAN.BR_Angle, -161.895)
+        CAN.BR_CANCoder, CAN.BR_Drive, CAN.BR_Angle, -152.174)
         .setInversions(true, true, false);
 
     return modules;
