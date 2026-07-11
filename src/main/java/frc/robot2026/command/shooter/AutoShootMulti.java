@@ -36,20 +36,20 @@ double cmdPower;
   @Override
   public void execute() {
     shooter.flywheel.setSetpoint(cmdPower);
-
+    
     if(shooter.atSetpoint()) {
-      //indexerT.setPct(idxPct);
-      //indexerB.setPct(idxPct);
+      indexerT.setPct(idxPct);
+      indexerB.setPct(idxPct);
     } else {
-      //indexerT.setPct(0.0);
-      //indexerB.setPct(0.0);
+      indexerT.setPct(0.0);
+      indexerB.setPct(0.0);
     }
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    shooter.flywheel.setSetpoint(0.0);
+    //shooter.flywheel.setSetpoint(0.0);
     indexerT.setPct(0.0);
     indexerB.setPct(0.0);
     // leave shooter running for 300ms after indexer is off
@@ -60,10 +60,9 @@ double cmdPower;
     CommandScheduler.getInstance().schedule(cmd);    
   }
 
-  // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return false;  //run until button is released
   }
 }
     

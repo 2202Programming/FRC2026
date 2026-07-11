@@ -18,12 +18,7 @@ import frc.lib2202.subsystem.hid.TMJoystickController;
 import frc.lib2202.subsystem.swerve.DriveTrainInterface;
 import frc.robot2026.command.shooter.AutoShoot;
 import frc.robot2026.command.shooter.AutoShootMulti;
-//import frc.robot2026.command.shooter.AutoShootMulti;
-import frc.robot2026.subsystems.Climber;
-import frc.robot2026.subsystems.Extender;
 import frc.robot2026.subsystems.Hopper;
-import frc.robot2026.subsystems.Intake;
-//import frc.robot2026.subsystems.MultiIntake;
 import frc.robot2026.subsystems.Shooter.Indexer;
 import frc.robot2026.subsystems.Shooter.Shooter;
 import frc.robot2026.subsystems.Shooter.Targeter;
@@ -40,23 +35,18 @@ public final class BindingsMulti {
     public static Shooter shooter;
     public static Indexer indexerT;
     public static Indexer indexerB;
-    public static Intake intake;
-    public static Extender extender;
-    //public static Hopper hopper;
+      //public static Hopper hopper;
     //public static MultiIntake intake;
     public static Targeter targeter;
     
     private static void get_references() {
         // Subsystems must exist in RobotSpec, if they don't an NPE is thrown.
-        //climber = RobotContainer.getSubsystem("climber");
         shooter = RobotContainer.getSubsystemOrNull("shooter");
         drivetrain = RobotContainer.getSubsystemOrNull("drivetrain");
         targeter = RobotContainer.getSubsystemOrNull("targeter");
         indexerT = RobotContainer.getSubsystemOrNull("indexer_top");
         indexerB = RobotContainer.getSubsystemOrNull("indexer_bottom");
-        intake = RobotContainer.getSubsystemOrNull("intake");
-        extender = RobotContainer.getSubsystemOrNull("extender");
-       // hopper = RobotContainer.getSubsystem(Hopper.class);
+        // hopper = RobotContainer.getSubsystem(Hopper.class);
     }
 
 
@@ -81,7 +71,6 @@ public final class BindingsMulti {
         if (generic_driver instanceof TMJoystickController) {
             // Joystick
             TMJoystickController joystick = (TMJoystickController) generic_driver;
-
         } else if (generic_driver instanceof CommandXboxController) {
             // XBox
             CommandXboxController driver = (CommandXboxController) generic_driver;
@@ -103,13 +92,12 @@ public final class BindingsMulti {
               //                               .onFalse(hopper.cmdBeltPct(0));
             
             //Driver wants to manually fire/pass
-            driver.rightTrigger(0.7).whileTrue(new AutoShootMulti(shooter, indexerT,indexerB, targeter::getManualSpeed, 0.5));
+            driver.rightTrigger(0.7).whileTrue(new AutoShootMulti(shooter, indexerT,indexerB, targeter::getManualSpeed, -0.5));
             //driver.leftTrigger().whileTrue(null)
             //driver.rightTrigger(0.7).whileTrue(new AutoShootMulti(shooter, indexerT, indexerB, .8, 1));
             //driver.rightTrigger(0.1).whileTrue(hopper.cmdBeltPct(1))
              //                                 .onFalse(hopper.cmdBeltPct(0));
-            driver.a().onTrue(extender.cmdUpPos());
-            driver.b().onTrue(extender.cmdZeroPos());
+          
         } else {
             DriverStation.reportError("Comp Bindings: No driver bindings set, check controllers.", false);
         }
@@ -126,18 +114,7 @@ public final class BindingsMulti {
         // buttons depend on what controller is plugged in
         if (generic_opr instanceof CommandXboxController) {
             CommandXboxController operator = (CommandXboxController) generic_opr;
-         
-            // intake bindings
-            
-            //intake in
-            operator.leftBumper().whileTrue(intake.cmdPctPwr(.55))
-                                 .onFalse(intake.cmdPctPwr(0.0));
-            // intake out
-            operator.rightBumper().whileTrue(intake.cmdPctPwr(-1.0))
-                                 .onFalse(intake.cmdPctPwr(0.0));
-
-            
-            
+        
             //sideboard.sw14().onTrue(targeter.OverrideTargetDistanceFT(9.99))   // fixed distance
               //              .onFalse(targeter.OverrideTargetDistanceFT(0.0));  //use vision distance
 

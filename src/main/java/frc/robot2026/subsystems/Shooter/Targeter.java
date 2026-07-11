@@ -47,8 +47,8 @@ public class Targeter extends SubsystemBase {
         }
     }
 
-    final double HIGH_SPEED = 45; // [M/S]
-    final double LOW_SPEED = 20.8; // [M/S]
+    double HIGH_SPEED = 45; // [M/S]
+    double LOW_SPEED = 20.8; // [M/S]
     final double LOW_TOLERANCE = 0.5; // [M/S]
     final double UNBLOCK_SPEED = -15.0; // [M/S]
 
@@ -128,6 +128,13 @@ public class Targeter extends SubsystemBase {
         tolerance_table.put(10.0 * MperFT, 1.0); //0.8);
         tolerance_table.put(17.0 * MperFT, 1.0);        
 
+    }
+
+    // quick api to allow changing manual H/L values from default. (for MultiShooter bot)
+    public void setLowHighConstants(double low, double high) {
+        HIGH_SPEED = high;
+        LOW_SPEED = low;
+        manual_speed = HIGH_SPEED;
     }
 
     @Override

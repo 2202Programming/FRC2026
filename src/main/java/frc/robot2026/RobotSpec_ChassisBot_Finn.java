@@ -5,8 +5,6 @@ import static edu.wpi.first.units.Units.FeetPerSecond;
 import static frc.lib2202.Constants.MperFT;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.commands.PathfindingCommand;
-import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkMax;
 
@@ -23,11 +21,9 @@ import frc.lib2202.builder.RobotLimits;
 import frc.lib2202.builder.SubsystemConfig;
 import frc.lib2202.command.swerve.FieldCentricDrive;
 import frc.lib2202.subsystem.Odometry;
-import frc.lib2202.subsystem.Odometry.OdometryWatcher;
 import frc.lib2202.subsystem.OdometryInterface;
 import frc.lib2202.subsystem.Sensors;
 import frc.lib2202.subsystem.hid.HID_Subsystem;
-import frc.lib2202.subsystem.swerve.AutoPPConfigure;
 import frc.lib2202.subsystem.swerve.DriveTrainInterface;
 import frc.lib2202.subsystem.swerve.IHeadingProvider;
 import frc.lib2202.subsystem.swerve.SwerveDrivetrain;
@@ -36,14 +32,9 @@ import frc.lib2202.subsystem.swerve.config.ModuleConfig;
 import frc.lib2202.subsystem.swerve.config.ModuleConfig.CornerID;
 import frc.lib2202.util.PIDFController;
 import frc.robot2026.Constants.CAN;
-import frc.robot2026.subsystems.Extender;
-import frc.robot2026.subsystems.Intake;
-import frc.robot2026.subsystems.MultiIntake;
-import frc.robot2026.subsystems.VisionPoseEstimator;
 import frc.robot2026.subsystems.Shooter.Indexer;
 import frc.robot2026.subsystems.Shooter.Shooter;
 import frc.robot2026.subsystems.Shooter.Targeter;
-import frc.robot2026.testBindings.DpltestBinding;
 
 public class RobotSpec_ChassisBot_Finn implements IRobotSpec { 
   // $env:serialnum = "03415A8E"
@@ -62,17 +53,15 @@ public class RobotSpec_ChassisBot_Finn implements IRobotSpec {
         return new Sensors(CAN.PIGEON_IMU_CAN);
       })
       .add(Shooter.class, "shooter", () ->{
-        return new Shooter("ctre", CAN.MShooter, false);
+        Shooter s =  new Shooter("ctre", CAN.MShooter, false);
+        s.setVelocityTolerance(0.5); // [m/s]
+        return s;
       })
 
       .add(Targeter.class, "targeter", () -> {
-        return new Targeter("odometry");
-      })
-      .add(Extender.class,  "extender", ()->{
-        return new Extender();
-      })
-      .add(Intake.class, "intake", () -> {
-        return new Intake(true);
+         var targeter = new Targeter("odometry");
+         targeter.setLowHighConstants(5.0, 20.0);  // m/s 
+        return targeter;
       })
       .add(Indexer.class, "indexer_top", () -> {
         return new Indexer(CAN.LIndexerMultiID, false,  0,SparkMax.class);
@@ -84,13 +73,12 @@ public class RobotSpec_ChassisBot_Finn implements IRobotSpec {
       .add(SwerveDrivetrain.class, "drivetrain", () -> {
         return new SwerveDrivetrain(SparkFlex.class);
       })
-.add(OdometryInterface.class, "odometry", () -> {
+      .add(OdometryInterface.class, "odometry", () -> {
         var obj = new Odometry();
         obj.new OdometryWatcher();
         return obj;
       })
-
-     ;
+      ;
 
 
 
