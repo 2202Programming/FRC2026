@@ -70,7 +70,7 @@ public class Indexer extends SubsystemBase {
     this(CanID, inverted, dio_gate, SparkFlex.class);
   }
   
-  public Indexer(int CanID, boolean inverted, int dio_gate, Class motorType) {
+  public Indexer(int CanID, boolean inverted, int dio_gate, Class<?> motorType) {
     setName(inverted ? "indexer_left" : "indexer_right");
     if (motorType == SparkFlex.class) {
       indexGate = new DigitalInput(dio_gate);

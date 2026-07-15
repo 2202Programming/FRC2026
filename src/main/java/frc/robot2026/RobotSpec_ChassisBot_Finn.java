@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.FeetPerSecond;
 import static frc.lib2202.Constants.MperFT;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.PathfindingCommand;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkMax;
 
@@ -14,7 +15,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.lib2202.builder.IRobotSpec;
 import frc.lib2202.builder.RobotContainer;
 import frc.lib2202.builder.RobotLimits;
@@ -24,6 +24,7 @@ import frc.lib2202.subsystem.Odometry;
 import frc.lib2202.subsystem.OdometryInterface;
 import frc.lib2202.subsystem.Sensors;
 import frc.lib2202.subsystem.hid.HID_Subsystem;
+import frc.lib2202.subsystem.swerve.AutoPPConfigure;
 import frc.lib2202.subsystem.swerve.DriveTrainInterface;
 import frc.lib2202.subsystem.swerve.IHeadingProvider;
 import frc.lib2202.subsystem.swerve.SwerveDrivetrain;
@@ -152,30 +153,24 @@ public class RobotSpec_ChassisBot_Finn implements IRobotSpec {
 
   @Override
   public void setBindings() {
-    // String odometryName = VisionPoseEstimator.class.getSimpleName(); // or
-    // novision "odometry"
-    // TODO switch to vision based when we have a LL
+    // String odometryName = VisionPoseEstimator.class.getSimpleName(); // or novision "odometry"
     OdometryInterface odo = RobotContainer.getSubsystemOrNull("odometry");
     //VisionPoseEstimator vpe = RobotContainer.getSubsystemOrNull("vision_odo");
     DriveTrainInterface sdt = RobotContainer.getSubsystemOrNull("drivetrain");
     HID_Subsystem dc = RobotContainer.getSubsystem("DC");
     
-    CommandXboxController operator = (CommandXboxController)dc.Operator();
-
     // Initialize PathPlanner, if we have needed Subsystems
     if (odo != null && sdt != null) {
-      //AutoPPConfigure.configureAutoBuilder(sdt, odo);
-      //var cmd = PathfindingCommand.warmupCommand();
-      //CommandScheduler.getInstance().schedule(cmd);
+      AutoPPConfigure.configureAutoBuilder(sdt, odo);
+      var cmd = PathfindingCommand.warmupCommand();
+      CommandScheduler.getInstance().schedule(cmd);
     }
 
     // Competition bindings
     BindingsMulti.ConfigureCompetition(dc, true);
     
     //Take care testing binding don't collide
-    //.calbrate(operator);  // rt/left bumper, rt/lt Trigger
-    //cl.setDemoBindings(operator);       //pov,a,x
-
+    
     // Place your test binding in ./testBinding/<yourFile>.java and call it here
     // comment out any conflicting bindings. Try not to push with your bindings
     // active. Just comment them out.

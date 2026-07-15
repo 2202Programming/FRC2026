@@ -73,6 +73,7 @@ public final class BindingsMulti {
             TMJoystickController joystick = (TMJoystickController) generic_driver;
         } else if (generic_driver instanceof CommandXboxController) {
             // XBox
+            // Updated for m-roc per JB's request
             CommandXboxController driver = (CommandXboxController) generic_driver;
             driver.rightBumper().whileTrue(new RobotCentricDrive(drivetrain, dc));
             driver.y().onTrue(new AllianceAwareGyroReset());
@@ -82,22 +83,6 @@ public final class BindingsMulti {
                     new ScaleDriver(0.3), 
                     new RobotCentricDrive(drivetrain, dc)));
 
-            //Shoot with targetSpeed based on distance to hub
-            driver.leftTrigger().whileTrue(indexerT.cmdSetPct(-0.5).alongWith(indexerB.cmdSetPct(-0.5)))
-                                 .onFalse(indexerT.cmdSetPct(0).alongWith(indexerB.cmdSetPct(0))
-                                 );
-            
-            //driver.leftTrigger(0.7).whileTrue(new AutoShootMulti(shooter, indexerT, indexerB, targeter::getTargetSpeed, 1));
-            //driver.leftTrigger(0.1).whileTrue(hopper.cmdBeltPct(1))
-              //                               .onFalse(hopper.cmdBeltPct(0));
-            
-            //Driver wants to manually fire/pass
-            driver.rightTrigger(0.7).whileTrue(new AutoShootMulti(shooter, indexerT,indexerB, targeter::getManualSpeed, -0.5));
-            //driver.leftTrigger().whileTrue(null)
-            //driver.rightTrigger(0.7).whileTrue(new AutoShootMulti(shooter, indexerT, indexerB, .8, 1));
-            //driver.rightTrigger(0.1).whileTrue(hopper.cmdBeltPct(1))
-             //                                 .onFalse(hopper.cmdBeltPct(0));
-          
         } else {
             DriverStation.reportError("Comp Bindings: No driver bindings set, check controllers.", false);
         }
@@ -114,27 +99,24 @@ public final class BindingsMulti {
         // buttons depend on what controller is plugged in
         if (generic_opr instanceof CommandXboxController) {
             CommandXboxController operator = (CommandXboxController) generic_opr;
-        
-            //sideboard.sw14().onTrue(targeter.OverrideTargetDistanceFT(9.99))   // fixed distance
-              //              .onFalse(targeter.OverrideTargetDistanceFT(0.0));  //use vision distance
 
-            //Calibration Commands
-          //  Cal.and(sideboard.sw12()).whileTrue(climber.setVelocityCmd(Climber.ClimbCalibrateVel))
-          //                           .onFalse(climber.setVelocityCmd(0.0));
-          //  Cal.and(sideboard.sw13()).whileTrue(climber.setVelocityCmd(-Climber.ClimbCalibrateVel))
-           //                          .onFalse(climber.setVelocityCmd(0.0));
+            // LT indexer only
+            operator.leftTrigger().whileTrue(indexerT.cmdSetPct(-0.5).alongWith(indexerB.cmdSetPct(-0.5)))
+                                 .onFalse(indexerT.cmdSetPct(0).alongWith(indexerB.cmdSetPct(0))  );    
+            // RT shoot normally                                 
+            operator.rightTrigger(0.7).whileTrue(new AutoShootMulti(shooter, indexerT, indexerB, targeter::getManualSpeed, -0.5));
 
-            //climber arm extend to max
-          //  operator.povUp().onTrue(climber.armsToPoint(Climber.ExtendPosition));
-                           
-            //climber arm to 0
-           // operator.povDown().onTrue(climber.armsToPoint(Climber.PowerUpPosition));
-            
+            // shooter unblock  - reverse flywheel
+            operator.y().whileTrue(shooter.cmdVelocity(-15))
+                        .onFalse(shooter.cmdVelocity(0.0));
+            // pre-spin to last manual setting
+            operator.b().whileTrue(shooter.cmdVelocity( targeter::getManualSpeed ))
+                        .onFalse(shooter.cmdVelocity(0.0));
+
             // manual flywheel speed adjustment
-           // operator.povLeft().onTrue(targeter.manualLow());
-           // operator.povRight().onTrue(targeter.manualHigh());
+            operator.povLeft().onTrue(targeter.manualLow());
+            operator.povRight().onTrue(targeter.manualHigh());
 
-            
         }
         else {
             DriverStation.reportWarning("Comp Bindings: No operator bindings set, check controllers.", false);

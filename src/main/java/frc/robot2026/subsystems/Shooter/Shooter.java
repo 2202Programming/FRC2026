@@ -2,6 +2,8 @@ package frc.robot2026.subsystems.Shooter;
 
 import static frc.lib2202.Constants.MperFT;
 
+import java.util.function.DoubleSupplier;
+
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -247,6 +249,14 @@ public class Shooter extends SubsystemBase {
     // Basic Commands
     public Command cmdVelocity(double cmd_vel) {
         return runOnce(() -> {
+            this.flywheel.setSetpoint(cmd_vel);
+        });
+    }
+
+    //allow a function to provide the velocity
+    public Command cmdVelocity(DoubleSupplier vel_supplier) {
+        return runOnce(() -> {
+            double cmd_vel = vel_supplier.getAsDouble();
             this.flywheel.setSetpoint(cmd_vel);
         });
     }
