@@ -85,6 +85,10 @@ public class RegisteredCommands {
         return cmd;
     }
 
+    var ncmultishoot = new AutoShootMulti(shooter, indexerT, indexerB, targeter::getManualSpeed, -0.5));
+
+
+
     public static void RegisterCommands() {    
         get_references();
 
@@ -98,6 +102,9 @@ public class RegisteredCommands {
 
         NamedCommands.registerCommand("noise",
                 new PrintCommand("noise ... --- ..."));
+
+    
+        NamedCommands.registerCommand("multi_shoot",ncmultishoot() );
 
     }
 }

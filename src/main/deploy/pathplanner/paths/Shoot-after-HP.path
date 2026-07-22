@@ -1,0 +1,54 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 0.43546666666666667,
+        "y": 0.6634222222222217
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 1.4354666666666667,
+        "y": 0.6634222222222217
+      },
+      "isLocked": false,
+      "linkedName": "Multishoot-collectfuel"
+    },
+    {
+      "anchor": {
+        "x": 3.290588888888889,
+        "y": 3.9862777777777776
+      },
+      "prevControl": {
+        "x": 2.290588888888889,
+        "y": 3.9862777777777776
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 4.5,
+    "maxAcceleration": 5.0,
+    "maxAngularVelocity": 360.0,
+    "maxAngularAcceleration": 360.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "reversed": false,
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 180.0
+  },
+  "useDefaultConstraints": true
+}

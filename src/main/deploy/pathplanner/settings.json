@@ -14,9 +14,11 @@
   ],
   "autoFolders": [
     "BuddyNeutralAutos",
-    "_dpl",
+    "New Folder",
+    "Multi-Auto",
     "NoNeutralAutos",
-    "SoloNeturalAutos"
+    "SoloNeturalAutos",
+    "_dpl"
   ],
   "defaultMaxVel": 4.5,
   "defaultMaxAccel": 5.0,
