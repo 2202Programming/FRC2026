@@ -101,7 +101,7 @@ public final class BindingsMulti {
             CommandXboxController operator = (CommandXboxController) generic_opr;
 
             // LT indexer only
-            operator.leftTrigger().whileTrue(indexerT.cmdSetPct(-0.5).alongWith(indexerB.cmdSetPct(-0.5)))
+            operator.leftTrigger().whileTrue(indexerT.cmdSetPct(-0.1).alongWith(indexerB.cmdSetPct(-0.2)))
                                  .onFalse(indexerT.cmdSetPct(0).alongWith(indexerB.cmdSetPct(0))  );    
             // RT shoot normally                                 
             operator.rightTrigger(0.7).whileTrue(new AutoShootMulti(shooter, indexerT, indexerB, targeter::getManualSpeed, -0.5));

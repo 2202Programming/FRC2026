@@ -61,7 +61,7 @@ public class RobotSpec_ChassisBot_Finn implements IRobotSpec {
 
       .add(Targeter.class, "targeter", () -> {
          var targeter = new Targeter("odometry");
-         targeter.setLowHighConstants(5.0, 20.0);  // m/s 
+         targeter.setLowHighConstants(13.6, 19.78);  // m/s 
         return targeter;
       })
       .add(Indexer.class, "indexer_top", () -> {
