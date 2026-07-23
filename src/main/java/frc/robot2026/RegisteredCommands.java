@@ -22,6 +22,7 @@ import frc.robot2026.command.AgitateOS;
 import frc.robot2026.command.AgitateV2;
 import frc.robot2026.command.autoClimberCommand;
 import frc.robot2026.command.shooter.AutoShoot;
+import frc.robot2026.command.shooter.AutoShootMulti;
 import frc.robot2026.subsystems.Climber;
 import frc.robot2026.subsystems.Hopper;
 import frc.robot2026.subsystems.Intake;
@@ -44,6 +45,10 @@ public class RegisteredCommands {
     static Hopper hopper;
     static Intake intake;
     static Targeter targeter;
+    //public static Climber climber;
+    public static Shooter shooter;
+    public static Indexer indexerT;
+    public static Indexer indexerB;
     
     static void get_references(){
         //subsystem refs for building registerd commands
@@ -56,6 +61,11 @@ public class RegisteredCommands {
         climber = RobotContainer.getSubsystem("climber");
         hopper = RobotContainer.getSubsystem(Hopper.class); 
         targeter = RobotContainer.getSubsystem(Targeter.class);
+        shooter = RobotContainer.getSubsystemOrNull("shooter");
+        drivetrain = RobotContainer.getSubsystemOrNull("drivetrain");
+        targeter = RobotContainer.getSubsystemOrNull("targeter");
+        indexerT = RobotContainer.getSubsystemOrNull("indexer_top");
+        indexerB = RobotContainer.getSubsystemOrNull("indexer_bottom");
     }
 
 
@@ -84,9 +94,10 @@ public class RegisteredCommands {
         cmd.setName("ncShoot");
         return cmd;
     }
-
-    var ncmultishoot = new AutoShootMulti(shooter, indexerT, indexerB, targeter::getManualSpeed, -0.5));
-
+    public static Command ncmultishoot(){
+    AutoShootMulti ncmultishoot = new AutoShootMulti(shooter, indexerT, indexerB, targeter::getManualSpeed, -0.5));
+    return ncmultishoot;
+}
 
 
     public static void RegisterCommands() {    
