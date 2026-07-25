@@ -85,7 +85,7 @@ public class RegisteredCommands {
         return cmd;
     }
 
-    var ncmultishoot = new AutoShootMulti(shooter, indexerT, indexerB, targeter::getManualSpeed, -0.5));
+    var ncmultishoot = new AutoShootMulti(shooter, indexerT, indexerB, targeter::getManualSpeed, -0.5);
 
 
 

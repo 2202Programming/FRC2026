@@ -194,8 +194,8 @@ public class RobotSpec_ChassisBot_Finn implements IRobotSpec {
     // configured
     // thus SDT and some form of odometry. Skip auto if not configured.
     if (AutoBuilder.isConfigured()) {
-      //autoChooser = AutoBuilder.buildAutoChooser();
-      //SmartDashboard.putData("Auto Chooser", autoChooser);
+      autoChooser = AutoBuilder.buildAutoChooser();
+      SmartDashboard.putData("Auto Chooser", autoChooser);
     }
   }
 
