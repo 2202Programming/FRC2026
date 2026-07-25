@@ -95,7 +95,7 @@ public class RegisteredCommands {
         return cmd;
     }
     public static Command ncmultishoot(){
-    AutoShootMulti ncmultishoot = new AutoShootMulti(shooter, indexerT, indexerB, targeter::getManualSpeed, -0.5));
+    AutoShootMulti ncmultishoot = new AutoShootMulti(shooter, indexerT, indexerB, targeter::getManualSpeed, -0.5);
     return ncmultishoot;
 }
 
