@@ -17,9 +17,22 @@
           }
         },
         {
-          "type": "named",
+          "type": "race",
           "data": {
-            "name": "multi_shoot"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "multi_shoot"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 5.0
+                }
+              }
+            ]
           }
         }
       ]
