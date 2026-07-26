@@ -45,28 +45,30 @@ public class RegisteredCommands {
     static Hopper hopper;
     static Intake intake;
     static Targeter targeter;
+    static Shooter shooter;
     //public static Climber climber;
-    public static Shooter shooter;
+    public static Shooter shooter_multi;
     public static Indexer indexerT;
     public static Indexer indexerB;
     
     static void get_references(){
         //subsystem refs for building registerd commands
-        shooter_left = RobotContainer.getSubsystem("shooter_left");
-        shooter_right = RobotContainer.getSubsystem("shooter_right");
-        drivetrain = RobotContainer.getSubsystem("drivetrain");  
-        indexer_left = RobotContainer.getSubsystem("indexer_left");
-        indexer_right = RobotContainer.getSubsystem("indexer_right");
-        intake = RobotContainer.getSubsystem("intake");
-        climber = RobotContainer.getSubsystem("climber");
-        hopper = RobotContainer.getSubsystem(Hopper.class); 
-        targeter = RobotContainer.getSubsystem(Targeter.class);
-        shooter = RobotContainer.getSubsystemOrNull("shooter");
+        shooter_left = RobotContainer.getSubsystemOrNull("shooter_left");
+        shooter_right = RobotContainer.getSubsystemOrNull("shooter_right");
+        drivetrain = RobotContainer.getSubsystemOrNull("drivetrain");  
+        indexer_left = RobotContainer.getSubsystemOrNull("indexer_left");
+        indexer_right = RobotContainer.getSubsystemOrNull("indexer_right");
+        intake = RobotContainer.getSubsystemOrNull("intake");
+        climber = RobotContainer.getSubsystemOrNull("climber");
+        hopper = RobotContainer.getSubsystemOrNull(Hopper.class); 
+        targeter = RobotContainer.getSubsystemOrNull(Targeter.class);
+        shooter_multi = RobotContainer.getSubsystemOrNull("shooter_multi");
         drivetrain = RobotContainer.getSubsystemOrNull("drivetrain");
         targeter = RobotContainer.getSubsystemOrNull("targeter");
         indexerT = RobotContainer.getSubsystemOrNull("indexer_top");
         indexerB = RobotContainer.getSubsystemOrNull("indexer_bottom");
     }
+
 
 
     // Named Command Factories
@@ -95,9 +97,10 @@ public class RegisteredCommands {
         return cmd;
     }
     public static Command ncmultishoot(){
-    AutoShootMulti ncmultishoot = new AutoShootMulti(shooter, indexerT, indexerB, targeter::getManualSpeed, -0.5);
-    return ncmultishoot;
-}
+        get_references();
+        AutoShootMulti ncmultishoot = new AutoShootMulti(shooter_multi, indexerT, indexerB, targeter::getManualSpeed, 0.5);
+        return ncmultishoot;
+    }
 
 
     public static void RegisterCommands() {    
@@ -115,7 +118,7 @@ public class RegisteredCommands {
                 new PrintCommand("noise ... --- ..."));
 
     
-        NamedCommands.registerCommand("multi_shoot",ncmultishoot() );
+        NamedCommands.registerCommand("multi_shoot",ncmultishoot());
 
     }
 }

@@ -1,0 +1,37 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Pos2MultiShooter"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Multi-collect"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 4.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Shoot-after-HP"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "Multi-Auto",
+  "choreoAuto": false
+}

@@ -39,7 +39,7 @@ public final class BindingsMulti {
     //public static MultiIntake intake;
     public static Targeter targeter;
     
-    private static void get_references() {
+    private static void multi_get_references() {
         // Subsystems must exist in RobotSpec, if they don't an NPE is thrown.
         shooter = RobotContainer.getSubsystemOrNull("shooter");
         drivetrain = RobotContainer.getSubsystemOrNull("drivetrain");
@@ -58,7 +58,7 @@ public final class BindingsMulti {
     public static void ConfigureCompetition(HID_Subsystem _dc, boolean initOpr) {
          // get references for the commands to use
         dc = _dc;
-        get_references();
+        multi_get_references();
         DriverBinding();
         if (initOpr) 
             OperatorBindings();

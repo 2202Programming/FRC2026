@@ -16,7 +16,8 @@ public class AutoShootMulti extends Command {
 
   DoubleSupplier speedProvider;
   double idxPct;
-double cmdPower;
+  double cmdPower;
+  
 
   public AutoShootMulti(Shooter shooter, Indexer indexerT, Indexer indexerB, DoubleSupplier speedProvider, double idxPct) {
     this.shooter = shooter;
@@ -25,7 +26,13 @@ double cmdPower;
     this.speedProvider = speedProvider;
     this.idxPct = idxPct;
   }
-
+//  public AutoShootMulti(Shooter shooter, double idxPct, speedProvdier) {
+//     this.shooter = shooter;
+//     this.indexerT = null;
+//     this.indexerB = null;
+//     this.speedProvider = speedProvider;
+//     this.idxPct = idxPct;
+//   }
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
