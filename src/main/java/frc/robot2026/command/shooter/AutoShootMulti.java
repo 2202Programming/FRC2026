@@ -24,6 +24,7 @@ double cmdPower;
     this.indexerB = indexerB;
     this.speedProvider = speedProvider;
     this.idxPct = idxPct;
+    addRequirements(shooter, indexerT, indexerB);
   }
 
   // Called when the command is initially scheduled.
