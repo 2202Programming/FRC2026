@@ -25,6 +25,7 @@ public class AutoShootMulti extends Command {
     this.indexerB = indexerB;
     this.speedProvider = speedProvider;
     this.idxPct = idxPct;
+    addRequirements(shooter, indexerT, indexerB);
   }
 //  public AutoShootMulti(Shooter shooter, double idxPct, speedProvdier) {
 //     this.shooter = shooter;
