@@ -209,7 +209,7 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
         //.withWheelFactor(3.98/3.93);   shouldn't need this anymore - changed wheels out// replaced wheel / other wheels dia, applies only to FR
 
     modules[CornerID.BackLeft.getIdx()] = new ModuleConfig(CornerID.BackLeft,
-        CAN.BL_CANCoder, CAN.BL_Drive, CAN.BL_Angle, -126.48) // old 8/31/26 -168.842) ds//older -163.305
+        CAN.BL_CANCoder, CAN.BL_Drive, CAN.BL_Angle, -178.500) // old 8/31/26 -168.842) ds//older -163.305
         .setInversions(false, true, true);
 
     modules[CornerID.BackRight.getIdx()] = new ModuleConfig(CornerID.BackRight,
