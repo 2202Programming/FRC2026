@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.lib2202.command.WatcherCmd;
 import frc.robot2026.Constants.CAN;
 import frc.robot2026.Constants.DigitalIO;
 
@@ -303,5 +304,9 @@ public class Intake extends SubsystemBase {
 
   }
 
-
+  public class intakeWatcher extends WatcherCmd{
+    intakeWatcher(){
+    addEntry("hasfuel", Intake.this :: hasFuel);
+  }
+  }
 }
