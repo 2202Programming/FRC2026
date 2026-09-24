@@ -200,20 +200,19 @@ public class RobotSpec_AlphaBot implements IRobotSpec {
   public ModuleConfig[] getModuleConfigs() {
     ModuleConfig[] modules = new ModuleConfig[4];
     modules[CornerID.FrontLeft.getIdx()] = new ModuleConfig(CornerID.FrontLeft,
-        CAN.FL_CANCoder, CAN.FL_Drive, CAN.FL_Angle, -19.42) // old -21.089 8/31/26 ds //older -20.474
+        CAN.FL_CANCoder, CAN.FL_Drive, CAN.FL_Angle, -21.44)//-19.42) // old -21.089 8/31/26 ds //older -20.474
         .setInversions(false, true, true);
-
     modules[CornerID.FrontRight.getIdx()] = new ModuleConfig(CornerID.FrontRight,
-        CAN.FR_CANCoder, CAN.FR_Drive, CAN.FR_Angle, -103.54)  // old 8/31/26 -104.155) ds//older -105.737
+        CAN.FR_CANCoder, CAN.FR_Drive, CAN.FR_Angle, -104.86) //-103.54)  // old 8/31/26 -104.155) ds//older -105.737
         .setInversions(true, true, true);
         //.withWheelFactor(3.98/3.93);   shouldn't need this anymore - changed wheels out// replaced wheel / other wheels dia, applies only to FR
 
     modules[CornerID.BackLeft.getIdx()] = new ModuleConfig(CornerID.BackLeft,
-        CAN.BL_CANCoder, CAN.BL_Drive, CAN.BL_Angle, -178.500) // old 8/31/26 -168.842) ds//older -163.305
+        CAN.BL_CANCoder, CAN.BL_Drive, CAN.BL_Angle, 163.39)//-178.500) // old 8/31/26 -168.842) ds//older -163.305
         .setInversions(false, true, true);
 
     modules[CornerID.BackRight.getIdx()] = new ModuleConfig(CornerID.BackRight,
-        CAN.BR_CANCoder, CAN.BR_Drive, CAN.BR_Angle, 102.64) // old 8/31/26 102.023) ds//101.936 older
+        CAN.BR_CANCoder, CAN.BR_Drive, CAN.BR_Angle, 103.52) //102.64) // old 8/31/26 102.023) ds//101.936 older
         .setInversions(true, true, true);
 
     return modules;
