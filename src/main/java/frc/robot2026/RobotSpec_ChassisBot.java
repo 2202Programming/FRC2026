@@ -182,19 +182,19 @@ public class RobotSpec_ChassisBot implements IRobotSpec {
     // TODO - correct offsets
     ModuleConfig[] modules = new ModuleConfig[4];
     modules[CornerID.FrontLeft.getIdx()] = new ModuleConfig(CornerID.FrontLeft,
-        CAN.FL_CANCoder, CAN.FL_Drive, CAN.FL_Angle, -20.20953125)//-21.26
+        CAN.FL_CANCoder, CAN.FL_Drive, CAN.FL_Angle, -21.26)//41.76
         .setInversions(false, true, false);
 
     modules[CornerID.FrontRight.getIdx()] = new ModuleConfig(CornerID.FrontRight,
-        CAN.FR_CANCoder, CAN.FR_Drive, CAN.FR_Angle, 104.420546875)//new Cancoder 2/21/26 //-71.62
+        CAN.FR_CANCoder, CAN.FR_Drive, CAN.FR_Angle, -108.46)//new Cancoder 2/21/26 //-71.62
         .setInversions(true, true, false);
 
     modules[CornerID.BackLeft.getIdx()] = new ModuleConfig(CornerID.BackLeft,
-        CAN.BL_CANCoder, CAN.BL_Drive, CAN.BL_Angle, -131.04359375)//50.45
+        CAN.BL_CANCoder, CAN.BL_Drive, CAN.BL_Angle, -131.40)//50.45
         .setInversions(false, true, false);
 
     modules[CornerID.BackRight.getIdx()] = new ModuleConfig(CornerID.BackRight,
-        CAN.BR_CANCoder, CAN.BR_Drive, CAN.BR_Angle, 105.014140625)//-66.27
+        CAN.BR_CANCoder, CAN.BR_Drive, CAN.BR_Angle, 105.37)//-66.27
         .setInversions(true, true, false);
 
     return modules;
