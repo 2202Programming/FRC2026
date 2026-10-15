@@ -116,19 +116,19 @@ public class RobotSpec_ChassisBot_Finn implements IRobotSpec {
     // TODO - correct offsets for FINN - maybe grab from 2025
     ModuleConfig[] modules = new ModuleConfig[4];
     modules[CornerID.FrontLeft.getIdx()] = new ModuleConfig(CornerID.FrontLeft,
-        CAN.FL_CANCoder, CAN.FL_Drive, CAN.FL_Angle, -3.3846)
+        CAN.FL_CANCoder, CAN.FL_Drive, CAN.FL_Angle, -1.6267)
         .setInversions(false, true, false);
 
     modules[CornerID.FrontRight.getIdx()] = new ModuleConfig(CornerID.FrontRight,
-        CAN.FR_CANCoder, CAN.FR_Drive, CAN.FR_Angle, -112.847)
+        CAN.FR_CANCoder, CAN.FR_Drive, CAN.FR_Angle, -113.37434375)
         .setInversions(true, true, false);
 
     modules[CornerID.BackLeft.getIdx()] = new ModuleConfig(CornerID.BackLeft,
-        CAN.BL_CANCoder, CAN.BL_Drive, CAN.BL_Angle, -42.626)
+        CAN.BL_CANCoder, CAN.BL_Drive, CAN.BL_Angle, 127.7939)
         .setInversions(false, true, false);
 
     modules[CornerID.BackRight.getIdx()] = new ModuleConfig(CornerID.BackRight,
-        CAN.BR_CANCoder, CAN.BR_Drive, CAN.BR_Angle, -161.895)
+        CAN.BR_CANCoder, CAN.BR_Drive, CAN.BR_Angle, -160.1371)
         .setInversions(true, true, false);
 
     return modules;
@@ -154,10 +154,10 @@ public class RobotSpec_ChassisBot_Finn implements IRobotSpec {
     }
 
     // Competition bindings
-    BindingsCompetition.ConfigureCompetition(dc, false);
-    
+    //BindingsCompetition.ConfigureCompetition(dc, false);
+    BindingsTesting.ConfigureCompetition(dc, false);
     //Take care testing binding don't collide
-    DpltestBinding.calbrate(operator);  // rt/left bumper, rt/lt Trigger
+    //DpltestBinding.calbrate(operator);  // rt/left bumper, rt/lt Trigger
     //cl.setDemoBindings(operator);       //pov,a,x
 
     // Place your test binding in ./testBinding/<yourFile>.java and call it here
@@ -177,15 +177,18 @@ public class RobotSpec_ChassisBot_Finn implements IRobotSpec {
 
   @Override
   public void setupRegisteredCommands() {
-    RegisteredCommands.RegisterCommands();
+
+    //disabled this for Finn
+
+    RegisteredCommandsFinn.RegisterCommands();
 
     // enable chooser - builds autochooser list, requires AutoBuilder to be
     // configured
     // thus SDT and some form of odometry. Skip auto if not configured.
-    if (AutoBuilder.isConfigured()) {
+     if (AutoBuilder.isConfigured()) {
       autoChooser = AutoBuilder.buildAutoChooser();
       SmartDashboard.putData("Auto Chooser", autoChooser);
-    }
+    } 
   }
 
   @Override
